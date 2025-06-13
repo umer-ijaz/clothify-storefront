@@ -294,150 +294,163 @@ export default function Navbar() {
             <span className="sr-only">Toggle menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="bg-white">
+        <SheetContent side="left" className="bg-white w-full sm:w-[400px] max-w-[90vw]">
           <SheetHeader className="mb-4">
             <SheetTitle>Menu</SheetTitle>
           </SheetHeader>
-          <nav className="grid gap-2 py-0 px-2">
-            <Link href="/" className="flex justify-center md:hidden">
-              <div className="h-[80px] w-[80px] relative">
-                <Image
-                  src="/logo.png?height=150&width=150"
-                  alt="logo"
-                  fill
-                  className="cursor-pointer object-contain"
-                />
-              </div>
-            </Link>
-            {mainNavItems.map((item) => {
-              if (item.title === "Shop") {
-                return (
-                  <div key={`mobile-${item.title}`} className="cursor-pointer">
-                    <div
-                      className="flex items-center justify-between py-2 text-lg font-medium cursor-pointer hover:text-gray-400"
-                      onClick={() => {
-                        const shopContent = document.getElementById(
-                          "mobile-shop-content"
-                        );
-                        if (shopContent) {
-                          shopContent.classList.toggle("hidden");
-                        }
-                      }}
-                    >
-                      <span className="cursor-pointer">{item.title}</span>
-                      <ChevronDown className="h-4 w-4 transition-transform" />
-                    </div>
-                    <div
-                      id="mobile-shop-content"
-                      className="hidden pl-4 space-y-2 mt-1 mb-2 cursor-pointer"
-                    >
-                      {item.children?.map((category) => (
-                        <div
-                          key={`mobile-category-${
-                            category.id || category.title
-                          }`}
-                          className="space-y-1"
-                        >
-                          <div className="flex items-center justify-between py-2 px-2 text-base font-medium cursor-pointer hover:bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] hover:text-white rounded-md">
-                            <SheetClose asChild>
-                              <button
-                                onClick={() =>
-                                  handleCategoryNavigation(
-                                    category.title,
-                                    category.href
-                                  )
-                                }
-                                className="flex-1 text-left"
-                              >
-                                {category.title}
-                              </button>
-                            </SheetClose>
+          <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <nav className="grid gap-2 py-0 px-2 pb-20">
+              <Link href="/" className="flex justify-center md:hidden">
+                <div className="h-[80px] w-[80px] relative">
+                  <Image
+                    src="/logo.png?height=150&width=150"
+                    alt="logo"
+                    fill
+                    className="cursor-pointer object-contain"
+                  />
+                </div>
+              </Link>
+              {mainNavItems.map((item) => {
+                if (item.title === "Shop") {
+                  return (
+                    <div key={`mobile-${item.title}`} className="cursor-pointer">
+                      <div
+                        className="flex items-center justify-between py-3 px-2 text-lg font-medium cursor-pointer hover:bg-gradient-to-r from-[#EB1E24]/10 via-[#F05021]/10 to-[#F8A51B]/10 rounded-md transition-colors"
+                        onClick={() => {
+                          const shopContent = document.getElementById(
+                            "mobile-shop-content"
+                          );
+                          if (shopContent) {
+                            shopContent.classList.toggle("hidden");
+                          }
+                        }}
+                      >
+                        <span className="cursor-pointer">{item.title}</span>
+                        <ChevronDown className="h-4 w-4 transition-transform" />
+                      </div>
+                      <div
+                        id="mobile-shop-content"
+                        className="hidden pl-4 space-y-2 mt-1 mb-2 cursor-pointer max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                      >
+                        {item.children?.map((category) => (
+                          <div
+                            key={`mobile-category-${
+                              category.id || category.title
+                            }`}
+                            className="space-y-1 border-b border-gray-100 pb-3 mb-3 last:border-b-0"
+                          >
+                            <div className="flex items-center justify-between py-2 px-3 text-base font-medium cursor-pointer hover:bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] hover:text-white rounded-md transition-all duration-200 shadow-sm">
+                              <SheetClose asChild>
+                                <button
+                                  onClick={() =>
+                                    handleCategoryNavigation(
+                                      category.title,
+                                      category.href
+                                    )
+                                  }
+                                  className="flex-1 text-left"
+                                >
+                                  <div className="font-medium">{category.title}</div>
+                                  <div className="text-xs opacity-75 mt-1 line-clamp-1">
+                                    {category.description || "Browse all items"}
+                                  </div>
+                                </button>
+                              </SheetClose>
+                              {category.subcategories &&
+                                category.subcategories.length > 0 && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      const subcategoryContent =
+                                        document.getElementById(
+                                          `mobile-subcategory-${category.title
+                                            .toLowerCase()
+                                            .replace(/\s+/g, "-")}`
+                                        );
+                                      if (subcategoryContent) {
+                                        subcategoryContent.classList.toggle(
+                                          "hidden"
+                                        );
+                                      }
+                                    }}
+                                    className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                                  >
+                                    <ChevronDown className="h-4 w-4" />
+                                  </button>
+                                )}
+                            </div>
                             {category.subcategories &&
                               category.subcategories.length > 0 && (
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    const subcategoryContent =
-                                      document.getElementById(
-                                        `mobile-subcategory-${category.title
-                                          .toLowerCase()
-                                          .replace(/\s+/g, "-")}`
-                                      );
-                                    if (subcategoryContent) {
-                                      subcategoryContent.classList.toggle(
-                                        "hidden"
-                                      );
-                                    }
-                                  }}
-                                  className="p-1"
+                                <div
+                                  id={`mobile-subcategory-${category.title
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "-")}`}
+                                  className="hidden pl-6 space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
                                 >
-                                  <ArrowRight className="h-4 w-4" />
-                                </button>
+                                  <div className="text-xs text-gray-500 mb-2 font-medium">
+                                    {category.subcategories.length} subcategories
+                                  </div>
+                                  {category.subcategories.map(
+                                    (subcategory, subIndex) => (
+                                      <SheetClose
+                                        asChild
+                                        key={`mobile-subcategory-${category.id}-${subIndex}`}
+                                      >
+                                        <button
+                                          onClick={() =>
+                                            handleSubcategoryClick(
+                                              category.title,
+                                              subcategory
+                                            )
+                                          }
+                                          className="block w-full text-left py-2 px-3 text-sm bg-gray-50 hover:bg-gradient-to-r from-[#EB1E24]/10 via-[#F05021]/10 to-[#F8A51B]/10 rounded-md transition-colors border border-gray-200 hover:border-orange-300"
+                                        >
+                                          <div className="flex items-center justify-between">
+                                            <span className="font-medium">
+                                              {subcategory.title}
+                                            </span>
+                                            <ArrowRight className="h-3 w-3 text-gray-400" />
+                                          </div>
+                                        </button>
+                                      </SheetClose>
+                                    )
+                                  )}
+                                </div>
                               )}
                           </div>
-                          {category.subcategories &&
-                            category.subcategories.length > 0 && (
-                              <div
-                                id={`mobile-subcategory-${category.title
-                                  .toLowerCase()
-                                  .replace(/\s+/g, "-")}`}
-                                className="hidden pl-4 space-y-1"
-                              >
-                                {category.subcategories.map(
-                                  (subcategory, subIndex) => (
-                                    <SheetClose
-                                      asChild
-                                      key={`mobile-subcategory-${category.id}-${subIndex}`}
-                                    >
-                                      <button
-                                        onClick={() =>
-                                          handleSubcategoryClick(
-                                            category.title,
-                                            subcategory
-                                          )
-                                        }
-                                        className="block w-full text-left py-1 px-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
-                                      >
-                                        {subcategory.title}
-                                      </button>
-                                    </SheetClose>
-                                  )
-                                )}
-                              </div>
-                            )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  );
+                }
+                return (
+                  <SheetClose asChild key={`mobile-nav-${item.title}`}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center py-3 px-2 text-lg font-medium transition-colors hover:bg-gradient-to-r from-[#EB1E24]/10 via-[#F05021]/10 to-[#F8A51B]/10 rounded-md",
+                        pathname === item.href
+                          ? "text-primary bg-gradient-to-r from-[#EB1E24]/20 via-[#F05021]/20 to-[#F8A51B]/20"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {item.title}
+                    </Link>
+                  </SheetClose>
                 );
-              }
-              return (
-                <SheetClose asChild key={`mobile-nav-${item.title}`}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center py-2 text-lg font-medium transition-colors hover:text-primary hover:text-gray-400",
-                      pathname === item.href
-                        ? "text-primary"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {item.title}
-                  </Link>
-                </SheetClose>
-              );
-            })}
-            <Button
-              variant="outline"
-              className="mt-4 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] border-none hover:bg-red-400 text-white cursor-pointer"
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
-            >
-              Login
-            </Button>
-          </nav>
+              })}
+              <Button
+                variant="outline"
+                className="mt-4 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] border-none hover:bg-red-400 text-white cursor-pointer"
+                onClick={() => {
+                  setIsModalOpen(true);
+                }}
+              >
+                Login
+              </Button>
+            </nav>
+          </div>
         </SheetContent>
       </Sheet>
 
@@ -462,125 +475,151 @@ export default function Navbar() {
                     {item.title}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="bg-white">
-                    <div className="flex w-[900px] min-h-[400px]">
+                    <div className="flex w-[900px] min-h-[500px] max-h-[80vh]">
                       {/* Categories Column */}
                       <div className="w-1/2 border-r border-gray-200">
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                        <div className="p-4 h-full">
+                          <h3 className="text-lg font-semibold mb-3 text-gray-800 sticky top-0 bg-white pb-2">
                             Categories
                           </h3>
-                          <ul className="space-y-1">
-                            {item.children.map((category) => (
-                              <li
-                                key={`desktop-category-${
-                                  category.id || category.title
-                                }`}
-                              >
-                                <div className="group relative">
-                                  <div
-                                    className={cn(
-                                      "flex items-center justify-between p-2 rounded-md transition-colors cursor-pointer",
-                                      selectedCategory === category.title
-                                        ? "bg-gradient-to-r from-red-500/20 to-orange-500/20"
-                                        : "hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10"
-                                    )}
-                                    onClick={() =>
-                                      handleCategoryClick(category.title)
-                                    } // Full row click shows subcategories
-                                  >
-                                    <div className="flex-1">
-                                      <div className="text-sm font-medium leading-none">
-                                        {category.title}
-                                      </div>
-                                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                        {category.description}
-                                      </p>
-                                    </div>
-                                    {category.subcategories &&
-                                      category.subcategories.length > 0 && (
-                                        <ArrowRight
-                                          className={cn(
-                                            "h-4 w-4 text-gray-400 transition-transform",
-                                            selectedCategory === category.title
-                                              ? "rotate-90"
-                                              : ""
-                                          )}
-                                        />
+                          <div className="overflow-y-auto max-h-[calc(80vh-100px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
+                            <ul className="space-y-1">
+                              {item.children.map((category) => (
+                                <li
+                                  key={`desktop-category-${
+                                    category.id || category.title
+                                  }`}
+                                >
+                                  <div className="group relative">
+                                    <div
+                                      className={cn(
+                                        "flex items-center justify-between p-3 rounded-lg transition-all duration-200 cursor-pointer border border-transparent",
+                                        selectedCategory === category.title
+                                          ? "bg-gradient-to-r from-red-500/20 to-orange-500/20 border-red-200 shadow-sm"
+                                          : "hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 hover:border-red-100 hover:shadow-sm"
                                       )}
+                                      onClick={() =>
+                                        handleCategoryClick(category.title)
+                                      }
+                                    >
+                                      <div className="flex-1">
+                                        <div className="text-sm font-semibold leading-none mb-1">
+                                          {category.title}
+                                        </div>
+                                        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                                          {category.description ||
+                                            "Browse all items in this category"}
+                                        </p>
+                                        {category.subcategories && (
+                                          <div className="text-xs text-gray-500 mt-1">
+                                            {category.subcategories.length}{" "}
+                                            subcategories
+                                          </div>
+                                        )}
+                                      </div>
+                                      {category.subcategories &&
+                                        category.subcategories.length > 0 && (
+                                          <div className="ml-2">
+                                            <ArrowRight
+                                              className={cn(
+                                                "h-4 w-4 text-gray-400 transition-all duration-200",
+                                                selectedCategory === category.title
+                                                  ? "rotate-90 text-red-500"
+                                                  : "group-hover:text-red-400"
+                                              )}
+                                            />
+                                          </div>
+                                        )}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
                       </div>
 
                       {/* Subcategories Column */}
                       <div className="w-1/2">
-                        <div className="p-4">
+                        <div className="p-4 h-full">
                           {selectedCategory ? (
                             <>
-                              <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2">
                                 <h3 className="text-lg font-semibold text-gray-800">
-                                  {selectedCategory} Subcategories
+                                  {selectedCategory}
                                 </h3>
-                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                  {item.children.find(
-                                    (cat) => cat.title === selectedCategory
-                                  )?.subcategories?.length || 0}{" "}
-                                  items
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-500 bg-gradient-to-r from-red-100 to-orange-100 px-3 py-1 rounded-full font-medium">
+                                    {
+                                      item.children.find(
+                                        (cat) => cat.title === selectedCategory
+                                      )?.subcategories?.length || 0
+                                    }{" "}
+                                    items
+                                  </span>
+                                </div>
                               </div>
-                              <ul className="space-y-1">
-                                {item.children
-                                  .find((cat) => cat.title === selectedCategory)
-                                  ?.subcategories?.map(
-                                    (subcategory, subIndex) => (
-                                      <li
-                                        key={`desktop-subcategory-${selectedCategory}-${subIndex}`}
-                                      >
-                                        <button
-                                          onClick={() =>
-                                            handleSubcategoryClick(
-                                              selectedCategory,
-                                              subcategory
-                                            )
-                                          }
-                                          className="block w-full text-left p-3 rounded-md hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 transition-colors group border border-transparent hover:border-red-200"
+                              <div className="overflow-y-auto max-h-[calc(80vh-120px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
+                                <ul className="space-y-2">
+                                  {item.children
+                                    .find((cat) => cat.title === selectedCategory)
+                                    ?.subcategories?.map(
+                                      (subcategory, subIndex) => (
+                                        <li
+                                          key={`desktop-subcategory-${selectedCategory}-${subIndex}`}
                                         >
-                                          <div className="flex items-center justify-between">
-                                            <div>
-                                              <div className="text-sm font-medium leading-none">
-                                                {subcategory.title}
+                                          <button
+                                            onClick={() =>
+                                              handleSubcategoryClick(
+                                                selectedCategory,
+                                                subcategory
+                                              )
+                                            }
+                                            className="block w-full text-left p-4 rounded-lg hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 transition-all duration-200 group border border-gray-100 hover:border-red-200 hover:shadow-md"
+                                          >
+                                            <div className="flex items-center justify-between">
+                                              <div className="flex-1">
+                                                <div className="text-sm font-semibold leading-none mb-1 group-hover:text-red-600">
+                                                  {subcategory.title}
+                                                </div>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                  Click to browse {subcategory.title}
+                                                </div>
                                               </div>
-                                              <div className="text-xs text-gray-500 mt-1">
-                                                Click to browse{" "}
-                                                {subcategory.title}
+                                              <div className="ml-3">
+                                                <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-red-500 transition-all duration-200" />
                                               </div>
                                             </div>
-                                            <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                          </div>
-                                        </button>
-                                      </li>
-                                    )
-                                  ) || (
-                                  <li className="text-sm text-gray-500 italic p-3 text-center bg-gray-50 rounded-md">
-                                    No subcategories available for{" "}
-                                    {selectedCategory}
-                                  </li>
-                                )}
-                              </ul>
+                                          </button>
+                                        </li>
+                                      )
+                                    ) || (
+                                    <li className="text-center p-8">
+                                      <div className="text-gray-400 mb-2">
+                                        <ArrowRight className="h-8 w-8 mx-auto" />
+                                      </div>
+                                      <p className="text-sm text-gray-500 font-medium">
+                                        No subcategories available
+                                      </p>
+                                      <p className="text-xs text-gray-400 mt-1">
+                                        for {selectedCategory}
+                                      </p>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
                             </>
                           ) : (
-                            <div className="text-center text-gray-500 mt-16">
+                            <div className="text-center text-gray-500 mt-20">
                               <div className="mb-4">
-                                <ArrowRight className="h-12 w-12 mx-auto text-gray-300" />
+                                <ArrowRight className="h-16 w-16 mx-auto text-gray-300" />
                               </div>
-                              <p className="text-sm font-medium">
+                              <p className="text-lg font-medium mb-2">
                                 Select a category
                               </p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                Click on a category to see its subcategories
+                              <p className="text-sm text-gray-400 max-w-xs mx-auto">
+                                Click on any category from the left to explore its
+                                subcategories
                               </p>
                             </div>
                           )}
@@ -656,7 +695,7 @@ export default function Navbar() {
             {isOpen && (
               <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                 {inputValue ? (
-                  <div className="max-h-[30vh] md:max-h-[70vh] overflow-y-auto">
+                  <div className="max-h-[30vh] md:max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     {suggestions.map((suggestion, index) => (
                       <button
                         key={`suggestion-${index}`}
@@ -679,7 +718,7 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-                    <div className="max-h-[30vh] md:max-h-[70vh] overflow-y-auto">
+                    <div className="max-h-[30vh] md:max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                       <h3 className="text-lg font-semibold mb-3">
                         Discover more
                       </h3>
@@ -695,11 +734,6 @@ export default function Navbar() {
                         ))}
                       </div>
                     </div>
-                    {/* <div>
-                      <div className="space-y-3"> */}
-                    {/* This would be populated with actual recommendations */}
-                    {/* </div>
-                    </div> */}
                   </div>
                 )}
               </div>
