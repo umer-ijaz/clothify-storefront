@@ -1,12 +1,11 @@
 "use client";
 
-import type React from "react";
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { X, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/button";
 import { AuthModal } from "@/components/auth-modal";
@@ -18,13 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { addOrderToUserProfile } from "@/lib/orders";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/context/userContext"; // Import your user context
+import { useUser } from "@/context/userContext";
 import { toast } from "sonner";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-// Add these imports for Stripe
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import {
   Elements,
@@ -32,13 +26,12 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { getCountries } from "@/context/countries";
 
-// Initialize Stripe.js with your publishable key
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-// Define a new component for the Stripe checkout form
 const StripeCheckoutForm = ({
   clientSecret,
   onSuccessfulPayment,
@@ -70,11 +63,7 @@ const StripeCheckoutForm = ({
     });
 
     if (error) {
-      if (error.type === "card_error" || error.type === "validation_error") {
-        setErrorMessage(error.message || "An unexpected error occurred.");
-      } else {
-        setErrorMessage("An unexpected error occurred.");
-      }
+      setErrorMessage(error.message || "An unexpected error occurred.");
       setIsProcessing(false);
       return;
     }
@@ -121,8 +110,10 @@ interface PaymentModalProps {
   onClose: () => void;
   products: ProductItem[];
   taxRate?: number;
-  onSuccess?: (orderId: string) => void; // Optional callback for success
+  onSuccess?: (orderId: string) => void;
 }
+
+const countries = getCountries();
 
 export default function PaymentModal({
   isOpen,
@@ -132,49 +123,32 @@ export default function PaymentModal({
   onSuccess,
 }: PaymentModalProps) {
   const router = useRouter();
-  const { user } = useUser(); // Get current user from context
-
+  const { user } = useUser();
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
-  // const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [modal, setModal] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [showStripeModal, setShowStripeModal] = useState(false);
+  const [showDeliveryInstructions, setShowDeliveryInstructions] =
+    useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Zod schema for customer information validation
-  const customerInfoSchema = z.object({
-    firstName: z.string().min(1, "First Name is required"),
-    apartment: z.string().optional(),
-    phone: z.string().min(10, "Phone Number is required"), // Basic phone validation
-    town: z.string().min(1, "Town/City is required"),
-    address: z.string().min(1, "Street Address is required"),
-    email: z.string().email("Invalid email address").min(1, "Email Address is required"),
+  const [customerInfo, setCustomerInfo] = useState({
+    country: "Germany",
+    fullName: "",
+    companyName: "",
+    phone: "",
+    streetAddress: "",
+    additionalAddress: "",
+    postcode: "",
+    townCity: "",
+    email: user?.email || "",
+    deliveryPreferences: "",
+    deliveryNotes: "",
+    accessCodes: "",
   });
 
-  // Use React Hook Form
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<z.infer<typeof customerInfoSchema>>({
-    resolver: zodResolver(customerInfoSchema),
-    defaultValues: {
-      firstName: "",
-      apartment: "",
-      phone: "",
-      town: "",
-      address: "",
-      email: user?.email || "",
-    },
-    mode: "onBlur",
-  });
-
-  const customerInfo = watch(); // Watch all form fields to get current values
-
-  useEffect(() => {
-    if (user?.email) {
-      setValue("email", user.email);
-    }
-  }, [user?.email, setValue]);
-
-  // Calculate totals
   const subtotal = products.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -183,16 +157,64 @@ export default function PaymentModal({
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (user?.email && !customerInfo.email) {
+      setCustomerInfo((prev) => ({ ...prev, email: user.email! }));
+    }
+  }, [user?.email]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setCustomerInfo((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    setCustomerInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateCustomerInfo = (): boolean => {
+    const requiredFields = [
+      "fullName",
+      "email",
+      "streetAddress",
+      "townCity",
+      "phone",
+      "postcode",
+    ];
+
+    for (const field of requiredFields) {
+      if (!customerInfo[field as keyof typeof customerInfo]) {
+        toast.error(
+          `Please fill in the ${field
+            .replace(/([A-Z])/g, " $1")
+            .toLowerCase()} field.`
+        );
+        return false;
+      }
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(customerInfo.email)) {
+      toast.error("Please enter a valid email address.");
+      return false;
+    }
+
+    return true;
+  };
+
   const createPaymentIntent = async () => {
     if (totalPrice <= 0) {
       toast.error("Cart is empty or total is zero.");
       return;
     }
     try {
-      console.log(
-        "FRONTEND: Attempting to create payment intent with amount:",
-        totalPrice
-      );
       const response = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: {
@@ -201,52 +223,93 @@ export default function PaymentModal({
         body: JSON.stringify({ amount: totalPrice }),
       });
 
-      console.log(
-        "FRONTEND: Response status from /api/create-payment-intent:",
-        response.status
-      );
       const data = await response.json();
-      console.log(
-        "FRONTEND: Response data from /api/create-payment-intent:",
-        data
-      );
-
       if (data.clientSecret) {
-        console.log("FRONTEND: clientSecret received:", data.clientSecret);
         setClientSecret(data.clientSecret);
         setShowStripeModal(true);
-        console.log("FRONTEND: setShowStripeModal set to true");
       } else {
         toast.error(data.error || "Failed to initialize payment.");
-        console.error(
-          "FRONTEND: No clientSecret in response or error from create-payment-intent:",
-          data.error
-        );
       }
     } catch (error) {
-      console.error(
-        "FRONTEND: Failed to create payment intent (catch block):",
-        error
-      );
+      console.error("Failed to create payment intent:", error);
       toast.error("Failed to initialize payment. Please try again.");
     }
-
-    return true;
   };
 
   const proceedToStripePayment = async () => {
-    console.log("FRONTEND: proceedToStripePayment called");
     if (!user) {
       setModal(true);
-      toast.error("User Must be logged in to make any kind of Payments.");
+      toast.error("You must be logged in to make payments.");
       return;
     }
     if (products.length === 0) {
       toast.error("Your cart is empty.");
       return;
     }
-    console.log("FRONTEND: Proceeding to call createPaymentIntent");
+    if (!validateCustomerInfo()) {
+      return;
+    }
     await createPaymentIntent();
+  };
+
+  const createOrder = (paymentDetails: {
+    method: string;
+    transactionId: string;
+    status: string;
+  }) => {
+    return {
+      items: products.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image || "",
+        size: item.size,
+        color: item.color,
+      })),
+      total: totalPrice,
+      subtotal: subtotal,
+      tax: tax,
+      deliveryFee: deliveryFee,
+      customerInfo: {
+        name: customerInfo.fullName,
+        email: customerInfo.email,
+        address: `${customerInfo.streetAddress}${
+          customerInfo.additionalAddress
+            ? ", " + customerInfo.additionalAddress
+            : ""
+        }`,
+        city: customerInfo.townCity,
+        phone: customerInfo.phone,
+        apartment: customerInfo.additionalAddress,
+        country: customerInfo.country,
+        postcode: customerInfo.postcode,
+        companyName: customerInfo.companyName,
+        deliveryPreferences: customerInfo.deliveryPreferences,
+        deliveryNotes: customerInfo.deliveryNotes,
+        accessCodes: customerInfo.accessCodes,
+      },
+      paymentMethod: paymentDetails.method,
+      paymentDetails: {
+        transactionId: paymentDetails.transactionId,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        status: paymentDetails.status,
+        ...(paymentDetails.method === "Cash on Delivery" && {
+          expectedDelivery: new Date(
+            Date.now() + 5 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString(),
+        }),
+      },
+      invoice: {
+        invoiceId: `INV-${Date.now()}`,
+        date: new Date().toISOString(),
+        details: `Invoice for order placed on ${new Date().toLocaleDateString()}`,
+      },
+      deliveryMethod: deliveryMethod,
+      createdAt: new Date().toISOString(),
+      status: paymentDetails.status,
+    };
   };
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
@@ -255,44 +318,11 @@ export default function PaymentModal({
       return;
     }
     try {
-      const order = {
-        items: products.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || "",
-          size: item.size,
-          color: item.color,
-        })),
-        total: totalPrice,
-        subtotal: subtotal,
-        tax: tax,
-        deliveryFee: deliveryFee,
-        customerInfo: {
-          name: customerInfo.firstName || "Guest Customer",
-          email: customerInfo.email || user?.email || "guest@example.com",
-          address: customerInfo.address || "Address not provided",
-          city: customerInfo.town || "City not provided",
-          phone: customerInfo.phone || "Phone not provided",
-          apartment: customerInfo.apartment || "",
-        },
-        paymentMethod: "Stripe",
-        paymentDetails: {
-          transactionId: paymentIntentId,
-          date: new Date().toLocaleDateString(),
-          time: new Date().toLocaleTimeString(),
-          status: "Completed",
-        },
-        invoice: {
-          invoiceId: `INV-${Date.now()}`,
-          date: new Date().toISOString(),
-          details: `Invoice for order placed on ${new Date().toLocaleDateString()}`,
-        },
-        createdAt: new Date().toISOString(),
+      const order = createOrder({
+        method: "Stripe",
+        transactionId: paymentIntentId,
         status: "Completed",
-      };
-
+      });
       await addOrderToUserProfile(user.uid, order);
       toast.success("Order placed successfully with Stripe!");
 
@@ -311,76 +341,36 @@ export default function PaymentModal({
     }
   };
 
-  const handleCheckout = async () => {
-    // This function now only handles cash payments
-    if (paymentMethod !== "cash") {
+  const handleCashCheckout = async () => {
+    if (!user) {
+      setModal(true);
+      toast.error("You must be logged in to make payments.");
       return;
     }
-
-    // Check if user is logged in
-    if (!user) {
-      toast.error("You must be logged in to place an order");
-      onClose();
-      router.push("/login?redirect=checkout");
+    if (products.length === 0) {
+      toast.error("Your cart is empty.");
+      return;
+    }
+    if (!validateCustomerInfo()) {
       return;
     }
 
     setIsProcessing(true);
-
     try {
-      // Create order object for cash payment
-      const order = {
-        items: products.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || "",
-          size: item.size,
-          color: item.color,
-        })),
-        total: totalPrice,
-        subtotal: subtotal,
-        tax: tax,
-        deliveryFee: deliveryFee,
-        customerInfo: {
-          name: customerInfo.firstName ?? "",
-          email: customerInfo.email ?? "",
-          address: customerInfo.address ?? "",
-          city: customerInfo.town ?? "",
-          phone: customerInfo.phone ?? "",
-          apartment: customerInfo.apartment || "",
-        },
-        paymentMethod: "Cash on Delivery",
-        paymentDetails: {
-          transactionId: "COD" + Math.floor(Math.random() * 1000000),
-          status: "Pending",
-          date: new Date().toISOString(),
-          expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        invoice: {
-          invoiceId: `INV-${Date.now()}`,
-          date: new Date().toISOString(),
-          details: `Invoice for order placed on ${new Date().toLocaleDateString()}`,
-        },
-        createdAt: new Date().toISOString(),
+      const order = createOrder({
+        method: "Cash on Delivery",
+        transactionId: "COD" + Math.floor(Math.random() * 1000000),
         status: "Pending",
-      };
-
-      // Save order to user's profile in Firestore
+      });
       await addOrderToUserProfile(user.uid, order);
       const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-
       toast.success("Order placed successfully! (Cash on Delivery)");
 
-      // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess(orderId);
       } else {
-        // Default behavior - redirect to orders page
         router.push("/orders");
       }
-
       onClose();
     } catch (error) {
       console.error("Error placing cash order:", error);
@@ -390,10 +380,6 @@ export default function PaymentModal({
     }
   };
 
-  // Custom input style class
-  const inputStyle =
-    "search bg-white pl-4 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400";
-
   const stripeOptions: StripeElementsOptions = {
     clientSecret: clientSecret || undefined,
     appearance: {
@@ -401,13 +387,17 @@ export default function PaymentModal({
     },
   };
 
+  const inputStyle =
+    "mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none";
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogOverlay className="bg-black/50 Z-80" />
-      <DialogContent className="sm:max-w-[90%] md:max-w-[80%] lg:max-w-[80%] p-0 overflow-y-auto scroll max-h-[90vh] bg-white scrollbar-hide rounded-sm md:rounded-lg">
+      <DialogOverlay className="bg-black/50" />
+      <DialogContent className="max-w-[99vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
         <DialogTitle className="sr-only">Complete Your Purchase</DialogTitle>
-        <div className="relative pb-6">
-          <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-none">
+        <div className="relative">
+          {/* Header */}
+          <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b border-red-500">
             <h2 className="text-xl font-bold">Complete Your Purchase</h2>
             <button
               onClick={onClose}
@@ -417,141 +407,269 @@ export default function PaymentModal({
             </button>
           </div>
 
-          <div className="grid md:grid-cols-5 gap-8 p-4 md:p-6 bg-white">
-            {/* Customer Information Form - 3/5 width */}
-            <div className="md:col-span-3 bg-white p-4 md:p-6 rounded-lg border border-gray-200 shadow-sm">
-              <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">
+          {/* Main Content */}
+          <div className="flex flex-col md:grid md:grid-cols-5 gap-8 p-4 md:p-6">
+            {/* Customer Information - 3/5 width */}
+            <div className="md:col-span-3 bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h2 className="text-xl font-semibold mb-6">
                 Customer Information
               </h2>
-              <div className="grid gap-4 md:gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name*</Label>
-                    <Input
-                      id="firstName"
-                      placeholder="Write here"
-                      className={inputStyle}
-                      {...register("firstName")}
-                    />
-                    {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>}
+              <div className="grid gap-6">
+                {/* Country/Region */}
+                <div className="space-y-2">
+                  <Label htmlFor="country" className="text-sm font-medium">
+                    Country/Region <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="country"
+                      value={customerInfo.country}
+                      onChange={(e) =>
+                        handleSelectChange("country", e.target.value)
+                      }
+                      className="appearance-none mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
+                      required
+                    >
+                      {countries.map((country) => (
+                        <option key={country} value={country}>
+                          {country}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
+                </div>
+
+                {/* Full Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-sm font-medium">
+                    Full name (first name and surname){" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="fullName"
+                    placeholder="Enter your full name"
+                    className={inputStyle}
+                    value={customerInfo.fullName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                {/* Company Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="companyName" className="text-sm font-medium">
+                    Company name (optional)
+                  </Label>
+                  <Input
+                    id="companyName"
+                    placeholder="Enter company name"
+                    className={inputStyle}
+                    value={customerInfo.companyName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium">
+                    Phone number <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="phone"
+                    placeholder="Enter phone number"
+                    className={inputStyle}
+                    value={customerInfo.phone}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                {/* Address Section */}
+                <div className="space-y-4">
+                  <Label className="text-sm font-medium">Address</Label>
+                  <Input
+                    id="streetAddress"
+                    placeholder="Street name and number, pickup location"
+                    className={inputStyle}
+                    value={customerInfo.streetAddress}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <Input
+                    id="additionalAddress"
+                    placeholder="PO Box, c/o, etc."
+                    className={inputStyle}
+                    value={customerInfo.additionalAddress}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* Postcode and Town/City */}
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="apartment">
-                      Apartment, floor, etc. (optional)
+                    <Label htmlFor="postcode" className="text-sm font-medium">
+                      Postcode <span className="text-red-500">*</span>
                     </Label>
                     <Input
-                      id="apartment"
-                      placeholder="Write here"
+                      id="postcode"
+                      placeholder="Enter postcode"
                       className={inputStyle}
-                      {...register("apartment")}
+                      value={customerInfo.postcode}
+                      onChange={handleInputChange}
+                      required
                     />
-                    {errors.apartment && <p className="text-red-500 text-xs mt-1">{errors.apartment.message}</p>}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number*</Label>
-                    <Input
-                      id="phone"
-                      placeholder="Write here"
-                      className={inputStyle}
-                      {...register("phone")}
-                    />
-                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="town">Town/City*</Label>
+                    <Label htmlFor="townCity" className="text-sm font-medium">
+                      Town/City <span className="text-red-500">*</span>
+                    </Label>
                     <Input
-                      id="town"
-                      placeholder="Write here"
+                      id="townCity"
+                      placeholder="Enter town/city"
                       className={inputStyle}
-                      {...register("town")}
+                      value={customerInfo.townCity}
+                      onChange={handleInputChange}
+                      required
                     />
-                    {errors.town && <p className="text-red-500 text-xs mt-1">{errors.town.message}</p>}
                   </div>
                 </div>
+
+                {/* Email Address */}
                 <div className="space-y-2">
-                  <Label htmlFor="address">Street Address*</Label>
-                  <Input
-                    id="address"
-                    placeholder="Write here"
-                    className={inputStyle}
-                    {...register("address")}
-                  />
-                  {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address*</Label>
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Email Address <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="email"
-                    placeholder="Write here"
+                    placeholder="Enter email address"
                     className={inputStyle}
+                    value={customerInfo.email}
+                    onChange={handleInputChange}
                     type="email"
-                    {...register("email")}
+                    required
                   />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  <span className="text-red-500">*</span> Required fields
+
+                {/* Delivery Instructions */}
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowDeliveryInstructions(!showDeliveryInstructions)
+                    }
+                    className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    <span>Delivery instructions</span>
+                    <ChevronDown
+                      className={`ml-1 w-4 h-4 transition-transform ${
+                        showDeliveryInstructions ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  <p className="text-xs text-gray-500">
+                    Add preferences, notes, access codes and more
+                  </p>
+
+                  {showDeliveryInstructions && (
+                    <div className="space-y-4 mt-4 p-2 bg-white rounded-md">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="deliveryPreferences"
+                          className="text-sm font-medium"
+                        >
+                          Delivery Preferences
+                        </Label>
+                        <Textarea
+                          id="deliveryPreferences"
+                          placeholder="Add your delivery preferences here..."
+                          className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
+                          value={customerInfo.deliveryPreferences}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="deliveryNotes"
+                          className="text-sm font-medium"
+                        >
+                          Notes
+                        </Label>
+                        <Textarea
+                          id="deliveryNotes"
+                          placeholder="Add any additional notes here..."
+                          className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
+                          value={customerInfo.deliveryNotes}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="accessCodes"
+                          className="text-sm font-medium"
+                        >
+                          Access Codes
+                        </Label>
+                        <Textarea
+                          id="accessCodes"
+                          placeholder="Add access codes or gate codes here..."
+                          className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
+                          value={customerInfo.accessCodes}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Order Summary - 2/5 width */}
-            <div className="md:col-span-2 p-4 md:p-6 rounded-lg border border-gray-200 bg-gray-50 shadow-sm">
-              <h2 className="text-lg md:text-xl font-semibold mb-4">
-                Order Summary
-              </h2>
+            <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
               <div className="space-y-4 w-full">
-                {/* Products - Each product with quantity and price */}
-                <div className="max-h-[200px] overflow-y-auto space-y-3 pr-2">
-                  {products.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between items-center"
-                    >
-                      <div className="flex items-center gap-2">
-                        {item.image && (
-                          <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0">
-                            <Image
-                              src={item.image || "/placeholder.svg"}
-                              alt={item.name}
-                              width={40}
-                              height={40}
-                              className="object-cover w-full h-full"
-                            />
-                          </div>
-                        )}
-                        <span className="text-sm md:text-base line-clamp-1">
-                          {item.name}
-                        </span>
-                      </div>
-                      <div className="text-sm md:text-base whitespace-nowrap">
-                        <span className="text-emerald-500">
-                           €{item.price.toFixed(2)}
-                        </span>{" "}
-                        x{" "}
-                        <span className="text-emerald-500">
-                          {item.quantity}
-                        </span>
-                      </div>
+                {products.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center"
+                  >
+                    <div className="flex items-center gap-2">
+                      {item.image && (
+                        <div className="w-10 h-10 rounded overflow-hidden">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      )}
+                      <span>{item.name}</span>
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <span className="text-emerald-500">
+                        {" "}
+                        €{item.price.toFixed(2)}
+                      </span>{" "}
+                      x{" "}
+                      <span className="text-emerald-500">{item.quantity}</span>
+                    </div>
+                  </div>
+                ))}
 
-                {/* Subtotal - Sum of all products */}
                 <div className="flex justify-between items-center border-t pt-2">
                   <span className="font-medium">Subtotal</span>
                   <span className="font-medium"> €{subtotal.toFixed(2)}</span>
                 </div>
 
-                {/* Tax */}
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Tax ({taxRate}%)</span>
                   <span className="font-medium"> €{tax.toFixed(2)}</span>
                 </div>
 
-                {/* Delivery Options */}
                 <div className="space-y-2 border-t pt-2">
                   <span className="font-medium block mb-2">
                     Delivery Options
@@ -563,14 +681,22 @@ export default function PaymentModal({
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="standard" id="standard" />
+                        <RadioGroupItem
+                          value="standard"
+                          id="standard"
+                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                        />
                         <Label htmlFor="standard">Standard Delivery</Label>
                       </div>
                       <span className="text-emerald-500"> €100</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pickup" id="pickup" />
+                        <RadioGroupItem
+                          value="pickup"
+                          id="pickup"
+                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                        />
                         <Label htmlFor="pickup">Personal Pickup</Label>
                       </div>
                       <span className="text-emerald-500">Free</span>
@@ -578,7 +704,6 @@ export default function PaymentModal({
                   </RadioGroup>
                 </div>
 
-                {/* Payment Methods */}
                 <span className="font-medium">Payment Methods</span>
                 <div className="space-y-2">
                   <RadioGroup
@@ -588,56 +713,64 @@ export default function PaymentModal({
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="card" id="card" />
-                        <Label htmlFor="card">Credit/Debit Card (Stripe)</Label>
+                        <RadioGroupItem
+                          value="card"
+                          id="card"
+                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                        />
+                        <Label htmlFor="card">Card (Stripe)</Label>
                       </div>
                       <div className="flex space-x-1">
-                        <div className="flex items-center justify-center">
-                          <Image
-                            width={40}
-                            height={25}
-                            src="/visa.svg"
-                            alt="visa card"
-                            className="object-contain w-8 h-5"
-                          />
-                        </div>
-                        <div className="flex items-center justify-center">
-                          <Image
-                            width={40}
-                            height={25}
-                            src="/master.svg"
-                            alt="master card"
-                            className="object-contain w-8 h-5"
-                          />
-                        </div>
+                        <Image
+                          width={30}
+                          height={30}
+                          src="/visa.svg"
+                          alt="Visa"
+                          className="object-contain w-8 h-8"
+                        />
+                        <Image
+                          width={30}
+                          height={30}
+                          src="/master.svg"
+                          alt="Mastercard"
+                          className="object-contain w-8 h-8"
+                        />
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="cash" id="cash" />
+                      <RadioGroupItem
+                        value="cash"
+                        id="cash"
+                        className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                      />
                       <Label htmlFor="cash">Cash on Delivery</Label>
                     </div>
                   </RadioGroup>
                 </div>
 
-                {/* Button to initiate Stripe payment process */}
+                <div className="flex justify-between items-center border-t pt-2">
+                  <span className="font-bold">Total</span>
+                  <span className="font-bold">€{totalPrice.toFixed(2)}</span>
+                </div>
+
                 {paymentMethod === "card" && !showStripeModal && (
-                  <div className="flex flex-row justify-center">
+                  <div className="flex flex-row justify-center mt-4">
                     <Button
                       text="Proceed to Secure Payment"
-                      onClick={handleSubmit(proceedToStripePayment)}
+                      onClick={proceedToStripePayment}
                     />
                   </div>
                 )}
 
                 {paymentMethod === "cash" && (
-                  <div className="flex flex-row justify-center">
+                  <div className="flex flex-row justify-center mt-4">
                     <Button
                       text={
                         isProcessing
                           ? "Processing..."
                           : "Complete Purchase (Cash)"
                       }
-                      onClick={handleSubmit(handleCheckout)}
+                      onClick={handleCashCheckout}
                       disabled={isProcessing}
                     />
                   </div>
@@ -669,7 +802,7 @@ export default function PaymentModal({
                 key={clientSecret}
               >
                 <StripeCheckoutForm
-                  clientSecret={clientSecret!}
+                  clientSecret={clientSecret}
                   onSuccessfulPayment={handleSuccessfulStripePayment}
                 />
               </Elements>

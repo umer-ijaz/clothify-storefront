@@ -41,12 +41,14 @@ export default function ProductDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogOverlay className="bg-black/50" />
-      <DialogContent className="max-w-[95vw] md:max-w-[90vw] lg:max-w-[85vw] xl:max-w-[80vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white">
+      <DialogOverlay className="bg-black/50 fixed inset-0 z-40" />
+      <DialogContent className="max-w-[99vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white z-50 rounded-lg">
         <DialogTitle className="sr-only">{product.name}</DialogTitle>
-        <div className="relative">
-          <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-none">
-            <h2 className="text-xl font-bold">{product.name}</h2>
+
+        <div className="relative w-full overflow-hidden">
+          {/* Header */}
+          <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b border-red-500">
+            <h2 className="text-xl font-bold truncate">{product.name}</h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -55,9 +57,10 @@ export default function ProductDetailModal({
             </button>
           </div>
 
-          <div className="flex flex-col md:grid md:grid-cols-6 gap-6 p-4 md:p-6 pt-0 mt-0">
-            {/* Product Images - 3/7 width on medium screens and above */}
-            <div className="w-full md:col-span-3">
+          {/* Content */}
+          <div className="flex flex-col md:flex-row gap-6 p-4 md:p-6 overflow-x-hidden w-full">
+            {/* Product Images */}
+            <div className="w-full md:w-1/2 overflow-hidden">
               <ProductImages
                 product={product}
                 selectedImage={selectedImage}
@@ -65,8 +68,8 @@ export default function ProductDetailModal({
               />
             </div>
 
-            {/* Product Info - 3/7 width on medium screens and above */}
-            <div className="w-full md:col-span-3">
+            {/* Product Info */}
+            <div className="w-full md:w-1/2 overflow-hidden">
               <ProductInfo
                 product={product}
                 selectedColor={selectedColor}

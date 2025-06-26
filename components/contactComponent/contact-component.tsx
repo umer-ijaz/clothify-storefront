@@ -89,7 +89,7 @@ export default function ContactForm() {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="mt-1 w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:border-red-500 focus:outline-none"
+                className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
               />
             </div>
 
@@ -109,7 +109,7 @@ export default function ContactForm() {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="mt-1 w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:border-red-500 focus:outline-none"
+                className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
               />
             </div>
 
@@ -128,7 +128,7 @@ export default function ContactForm() {
                 placeholder="Write Here"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:border-red-500 focus:outline-none"
+                className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
               />
             </div>
 
@@ -147,7 +147,7 @@ export default function ContactForm() {
                 placeholder="Write Here"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:border-red-500 focus:outline-none"
+                className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
               />
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function ContactForm() {
               value={formData.message}
               onChange={handleChange}
               rows={7}
-              className="mt-1 h-full w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm focus:border-red-500 focus:outline-none"
+              className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
             />
           </div>
         </div>

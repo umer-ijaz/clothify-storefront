@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getProductById } from "@/lib/products";
-import products from "@/data/ItemProductDetail";
 import ProductImages from "./product-images";
 import ProductInfo from "./product-info";
 import DeliveryOptions from "./delivery-options";
@@ -29,13 +28,13 @@ export default function ProductDetailPage({
 
   useEffect(() => {
     const processProductData = (productData: any) => {
-      if (!productData) {
-        return null;
-      }
-      let updatedImages = productData.images ? [...productData.images] : [];
+      if (!productData) return null;
+
+      const updatedImages = productData.images ? [...productData.images] : [];
       if (productData.image && !updatedImages.includes(productData.image)) {
-        updatedImages.unshift(productData.image); // Prepend the main image
+        updatedImages.unshift(productData.image); // Ensure main image is first
       }
+
       return { ...productData, images: updatedImages };
     };
 
@@ -45,24 +44,16 @@ export default function ProductDetailPage({
         const { productId } = await params;
         const firestoreProduct = await getProductById(productId);
 
+        if (!firestoreProduct) {
+          throw new Error("Product not found in Firebase");
+        }
+
         const processedProduct = processProductData(firestoreProduct);
         setProduct(processedProduct);
         setSelectedColor(processedProduct?.colors?.[0]?.name || "");
       } catch (error) {
-        console.error("Error fetching product:", error);
-
-        try {
-          const { productId } = await params;
-          const oProductId = Number.parseInt(productId);
-          const foundProduct =
-            products.find((p) => p.id === oProductId) || products[0];
-
-          const processedFallbackProduct = processProductData(foundProduct);
-          setProduct(processedFallbackProduct);
-          setSelectedColor(processedFallbackProduct?.colors?.[0]?.name || "");
-        } catch (fallbackError) {
-          console.error("Even fallback failed:", fallbackError);
-        }
+        console.error("Error fetching product from Firebase:", error);
+        // Optionally redirect or show a not-found page
       } finally {
         setIsLoading(false);
       }
@@ -76,9 +67,9 @@ export default function ProductDetailPage({
       setQuantity(newQuantity);
     }
   };
-  console.log("Product Detail Page Rendered", product);
+
   if (isLoading) {
-    return <Loading/>; // 👈 only one global loader
+    return <Loading />;
   }
 
   return (

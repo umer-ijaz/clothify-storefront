@@ -1,7 +1,7 @@
 "use client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import { cn } from "@/lib/utils";
+import { useState, useEffect, KeyboardEvent } from "react";
 
 interface PaginationProps {
   currentPage?: number;
@@ -11,110 +11,152 @@ interface PaginationProps {
 
 export function Pagination({
   currentPage = 1,
-  totalPages = 5,
+  totalPages = 1,
   onPageChange = () => {},
 }: PaginationProps) {
+  const [inputPage, setInputPage] = useState(currentPage.toString());
+
+  // Sync input with currentPage prop
+  useEffect(() => {
+    setInputPage(currentPage.toString());
+  }, [currentPage]);
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       onPageChange(page);
     }
   };
 
-  // Function to determine which page numbers to display
-  const getPageNumbers = () => {
-    const pageNumbers = [];
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "" || /^[0-9\b]+$/.test(value)) {
+      setInputPage(value);
+    }
+  };
 
-    // Always show first page
-    pageNumbers.push(1);
-
-    if (totalPages <= 5) {
-      // If 5 or fewer pages, show all
-      for (let i = 2; i < totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      // For many pages, show limited set with ellipsis
-      if (currentPage > 3) {
-        pageNumbers.push(-1); // -1 represents ellipsis
-      }
-
-      // Pages around current
-      if (currentPage > 2) {
-        pageNumbers.push(currentPage - 1);
-      }
-      if (currentPage !== 1 && currentPage !== totalPages) {
-        pageNumbers.push(currentPage);
-      }
-      if (currentPage < totalPages - 1) {
-        pageNumbers.push(currentPage + 1);
-      }
-
-      // Add ellipsis before last page if needed
-      if (currentPage < totalPages - 2) {
-        pageNumbers.push(-2); // -2 represents ellipsis
+  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const page = parseInt(inputPage);
+      if (!isNaN(page) && page >= 1 && page <= totalPages) {
+        handlePageChange(page);
+      } else {
+        setInputPage(currentPage.toString());
       }
     }
+  };
 
-    // Always show last page if more than 1 page
-    if (totalPages > 1) {
-      pageNumbers.push(totalPages);
+  const handleInputBlur = () => {
+    setInputPage(currentPage.toString());
+  };
+
+  // Only show current page, next page (if exists), and last page with ellipsis
+  const getVisiblePages = () => {
+    const pages = [currentPage];
+
+    // Add next page if exists and not last page
+    if (currentPage < totalPages) {
+      pages.push(currentPage + 1);
     }
 
-    // Remove duplicates
-    return [...new Set(pageNumbers)];
+    // Add last page if not already included
+    if (!pages.includes(totalPages) && totalPages > 0) {
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  // Determine where to place ellipsis
+  const shouldShowEllipsis = () => {
+    return currentPage + 1 < totalPages - 1;
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-8">
+    <div className="flex items-center justify-center gap-2">
+      {/* Previous Button */}
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage <= 1}
         className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 cursor-pointer",
-          currentPage <= 1
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:bg-gray-100 active:bg-gray-100"
+          "h-9 w-9 rounded-md flex items-center justify-center border border-gray-200",
+          "hover:bg-gray-50 transition-colors",
+          currentPage <= 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         )}
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      {getPageNumbers().map((pageNum, i) =>
-        pageNum < 0 ? (
-          // Render ellipsis
-          <span
-            key={`ellipsis-${i}`}
-            className="w-8 h-8 flex items-center justify-center text-sm"
-          >
-            …
-          </span>
-        ) : (
-          // Render page number
-          <button
-            key={pageNum}
-            onClick={() => handlePageChange(pageNum)}
-            className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer",
-              currentPage === pageNum
-                ? "bg-red-500 text-white"
-                : "border border-gray-300 hover:bg-gray-100 bg-white active:bg-gray-100"
-            )}
-            aria-current={currentPage === pageNum ? "page" : undefined}
-          >
-            {pageNum}
-          </button>
-        )
+      {/* Always show first page if not visible */}
+      {currentPage > 1 && (
+        <button
+          onClick={() => handlePageChange(1)}
+          className={cn(
+            "h-9 w-9 rounded-md flex items-center justify-center border border-gray-200",
+            "hover:bg-gray-50 transition-colors cursor-pointer",
+            "text-sm font-medium"
+          )}
+        >
+          1
+        </button>
       )}
 
+      {/* Show ellipsis if needed */}
+      {currentPage > 2 && (
+        <span className="h-9 w-9 flex items-center justify-center text-gray-400">
+          ...
+        </span>
+      )}
+
+      {/* Current and next pages */}
+      {getVisiblePages().map((page) => (
+        <button
+          key={page}
+          onClick={() => handlePageChange(page)}
+          className={cn(
+            "h-9 w-9 rounded-md flex items-center justify-center text-sm font-medium",
+            "border transition-colors",
+            currentPage === page
+              ? "border-red-500 bg-red-500 text-white"
+              : "border-gray-200 hover:bg-gray-50 cursor-pointer"
+          )}
+          aria-current={currentPage === page ? "page" : undefined}
+        >
+          {page}
+        </button>
+      ))}
+
+      {/* Show ellipsis before last page if needed */}
+      {shouldShowEllipsis() && (
+        <span className="h-9 w-9 flex items-center justify-center text-gray-400">
+          ...
+        </span>
+      )}
+
+      {/* Page input */}
+      <div className="flex items-center gap-1 ml-2">
+        <input
+          type="text"
+          value={inputPage}
+          onChange={handleInputChange}
+          onKeyDown={handleInputKeyDown}
+          onBlur={handleInputBlur}
+          className="w-12 h-9 border border-gray-200 rounded-md text-center text-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
+          aria-label="Page number"
+        />
+        <span className="text-sm text-gray-500">of {totalPages}</span>
+      </div>
+
+      {/* Next Button */}
       <button
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
         className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 cursor-pointer",
+          "h-9 w-9 rounded-md flex items-center justify-center border border-gray-200",
+          "hover:bg-gray-50 transition-colors",
           currentPage >= totalPages
             ? "opacity-50 cursor-not-allowed"
-            : "hover:bg-gray-100 active:bg-gray-100"
+            : "cursor-pointer"
         )}
         aria-label="Next page"
       >

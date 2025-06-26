@@ -97,7 +97,7 @@ export default function ProductsPage() {
         <TextBox text={"Our Products"} />
         <Link
           href={"/allproducts"}
-          className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-2 py-1 rounded-lg transition-all duration-300"
+          className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
         >
           View All
           <IoIosArrowForward size={20} />
