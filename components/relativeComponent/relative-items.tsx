@@ -7,10 +7,9 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ItemCard from "@/components/item-card";
-import ItemCardSkeleton from "@/components/item-card-skeleton"; // Importing your existing skeleton
+import ItemCardSkeleton from "@/components/item-card-skeleton";
 import TextBox from "@/components/text-box";
 import Image from "next/image";
-import productsDetails from "@/data/ItemProductDetail";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
 import { getProducts } from "@/lib/products";
 import Link from "next/link";
@@ -23,33 +22,38 @@ interface RelativeItemsProps {
 const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
   const sliderRef = useRef<Slider | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<CategoryProductsInterface[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Initialize as true
+
   useEffect(() => {
     async function fetchProducts() {
-      setIsLoading(true);
-      const items = await getProducts();
+      try {
+        setIsLoading(true);
+        const items = await getProducts();
 
-      // Map Firestore products to match ItemCardInterface
-      const mappedProducts: CategoryProductsInterface[] = items
-        .filter(
-          (product) =>
-            product.category.toLowerCase() === category?.toLowerCase()
-        )
-        .map((product) => ({
-          ...product,
-          id: String(product.id), // Convert number to string
-          brand: product.brand || "Unknown Brand",
-          material: product.material || "Unknown Material",
-        }));
+        const mappedProducts: CategoryProductsInterface[] = items
+          .filter(
+            (product) =>
+              !category || // Show all if no category specified
+              product.category?.toLowerCase() === category.toLowerCase()
+          )
+          .map((product) => ({
+            ...product,
+            id: String(product.id),
+            brand: product.brand || "Unknown Brand",
+            material: product.material || "Unknown Material",
+          }));
 
-      setProducts(mappedProducts);
-      setIsLoading(false);
+        setProducts(mappedProducts);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     fetchProducts();
-  }, []);
+  }, [category]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -58,42 +62,39 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
 
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    // Simulating data fetch delay
-    setTimeout(() => setLoading(false), 1500);
-  }, []);
-
   const handlePrev = () => {
-    if (sliderRef.current) sliderRef.current.slickPrev();
+    sliderRef.current?.slickPrev();
   };
 
   const handleNext = () => {
-    if (sliderRef.current) sliderRef.current.slickNext();
+    sliderRef.current?.slickNext();
   };
 
-  const filteredProducts = category
-    ? productsDetails.filter((product) => product.category === category)
-    : productsDetails;
-
-  const displayProducts = filteredProducts.slice(0, 8);
-
   const settings = {
-    mobileFirst: true,
+    dots: false,
     infinite: false,
     speed: 500,
     slidesToShow: isMobile ? 2 : 4,
     slidesToScroll: 1,
+    initialSlide: 0,
     swipeToSlide: true,
     arrows: false,
-    touchMove: true,
-    draggable: true,
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 3 } },
-      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
     ],
   };
 
@@ -101,16 +102,17 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
     <div className="relative mt-20 md:mt-10 w-full mb-20">
       <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
         <TextBox text={"Relative"} />
-        <Link
-          href={`/category/${category}`}
-          className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-2 py-1 rounded-lg transition-all duration-300"
-        >
-          View All
-          <IoIosArrowForward size={20} />
-        </Link>
+        {category && (
+          <Link
+            href={`/category/${category}`}
+            className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 hover:text-white px-3 py-1 rounded-md transition-all duration-300"
+          >
+            View All
+            <IoIosArrowForward size={20} />
+          </Link>
+        )}
       </div>
 
-      {/* Header Section */}
       <div className="flex justify-between items-center mb-4 px-3 sm:px-4 lg:px-8 xl:px-12 mt-2">
         <h2 className="text-2xl font-bold">
           {category
@@ -119,35 +121,33 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
         </h2>
         <div className="flex gap-2 mt-2">
           <button
-            type="button"
             onClick={handlePrev}
-            className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
+            className="p-2 bg-gray-200 hover:bg-red-500 hover:text-white rounded-full cursor-pointer"
           >
-            <FaChevronLeft size={16} className="hover:text-white active:text-white" />
+            <FaChevronLeft size={16} />
           </button>
           <button
-            type="button"
             onClick={handleNext}
-            className="p-2 bg-gray-200 hover:bg-red-500 rounded-full cursor-pointer active:bg-red-500"
+            className="p-2 bg-gray-200 hover:bg-red-500 hover:text-white rounded-full cursor-pointer"
           >
-            <FaChevronRight size={16} className="hover:text-white active:text-white" />
+            <FaChevronRight size={16} />
           </button>
         </div>
       </div>
 
-      {/* Slider */}
       <Slider
-        className="px-2 sm:px-4 lg:px-8 xl:px-12"
-        ref={sliderRef}
+        ref={(slider) => {
+          sliderRef.current = slider;
+        }}
         {...settings}
-        key={isMobile ? "mobile" : "desktop"}
+        className="px-2 sm:px-4 lg:px-8 xl:px-12"
       >
-        {loading ? (
-          Array(products.length)
+        {isLoading ? (
+          Array(4)
             .fill(null)
             .map((_, index) => (
               <div key={index} className="px-2">
-                <ItemCardSkeleton /> {/* Using existing skeleton */}
+                <ItemCardSkeleton />
               </div>
             ))
         ) : products.length > 0 ? (
@@ -158,12 +158,11 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
           ))
         ) : (
           <div className="col-span-full text-center py-8">
-            No products found in this category.
+            No products found{category ? ` in ${category}` : ""}.
           </div>
         )}
       </Slider>
 
-      {/* Background Design */}
       <div className="absolute right-0 -bottom-48 -z-50">
         <Image
           src="/design.svg"

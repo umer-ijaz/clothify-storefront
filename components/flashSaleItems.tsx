@@ -10,9 +10,9 @@ import TextBox from "@/components/text-box";
 import Image from "next/image";
 import ItemCardSkeleton from "./item-card-skeleton";
 import { getFlashSaleItems, FlashSaleItem } from "@/lib/flashSaleItems";
-import { Item } from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
+
 const FlashSaleCarousel = () => {
   const sliderRef = useRef<Slider | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -58,13 +58,16 @@ const FlashSaleCarousel = () => {
     ],
   };
 
+  // Calculate number of skeletons to show based on products count or default to 4
+  const skeletonCount = products?.length;
+
   return (
-    <div className="relative mt-120 md:mt-60 w-full">
+    <div className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10">
       <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
         <TextBox text={"Today's"} />
         <Link
           href={"/flashsaleproducts"}
-          className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-2 py-1 rounded-lg transition-all duration-300"
+          className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
         >
           View All
           <IoIosArrowForward size={20} />
@@ -99,34 +102,37 @@ const FlashSaleCarousel = () => {
       </div>
 
       {/* Slider */}
-      <Slider
-        className="px-2 sm:px-4 lg:px-8 xl:px-12"
-        ref={sliderRef}
-        {...settings}
-        key={isMobile ? "mobile" : "desktop"}
-      >
-        {loading
-          ? Array(4)
-              .fill(null)
-              .map((_, index) => (
-                <div key={index} className="px-2">
-                  <ItemCardSkeleton />
-                </div>
-              ))
-          : // Show Real Products When Data is Loaded
-            products?.map((product) => {
-              if (!product.id) {
-                console.warn("Product is missing an ID:", product);
-                return null; // Skip rendering this product
-              }
+      <div className="relative">
+        <Slider
+          className="px-2 sm:px-4 lg:px-8 xl:px-12"
+          ref={sliderRef}
+          {...settings}
+          key={isMobile ? "mobile" : "desktop"}
+        >
+          {loading
+            ? Array(skeletonCount)
+                .fill(null)
+                .map((_, index) => (
+                  <div key={index} className="px-2">
+                    <div>
+                      <ItemCardSkeleton />
+                    </div>
+                  </div>
+                ))
+            : products?.map((product) => {
+                if (!product.id) {
+                  console.warn("Product is missing an ID:", product);
+                  return null;
+                }
 
-              return (
-                <div key={product.id} className="px-2">
-                  <ItemCard {...product} id={product.id.toString()} />
-                </div>
-              );
-            })}
-      </Slider>
+                return (
+                  <div key={product.id} className="px-2">
+                    <ItemCard {...product} id={product.id.toString()} />
+                  </div>
+                );
+              })}
+        </Slider>
+      </div>
 
       {/* Background Design */}
       <div className="absolute right-0 bottom-0 -z-50">

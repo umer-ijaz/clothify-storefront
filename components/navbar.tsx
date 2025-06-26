@@ -309,45 +309,175 @@ export default function Navbar() {
   return (
     <div
       className={cn(
-        "flex items-center py-4 gap-3 md:gap-3 w-full px-4 md:px-6 lg:px-8 transition-all duration-300 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] rounded-b-[37px] sticky top-0 left-0 right-0 z-50"
+        "flex items-center py-4 gap-3 md:gap-3 w-full px-4 md:px-6 lg:px-8 transition-all duration-300 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] sticky top-0 left-0 right-0 z-50",
+        !isNavbarVisible ? "-translate-y-full" : "translate-y-0"
       )}
     >
+      {/* Mobile Menu Button */}
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="md:hidden text-white">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden text-white p-2"
+          >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="bg-white">
-          <SheetHeader className="mb-4">
-            <SheetTitle>Menu</SheetTitle>
+        <SheetContent
+          side="left"
+          className="bg-white w-[90vw] sm:w-[350px] p-0"
+        >
+          <SheetHeader className="p-4 border-b">
+            <SheetTitle className="text-left">Menu</SheetTitle>
           </SheetHeader>
-          <nav className="grid gap-2 py-0 px-2">
-            <Link href="/" className="flex justify-center md:hidden">
-              <div className="h-[80px] w-[80px] relative">
-                <Image
-                  src="/logo.png?height=150&width=150"
-                  alt="logo"
-                  fill
-                  className="cursor-pointer object-contain"
-                />
+          <div className="h-full overflow-y-auto scrollbar-hide">
+            <nav className="py-2">
+              {/* Mobile Logo */}
+              <div className="px-4 mb-4">
+                <Link href="/" className="flex justify-center">
+                  <div className="h-[60px] w-[60px] relative">
+                    <Image
+                      src="/logo.png?height=150&width=150"
+                      alt="logo"
+                      fill
+                      className="cursor-pointer object-contain"
+                      priority
+                    />
+                  </div>
+                </Link>
               </div>
-            </Link>
-            {mainNavItems.map((item) => {
-              if (item.title === "Shop") {
+
+              {/* Mobile Navigation Items */}
+              {mainNavItems.map((item) => {
+                if (item.title === "Shop" && item.children) {
+                  return (
+                    <div key={`mobile-${item.title}`} className="border-b">
+                      <div
+                        className="flex items-center justify-between px-4 py-3 text-base font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => toggleMobileCategory(item.title)}
+                      >
+                        <span>{item.title}</span>
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 transition-transform duration-200",
+                            mobileExpandedCategories.has(item.title)
+                              ? "rotate-180"
+                              : ""
+                          )}
+                        />
+                      </div>
+
+                      {/* Mobile Categories Dropdown */}
+                      <div
+                        className={cn(
+                          "overflow-hidden transition-all duration-300 scrollbar-hide",
+                          mobileExpandedCategories.has(item.title)
+                            ? "max-h-[70vh] opacity-100"
+                            : "max-h-0 opacity-0"
+                        )}
+                      >
+                        <div className="bg-gray-50 max-h-[60vh] overflow-y-auto scrollbar-hide">
+                          {item.children.map((category) => (
+                            <div
+                              key={`mobile-category-${
+                                category.id || category.title
+                              }`}
+                              className="border-b border-gray-200 last:border-b-0"
+                            >
+                              {/* Category Header */}
+                              <div className="flex items-center">
+                                <SheetClose asChild>
+                                  <button
+                                    onClick={() =>
+                                      handleCategoryNavigation(
+                                        category.title,
+                                        category.href
+                                      )
+                                    }
+                                    className="flex-1 text-left px-4 py-2.5 text-sm font-medium hover:bg-white transition-colors"
+                                  >
+                                    {category.title}
+                                  </button>
+                                </SheetClose>
+                                {category.subcategories &&
+                                  category.subcategories.length > 0 && (
+                                    <button
+                                      onClick={() =>
+                                        toggleMobileCategory(category.title)
+                                      }
+                                      className="p-2 hover:bg-white transition-colors"
+                                    >
+                                      <ChevronDown
+                                        className={cn(
+                                          "h-4 w-4 transition-transform duration-200",
+                                          mobileExpandedCategories.has(
+                                            category.title
+                                          )
+                                            ? "rotate-180"
+                                            : ""
+                                        )}
+                                      />
+                                    </button>
+                                  )}
+                              </div>
+
+                              {/* Mobile Subcategories */}
+                              {category.subcategories &&
+                                category.subcategories.length > 0 && (
+                                  <div
+                                    className={cn(
+                                      "overflow-hidden transition-all duration-200 scrollbar-hide",
+                                      mobileExpandedCategories.has(
+                                        category.title
+                                      )
+                                        ? "max-h-[50vh] opacity-100"
+                                        : "max-h-0 opacity-0"
+                                    )}
+                                  >
+                                    <div className="bg-white max-h-[40vh] overflow-y-auto scrollbar-hide">
+                                      {category.subcategories.map(
+                                        (subcategory, subIndex) => (
+                                          <SheetClose
+                                            asChild
+                                            key={`mobile-subcategory-${category.id}-${subIndex}`}
+                                          >
+                                            <button
+                                              onClick={() =>
+                                                handleSubcategoryClick(
+                                                  category.title,
+                                                  subcategory
+                                                )
+                                              }
+                                              className="block w-full text-left px-6 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-600 transition-colors border-l-2 border-transparent hover:border-red-300"
+                                            >
+                                              {subcategory.title}
+                                            </button>
+                                          </SheetClose>
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
-                  <div key={`mobile-${item.title}`} className="cursor-pointer">
-                    <div
-                      className="flex items-center justify-between py-2 text-lg font-medium cursor-pointer hover:text-gray-400"
-                      onClick={() => {
-                        const shopContent = document.getElementById(
-                          "mobile-shop-content"
-                        );
-                        if (shopContent) {
-                          shopContent.classList.toggle("hidden");
-                        }
-                      }}
+                  <SheetClose asChild key={`mobile-nav-${item.title}`}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "block px-4 py-3 text-base font-medium transition-colors hover:bg-gray-50 border-b",
+                        pathname === item.href
+                          ? "text-red-600 bg-red-50"
+                          : "text-gray-700"
+                      )}
                     >
                       <span className="cursor-pointer">{item.title}</span>
                       <ChevronDown className="h-4 w-4 transition-transform" />
@@ -436,47 +566,45 @@ export default function Navbar() {
                     </div>
                   </div>
                 );
-              }
-              return (
-                <SheetClose asChild key={`mobile-nav-${item.title}`}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center py-2 text-lg font-medium transition-colors hover:text-primary hover:text-gray-400",
-                      pathname === item.href
-                        ? "text-primary"
-                        : "text-muted-foreground"
-                    )}
+              })}
+
+              {/* Mobile Login Button */}
+              <div className="px-4 pt-4 pb-6">
+                {!loading && (
+                  <Button
+                    variant="outline"
+                    className="w-full bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] border-none hover:opacity-90 text-white"
+                    onClick={() => setIsModalOpen(true)}
                   >
-                    {item.title}
-                  </Link>
-                </SheetClose>
-              );
-            })}
-            <Button
-              variant="outline"
-              className="mt-4 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] border-none hover:bg-red-400 text-white cursor-pointer"
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
-            >
-              Login
-            </Button>
-          </nav>
+                    {user ? "My Account" : "Login"}
+                  </Button>
+                )}
+              </div>
+            </nav>
+          </div>
         </SheetContent>
       </Sheet>
 
-      <Link href="/" className="hidden md:block">
-        <div className="h-[70px] w-[70px] relative">
+      {/* Logo - Hidden on mobile when search is open */}
+      <Link
+        href="/"
+        className={cn(
+          "hidden md:block",
+          isSearchOpen ? "hidden" : "block md:h-[70px] md:w-[70px]"
+        )}
+      >
+        <div className="h-[50px] w-[50px] md:h-[70px] md:w-[70px] relative">
           <Image
             src="/logo.png?height=110&width=110"
             alt="logo"
             fill
             className="cursor-pointer object-contain"
+            priority
           />
         </div>
       </Link>
 
+      {/* Desktop Navigation */}
       <div className="hidden md:flex gap-0 lg:gap-1">
         <NavigationMenu>
           <NavigationMenuList>
@@ -486,35 +614,39 @@ export default function Navbar() {
                   <NavigationMenuTrigger className="text-white hover:bg-white/20 hover:text-white transition-colors duration-300">
                     {item.title}
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="bg-white">
-                    <div className="flex w-[900px] min-h-[400px]">
-                      {/* Categories Column */}
-                      <div className="w-1/2 border-r border-gray-200">
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                  <NavigationMenuContent className="bg-white shadow-2xl border-0">
+                    <div className="w-[90vw] lg:w-[1000px] min-h-[400px] md:min-h-[500px] flex flex-col lg:flex-row">
+                      {/* Categories Sidebar */}
+                      <div className="w-full lg:w-80 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200">
+                        <div className="p-4 lg:p-6">
+                          <h3 className="text-lg lg:text-xl font-bold mb-3 lg:mb-4 text-gray-800 border-b border-gray-300 pb-2">
                             Categories
                           </h3>
-                          <ul className="space-y-1">
-                            {item.children.map((category) => (
-                              <li
-                                key={`desktop-category-${
-                                  category.id || category.title
-                                }`}
-                              >
-                                <div className="group relative">
+                          <div className="max-h-[300px] lg:max-h-[400px] overflow-y-auto custom-scrollbar scrollbar-hide">
+                            <ul className="space-y-1">
+                              {item.children.map((category) => (
+                                <li
+                                  key={`desktop-category-${
+                                    category.id || category.title
+                                  }`}
+                                  onMouseEnter={() =>
+                                    handleCategoryHover(category.title)
+                                  }
+                                  onMouseLeave={handleCategoryLeave}
+                                >
                                   <div
                                     className={cn(
-                                      "flex items-center justify-between p-2 rounded-md transition-colors cursor-pointer",
-                                      selectedCategory === category.title
-                                        ? "bg-gradient-to-r from-red-500/20 to-orange-500/20"
-                                        : "hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10"
+                                      "group relative flex items-center justify-between p-2 lg:p-3 rounded-lg transition-all duration-200 cursor-pointer",
+                                      hoveredCategory === category.title
+                                        ? "bg-gradient-to-r from-red-500/15 to-orange-500/15 shadow-sm"
+                                        : "hover:bg-white hover:shadow-sm"
                                     )}
                                     onClick={() =>
                                       handleCategoryClick(category.title)
                                     } // Full row click shows subcategories
                                   >
                                     <div className="flex-1">
-                                      <div className="text-sm font-medium leading-none">
+                                      <div className="font-semibold text-sm lg:text-base text-gray-800 group-hover:text-red-600 transition-colors">
                                         {category.title}
                                       </div>
                                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -523,14 +655,19 @@ export default function Navbar() {
                                     </div>
                                     {category.subcategories &&
                                       category.subcategories.length > 0 && (
-                                        <ArrowRight
-                                          className={cn(
-                                            "h-4 w-4 text-gray-400 transition-transform",
-                                            selectedCategory === category.title
-                                              ? "rotate-90"
-                                              : ""
-                                          )}
-                                        />
+                                        <div className="flex items-center space-x-1">
+                                          <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                                            {category.subcategories.length}
+                                          </span>
+                                          <ArrowRight
+                                            className={cn(
+                                              "h-3 w-3 lg:h-4 lg:w-4 text-gray-400 transition-all duration-200",
+                                              hoveredCategory === category.title
+                                                ? "text-red-500 translate-x-1"
+                                                : ""
+                                            )}
+                                          />
+                                        </div>
                                       )}
                                   </div>
                                 </div>
@@ -540,30 +677,46 @@ export default function Navbar() {
                         </div>
                       </div>
 
-                      {/* Subcategories Column */}
-                      <div className="w-1/2">
-                        <div className="p-4">
-                          {selectedCategory ? (
+                      {/* Subcategories Panel */}
+                      <div
+                        className="flex-1 bg-white"
+                        onMouseEnter={handleSubcategoryHover}
+                        onMouseLeave={handleCategoryLeave}
+                      >
+                        <div className="p-4 lg:p-6">
+                          {hoveredCategory ? (
                             <>
-                              <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold text-gray-800">
-                                  {selectedCategory} Subcategories
+                              <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-3 lg:mb-4 border-b border-gray-200 pb-2 lg:pb-3">
+                                <h3 className="text-lg lg:text-xl font-bold text-gray-800">
+                                  {hoveredCategory}
                                 </h3>
-                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                  {item.children.find(
-                                    (cat) => cat.title === selectedCategory
-                                  )?.subcategories?.length || 0}{" "}
-                                  items
-                                </span>
+                                <div className="flex items-center space-x-2 mt-1 lg:mt-0">
+                                  <span className="text-xs lg:text-sm text-gray-500 bg-gray-100 px-2 lg:px-3 py-1 rounded-full">
+                                    {item.children.find(
+                                      (cat) => cat.title === hoveredCategory
+                                    )?.subcategories?.length || 0}{" "}
+                                    subcategories
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleCategoryNavigation(hoveredCategory)
+                                    }
+                                    className="text-red-600 border-red-200 hover:bg-red-50 text-xs lg:text-sm"
+                                  >
+                                    View All
+                                  </Button>
+                                </div>
                               </div>
-                              <ul className="space-y-1">
-                                {item.children
-                                  .find((cat) => cat.title === selectedCategory)
-                                  ?.subcategories?.map(
-                                    (subcategory, subIndex) => (
-                                      <li
-                                        key={`desktop-subcategory-${selectedCategory}-${subIndex}`}
-                                      >
+                              <div className="max-h-[300px] lg:max-h-[380px] overflow-y-auto custom-scrollbar scrollbar-hide">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-3">
+                                  {item.children
+                                    .find(
+                                      (cat) => cat.title === hoveredCategory
+                                    )
+                                    ?.subcategories?.map(
+                                      (subcategory, subIndex) => (
                                         <button
                                           onClick={() =>
                                             handleSubcategoryClick(
@@ -571,11 +724,11 @@ export default function Navbar() {
                                               subcategory
                                             )
                                           }
-                                          className="block w-full text-left p-3 rounded-md hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 transition-colors group border border-transparent hover:border-red-200"
+                                          className="group p-3 rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-md transition-all duration-200 text-left bg-white hover:bg-gradient-to-br hover:from-red-50 hover:to-orange-50"
                                         >
                                           <div className="flex items-center justify-between">
-                                            <div>
-                                              <div className="text-sm font-medium leading-none">
+                                            <div className="flex-1">
+                                              <div className="font-medium text-sm lg:text-base text-gray-800 group-hover:text-red-600 transition-colors">
                                                 {subcategory.title}
                                               </div>
                                               <div className="text-xs text-gray-500 mt-1">
@@ -583,29 +736,40 @@ export default function Navbar() {
                                                 {subcategory.title}
                                               </div>
                                             </div>
-                                            <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <ArrowRight className="h-3 w-3 lg:h-4 lg:w-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-red-500 transition-all duration-200 transform group-hover:translate-x-1" />
                                           </div>
                                         </button>
-                                      </li>
-                                    )
-                                  ) || (
-                                  <li className="text-sm text-gray-500 italic p-3 text-center bg-gray-50 rounded-md">
-                                    No subcategories available for{" "}
-                                    {selectedCategory}
-                                  </li>
-                                )}
-                              </ul>
+                                      )
+                                    ) || (
+                                    <div className="col-span-2 text-center py-6">
+                                      <div className="text-gray-400 mb-2">
+                                        <Search className="h-10 w-10 mx-auto" />
+                                      </div>
+                                      <p className="text-sm text-gray-500">
+                                        No subcategories available for{" "}
+                                        {hoveredCategory}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </>
                           ) : (
-                            <div className="text-center text-gray-500 mt-16">
-                              <div className="mb-4">
-                                <ArrowRight className="h-12 w-12 mx-auto text-gray-300" />
+                            <div className="flex flex-col items-center justify-center h-full text-center py-6">
+                              <div className="mb-4 lg:mb-6">
+                                <div className="relative">
+                                  <div className="h-16 w-16 lg:h-24 lg:w-24 bg-gradient-to-br from-red-100 to-orange-100 rounded-full mx-auto mb-3 lg:mb-4 flex items-center justify-center">
+                                    <ArrowRight className="h-6 w-6 lg:h-8 lg:w-8 text-red-400" />
+                                  </div>
+                                </div>
                               </div>
-                              <p className="text-sm font-medium">
-                                Select a category
-                              </p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                Click on a category to see its subcategories
+                              <h4 className="text-base lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">
+                                Discover Our Categories
+                              </h4>
+                              <p className="text-xs lg:text-sm text-gray-500 max-w-xs lg:max-w-sm">
+                                Hover over a category on the left to explore its
+                                subcategories and find exactly what you're
+                                looking for.
                               </p>
                             </div>
                           )}
@@ -640,19 +804,14 @@ export default function Navbar() {
                 Login
               </div>
             </button>
-          ) : (
-            <div className="hidden">
-              {/* <div className="text-sm font-medium text-white mr-2 hidden md:block">
-                {user.displayName || user.email?.split("@")[0]}
-              </div> */}
-            </div>
-          ))}
+          ) : null)}
       </div>
 
+      {/* Search Bar - Responsive */}
       <div
         className={cn(
           "flex-1 transition-all",
-          isSearchOpen ? "flex" : "hidden md:flex"
+          isSearchOpen ? "flex ml-2" : "hidden md:flex"
         )}
       >
         <form className="w-full" onSubmit={handleSearchSubmit}>
@@ -664,13 +823,13 @@ export default function Navbar() {
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
-                className="search bg-white pl-8 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400"
+                className="search bg-white pl-4 md:pl-8 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400 text-sm md:text-base"
               />
               <div className="flex items-center pr-1">
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-9 w-9 rounded-full bg-transparent text-red absolute right-1 cursor-pointer"
+                  className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-transparent text-red absolute right-1 cursor-pointer"
                 >
                   <Search className="h-4 w-4" />
                   <span className="sr-only">Search</span>
@@ -681,38 +840,44 @@ export default function Navbar() {
             {isOpen && (
               <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                 {inputValue ? (
-                  <div className="max-h-[30vh] md:max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    {suggestions.map((suggestion, index) => (
-                      <button
-                        key={`suggestion-${index}`}
-                        className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 cursor-pointer"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                      >
-                        <div className="flex gap-2">
-                          <div>
-                            <Search className="h-4 w-4 text-gray-500" />
+                  <div className="max-h-[50vh] overflow-y-auto scrollbar-hide">
+                    {suggestions.length > 0 ? (
+                      suggestions.map((suggestion, index) => (
+                        <button
+                          key={`suggestion-${index}`}
+                          className="flex items-center justify-between w-full px-3 py-2 md:px-4 md:py-3 text-left hover:bg-gray-50 cursor-pointer"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          <div className="flex gap-2 items-center">
+                            <div>
+                              <Search className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />
+                            </div>
+                            <span className="overflow-hidden text-ellipsis line-clamp-1 text-sm md:text-base">
+                              {suggestion}
+                            </span>
                           </div>
-                          <span className="overflow-hidden text-ellipsis line-clamp-1">
-                            {suggestion}
-                          </span>
-                        </div>
-                        <div>
-                          <ArrowRight className="h-4 w-4 text-gray-400" />
-                        </div>
-                      </button>
-                    ))}
+                          <div>
+                            <ArrowRight className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-gray-500">
+                        No results found
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-                    <div className="max-h-[30vh] md:max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                      <h3 className="text-lg font-semibold mb-3">
-                        Discover more
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                    <div className="max-h-[40vh] overflow-y-auto scrollbar-hide">
+                      <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">
+                        Popular Searches
                       </h3>
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         {popularSearches.map((search, index) => (
                           <button
                             key={`popular-${index}`}
-                            className="block w-full text-left hover:text-gray-600 cursor-pointer"
+                            className="block w-full text-left hover:text-gray-600 cursor-pointer text-sm md:text-base"
                             onClick={() => handleSuggestionClick(search)}
                           >
                             {search}
@@ -728,26 +893,28 @@ export default function Navbar() {
         </form>
       </div>
 
+      {/* Mobile Search Toggle Button */}
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden text-white w-auto h-auto"
+        className="md:hidden text-white w-auto h-auto p-2"
         onClick={() => setIsSearchOpen(!isSearchOpen)}
       >
         {isSearchOpen ? (
-          <X className="h-5 w-4" />
+          <X className="h-5 w-5" />
         ) : (
-          <Search className="h-5 w-4" />
+          <Search className="h-5 w-5" />
         )}
         <span className="sr-only">Toggle search</span>
       </Button>
 
+      {/* User and Cart Icons */}
       <div className="flex items-center gap-2">
         {!loading &&
           (user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div className="bg-white p-1.5 md:p-1.5 rounded-full cursor-pointer">
+                <div className="bg-white p-1 md:p-1.5 rounded-full cursor-pointer">
                   <Avatar className="h-6 w-6 md:h-8 md:w-8">
                     {user.photoURL ? (
                       <AvatarImage
@@ -755,24 +922,30 @@ export default function Navbar() {
                         alt={user.displayName || "User"}
                       />
                     ) : null}
-                    <AvatarFallback className="bg-red-500 text-white text-sm md:text-md font-bold">
+                    <AvatarFallback className="bg-red-500 text-white text-xs md:text-sm font-bold">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-white">
+              <DropdownMenuContent
+                align="end"
+                className="w-48 md:w-56 bg-white"
+              >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/orders" className="cursor-pointer">
+                  <Link
+                    href="/orders"
+                    className="cursor-pointer text-sm md:text-base"
+                  >
                     Orders
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="text-red-600 cursor-pointer"
+                  className="text-red-600 cursor-pointer text-sm md:text-base"
                 >
                   Sign Out
                 </DropdownMenuItem>
@@ -781,24 +954,24 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-white p-1.5 md:p-3 rounded-full"
+              className="bg-white p-1 md:p-2 rounded-full"
             >
-              <ProfileIcon />
+              <ProfileIcon className="h-5 w-5 md:h-6 md:w-6" />
             </button>
           ))}
 
         <Link href="/cart">
-          <div className="relative bg-white p-1.5 md:p-3 rounded-full">
-            <CartIcon />
+          <div className="relative bg-white p-1 md:p-2 rounded-full">
+            <CartIcon className="h-5 w-5 md:h-6 md:w-6" />
             {isClient && cartCount > 0 && (
               <span
-                className={`absolute -top-0 -right-0 bg-red-600 text-white text-xs px-2 rounded-full
+                className={`absolute -top-1 -right-1 bg-red-600 text-white text-[10px] md:text-xs px-1.5 md:px-2 rounded-full
             transform transition-all duration-300
             ${
               animate ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
             }`}
               >
-                {cartCount}
+                {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
           </div>

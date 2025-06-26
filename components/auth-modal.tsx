@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isResetPassword, setIsResetPassword] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -107,8 +114,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-999 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md p-6 relative">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[2000] p-4 max-h-screen w-[100%] pb-[100vh] pt-[100%] md:pt-[50%] lg:pt-[30%]">
+      <div
+        ref={scrollRef}
+        className="bg-white rounded-xl w-full max-w-md p-6 relative"
+      >
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 cursor-pointer"

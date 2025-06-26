@@ -1,8 +1,7 @@
 "use client";
 import { SearchIcon, ArrowRight, Search } from "lucide-react";
 import type React from "react";
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "../ui/button";
 import { getProducts } from "@/lib/products";
 
@@ -20,22 +19,6 @@ const popularSearches = [
   "sunglasses",
 ];
 
-const mockSuggestions = (query: string) => {
-  if (!query) return [];
-
-  // Generate mock suggestions based on the query
-  return popularSearches
-    .filter((item) => item.includes(query.toLowerCase()))
-    .concat([
-      `${query} casual`,
-      `${query} formal`,
-      `${query} summer`,
-      `${query} winter`,
-      `${query} sale`,
-    ])
-    .slice(0, 6); // Limit to 6 suggestions
-};
-
 interface FilterProps {
   onFilterChange: (filters: { category: string; searchTerm: string }) => void;
   isLoading: boolean;
@@ -47,10 +30,11 @@ export default function FilterProducts({
 }: FilterProps) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -69,59 +53,79 @@ export default function FilterProducts({
     };
   }, []);
 
-  // Debounce search term
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (debouncedSearch !== searchTerm) {
-        setDebouncedSearch(searchTerm);
-      }
-    }, 300);
-    return () => clearTimeout(handler);
-  }, [searchTerm, debouncedSearch]);
+  // Debounce search term with useCallback for stable reference
+  const debounceSearch = useCallback((value: string) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
 
-  // Update suggestions when search term changes
+    debounceTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchTerm(value);
+    }, 500); // 500ms debounce delay
+  }, []);
+
+  // Update debounced search term when searchTerm changes
+  useEffect(() => {
+    debounceSearch(searchTerm);
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [searchTerm, debounceSearch]);
+
+  // Fetch suggestions when debounced search term changes
   useEffect(() => {
     async function fetchSuggestions() {
-      if (searchTerm) {
-        const items = await getProducts();
+      if (debouncedSearchTerm) {
+        try {
+          const items = await getProducts();
+          // Filter items where product.name includes debouncedValue (case-insensitive)
+          const filteredNames = items
+            .filter((product) =>
+              product.name
+                ?.toLowerCase()
+                .includes(debouncedSearchTerm.toLowerCase())
+            )
+            .map((product) => product.name)
+            .filter((name, index, self) => name && self.indexOf(name) === index)
+            .slice(0, 10);
 
-        // Filter items where product.name includes debouncedValue (case-insensitive)
-        const filteredNames = items
-          .filter((product) =>
-            product.name?.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          .map((product) => product.name) // Only take the name
-          .filter((name, index, self) => name && self.indexOf(name) === index)
-          .slice(0, 10); // Take only the top 10; // Unique names
-
-        setSuggestions(filteredNames); // Use the filtered names here
+          setSuggestions(
+            filteredNames.length > 0
+              ? filteredNames
+              : mockSuggestions(debouncedSearchTerm)
+          );
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+          setSuggestions(mockSuggestions(debouncedSearchTerm));
+        }
       } else {
         setSuggestions([]);
       }
     }
 
     fetchSuggestions();
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
 
   // Apply filters when category or debounced search changes
   useEffect(() => {
-    onFilterChange({ category: selectedCategory, searchTerm: debouncedSearch });
-  }, [selectedCategory, debouncedSearch, onFilterChange]);
+    onFilterChange({
+      category: selectedCategory,
+      searchTerm: debouncedSearchTerm,
+    });
+  }, [selectedCategory, debouncedSearchTerm, onFilterChange]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
-    }
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
+    setIsOpen(value.length > 0);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setDebouncedSearch(suggestion);
+    setDebouncedSearchTerm(suggestion);
     setIsOpen(false);
-    onFilterChange({ category: selectedCategory, searchTerm: suggestion });
   };
 
   const handleInputFocus = () => {
@@ -132,12 +136,12 @@ export default function FilterProducts({
 
   return (
     <div className="flex flex-wrap gap-3 items-center justify-center pb-4 px-3">
-      {["All", "Women", "Men", "Kids"].map((category) => (
+      {["All", "Women", "Men", "Shuhe"].map((category) => (
         <button
           key={category}
           className={`px-4 py-2 text-sm font-medium rounded-full border cursor-pointer ${
             selectedCategory === category.toLowerCase()
-              ? "bg-red-500 text-white "
+              ? "bg-red-500 text-white"
               : "text-gray-700 hover:bg-orange-600 hover:text-white transition-all duration-300"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           onClick={() => setSelectedCategory(category.toLowerCase())}
@@ -175,11 +179,11 @@ export default function FilterProducts({
                   className="flex items-center justify-between w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
-                  <div className="flex items-center gap-2">
-                    <SearchIcon className="h-3 w-3 text-gray-500" />
-                    <span>{suggestion}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <SearchIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                    <span className="truncate">{suggestion}</span>
                   </div>
-                  <ArrowRight className="h-3 w-3 text-gray-400" />
+                  <ArrowRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
                 </button>
               ))}
             </div>
@@ -189,3 +193,19 @@ export default function FilterProducts({
     </div>
   );
 }
+
+// Mock suggestions fallback
+const mockSuggestions = (query: string) => {
+  if (!query) return [];
+
+  return popularSearches
+    .filter((item) => item.includes(query.toLowerCase()))
+    .concat([
+      `${query} casual`,
+      `${query} formal`,
+      `${query} summer`,
+      `${query} winter`,
+      `${query} sale`,
+    ])
+    .slice(0, 6);
+};

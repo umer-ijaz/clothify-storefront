@@ -244,19 +244,6 @@ export default function ServiceDetailPageClient({
             </div>
           )}
         </div>
-
-        {/* Back to services button */}
-        <div
-          className="mt-10 flex justify-center animate-fade-in-up"
-          style={{ animationDelay: "200ms" }}
-        >
-          <Link href="/services">
-            <div className="inline-flex items-center bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-sm text-red-500 hover:text-red-600 hover:bg-white transition-all hover:translate-x-[-5px]">
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              <span>Back to All Services</span>
-            </div>
-          </Link>
-        </div>
       </div>
 
       <Image

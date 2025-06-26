@@ -52,8 +52,8 @@ export default function Footer() {
   );
 
   return (
-    <footer className="bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white py-12 rounded-t-3xl">
-      <div className="max-w-full border-b-white border-b-[1px]">
+    <footer className="bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white py-12">
+      <div className="max-w-full border-b-white border-b-[1px] pb-5">
         {/* Left Section - Brand */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-10 relative pl-6 md:pl-0">
           {/* Logo and Description */}
@@ -161,7 +161,7 @@ export default function Footer() {
             {/* Invoice Methods */}
             <div className="flex flex-col items-center md:items-start">
               <h3 className="font-bold text-lg mb-2">INVOICE METHODS</h3>
-              <div className="flex flex-col-reverse justify-start gap-4">
+              <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link href="/invoice" className="hover:underline">
                   Invoices
                 </Link>
@@ -191,7 +191,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Social Media */}
+        {/* Social Media
         <div className="mt-6 flex justify-center md:justify-end gap-4 pr-0 md:pr-10">
           <a href="#" className="p-2 border rounded-full bg-white">
             <Facebook className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
@@ -205,7 +205,7 @@ export default function Footer() {
           <a href="#" className="p-2 border rounded-full bg-white">
             <Twitter className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
           </a>
-        </div>
+        </div> */}
       </div>
 
       {/* Copyright */}

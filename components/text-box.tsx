@@ -15,7 +15,7 @@ const TextBox: React.FC<TextBoxProps> = ({ text }) => {
           alt={"Tag"}
           width={100}
           height={100}
-          className="w-20 h-20 md:w-25 md:h-25 absolute -top-9 left-38 md:left-41 md:-top-11"
+          className="w-20 h-20 md:w-25 md:h-25 absolute -top-9 left-38 md:left-41 md:-top-11 z-50"
         />
       ) : null}
       <div className="w-auto flex flex-row justify-end pl-20 md:text-xl py-1 bg-[#ff0000] text-white rounded-full">
