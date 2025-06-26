@@ -479,92 +479,9 @@ export default function Navbar() {
                           : "text-gray-700"
                       )}
                     >
-                      <span className="cursor-pointer">{item.title}</span>
-                      <ChevronDown className="h-4 w-4 transition-transform" />
-                    </div>
-                    <div
-                      id="mobile-shop-content"
-                      className="hidden pl-4 space-y-2 mt-1 mb-2 cursor-pointer"
-                    >
-                      {item.children?.map((category) => (
-                        <div
-                          key={`mobile-category-${
-                            category.id || category.title
-                          }`}
-                          className="space-y-1"
-                        >
-                          <div className="flex items-center justify-between py-2 px-2 text-base font-medium cursor-pointer hover:bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] hover:text-white rounded-md">
-                            <SheetClose asChild>
-                              <button
-                                onClick={() =>
-                                  handleCategoryNavigation(
-                                    category.title,
-                                    category.href
-                                  )
-                                }
-                                className="flex-1 text-left"
-                              >
-                                {category.title}
-                              </button>
-                            </SheetClose>
-                            {category.subcategories &&
-                              category.subcategories.length > 0 && (
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    const subcategoryContent =
-                                      document.getElementById(
-                                        `mobile-subcategory-${category.title
-                                          .toLowerCase()
-                                          .replace(/\s+/g, "-")}`
-                                      );
-                                    if (subcategoryContent) {
-                                      subcategoryContent.classList.toggle(
-                                        "hidden"
-                                      );
-                                    }
-                                  }}
-                                  className="p-1"
-                                >
-                                  <ArrowRight className="h-4 w-4" />
-                                </button>
-                              )}
-                          </div>
-                          {category.subcategories &&
-                            category.subcategories.length > 0 && (
-                              <div
-                                id={`mobile-subcategory-${category.title
-                                  .toLowerCase()
-                                  .replace(/\s+/g, "-")}`}
-                                className="hidden pl-4 space-y-1"
-                              >
-                                {category.subcategories.map(
-                                  (subcategory, subIndex) => (
-                                    <SheetClose
-                                      asChild
-                                      key={`mobile-subcategory-${category.id}-${subIndex}`}
-                                    >
-                                      <button
-                                        onClick={() =>
-                                          handleSubcategoryClick(
-                                            category.title,
-                                            subcategory
-                                          )
-                                        }
-                                        className="block w-full text-left py-1 px-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
-                                      >
-                                        {subcategory.title}
-                                      </button>
-                                    </SheetClose>
-                                  )
-                                )}
-                              </div>
-                            )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                      {item.title}
+                    </Link>
+                  </SheetClose>
                 );
               })}
 
@@ -642,15 +559,19 @@ export default function Navbar() {
                                         : "hover:bg-white hover:shadow-sm"
                                     )}
                                     onClick={() =>
-                                      handleCategoryClick(category.title)
-                                    } // Full row click shows subcategories
+                                      handleCategoryNavigation(
+                                        category.title,
+                                        category.href
+                                      )
+                                    }
                                   >
                                     <div className="flex-1">
                                       <div className="font-semibold text-sm lg:text-base text-gray-800 group-hover:text-red-600 transition-colors">
                                         {category.title}
                                       </div>
-                                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                        {category.description}
+                                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                        {category.description ||
+                                          "Browse all products"}
                                       </p>
                                     </div>
                                     {category.subcategories &&
@@ -670,10 +591,10 @@ export default function Navbar() {
                                         </div>
                                       )}
                                   </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
                       </div>
 
@@ -718,9 +639,10 @@ export default function Navbar() {
                                     ?.subcategories?.map(
                                       (subcategory, subIndex) => (
                                         <button
+                                          key={`desktop-subcategory-${hoveredCategory}-${subIndex}`}
                                           onClick={() =>
                                             handleSubcategoryClick(
-                                              selectedCategory,
+                                              hoveredCategory,
                                               subcategory
                                             )
                                           }
@@ -732,8 +654,8 @@ export default function Navbar() {
                                                 {subcategory.title}
                                               </div>
                                               <div className="text-xs text-gray-500 mt-1">
-                                                Click to browse{" "}
-                                                {subcategory.title}
+                                                Explore{" "}
+                                                {subcategory.title.toLowerCase()}
                                               </div>
                                             </div>
                                             <ArrowRight className="h-3 w-3 lg:h-4 lg:w-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:text-red-500 transition-all duration-200 transform group-hover:translate-x-1" />
