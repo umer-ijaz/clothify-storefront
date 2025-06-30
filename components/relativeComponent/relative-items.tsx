@@ -105,7 +105,7 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
         {category && (
           <Link
             href={`/category/${category}`}
-            className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 hover:text-white px-3 py-1 rounded-md transition-all duration-300"
+            className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 hover:text-white px-3 py-1 rounded-full transition-all duration-300"
           >
             View All
             <IoIosArrowForward size={20} />
