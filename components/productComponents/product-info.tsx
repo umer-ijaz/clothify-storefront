@@ -8,6 +8,7 @@ import PaymentModal from "../paymentComponents/paymentModal";
 import { useEffect, useState } from "react";
 import { AuthModal } from "@/components/auth-modal";
 import { useUser } from "@/context/userContext";
+import { useTaxStore } from "@/context/taxContext";
 
 interface ProductInfoProps {
   product: {
@@ -52,6 +53,7 @@ export default function ProductInfo({
 }: ProductInfoProps) {
   const addToCart = useCartStore((state) => state.addToCart);
   const fullStars = Math.floor(product.rating);
+  const { taxRate } = useTaxStore();
   const hasHalfStar = product.rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
   const [modal, setModal] = useState(false);
@@ -294,7 +296,7 @@ export default function ProductInfo({
       <PaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
-        taxRate={5}
+        taxRate={taxRate}
         products={[
           {
             id: product.id,
