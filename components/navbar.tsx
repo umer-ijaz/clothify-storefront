@@ -889,7 +889,7 @@ export default function Navbar() {
               <span
                 className={`absolute -top-1 -right-1 bg-red-600 text-white text-[10px] md:text-xs px-1.5 md:px-2 rounded-full
             transform transition-all duration-300
-            ${
+            ${ 
               animate ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
             }`}
               >
