@@ -14,6 +14,7 @@ import Image from "next/image";
 import TextField from "@/components/text-field";
 import Button from "@/components/button";
 import { useTaxStore } from "@/context/taxContext";
+import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
 import { addOrderToUserProfile, Order } from "@/lib/orders";
 import { AuthModal } from "@/components/auth-modal";
 import { toast } from "sonner";
@@ -116,6 +117,7 @@ export default function Payments() {
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const { taxRate } = useTaxStore();
+  const { deliveryPrice } = useDeliveryPriceStore();
   const [modal, setModal] = useState(false);
   const [showDeliveryInstructions, setShowDeliveryInstructions] =
     useState(false);
@@ -158,7 +160,7 @@ export default function Payments() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const deliveryFee = deliveryMethod === "standard" ? 100 : 0;
+  const deliveryFee = deliveryMethod === "standard" ? deliveryPrice : 0;
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
@@ -651,7 +653,7 @@ export default function Payments() {
                       />
                       <Label htmlFor="standard">Standard Delivery</Label>
                     </div>
-                    <span className="text-emerald-500"> €100</span>
+                    <span className="text-emerald-500"> €{deliveryPrice}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">

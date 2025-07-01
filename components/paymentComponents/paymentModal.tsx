@@ -27,6 +27,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { getCountries } from "@/context/countries";
+import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -124,6 +125,7 @@ export default function PaymentModal({
 }: PaymentModalProps) {
   const router = useRouter();
   const { user } = useUser();
+  const { deliveryPrice } = useDeliveryPriceStore();
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -153,7 +155,7 @@ export default function PaymentModal({
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const deliveryFee = deliveryMethod === "standard" ? 100 : 0;
+  const deliveryFee = deliveryMethod === "standard" ? deliveryPrice : 0;
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
@@ -688,7 +690,7 @@ export default function PaymentModal({
                         />
                         <Label htmlFor="standard">Standard Delivery</Label>
                       </div>
-                      <span className="text-emerald-500"> €100</span>
+                      <span className="text-emerald-500"> €{deliveryPrice}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
