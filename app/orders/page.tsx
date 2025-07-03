@@ -144,14 +144,15 @@ export default function OrdersPage() {
 
       try {
         const returnsRef = collection(firestore, "returns");
+        // Temporarily remove orderBy to avoid index requirement
         const q = query(
           returnsRef,
-          where("userId", "==", user.uid),
-          orderBy("requestedAt", "desc")
+          where("userId", "==", user.uid)
+          // Remove orderBy("requestedAt", "desc") temporarily
         );
 
         const snapshot = await getDocs(q);
-        const fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
+        let fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
             id: doc.id,
@@ -164,8 +165,14 @@ export default function OrdersPage() {
             itemQuantity: data.itemQuantity,
             reason: data.reason,
             qrCode: data.qrCode,
+            adminMessage: data.adminMessage,
           };
         });
+
+        // Sort in JavaScript instead of Firestore
+        fetchedReturns = fetchedReturns.sort((a, b) =>
+          new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
+        );
 
         setReturnRequests(fetchedReturns);
       } catch (err) {
@@ -189,14 +196,15 @@ export default function OrdersPage() {
 
     try {
       const returnsRef = collection(firestore, "returns");
+      // Also remove orderBy here
       const q = query(
         returnsRef,
-        where("userId", "==", user.uid),
-        orderBy("requestedAt", "desc")
+        where("userId", "==", user.uid)
+        // Remove orderBy("requestedAt", "desc")
       );
 
       const snapshot = await getDocs(q);
-      const fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
+      let fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -209,12 +217,18 @@ export default function OrdersPage() {
           itemQuantity: data.itemQuantity,
           reason: data.reason,
           qrCode: data.qrCode,
+          adminMessage: data.adminMessage,
         };
       });
 
+      // Sort in JavaScript
+      fetchedReturns = fetchedReturns.sort((a, b) =>
+        new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
+      );
+
       setReturnRequests(fetchedReturns);
     } catch (err) {
-      console.error("Failed to fetch return requests:", err);
+      console.error("Failed to refresh return requests:", err);
     }
   };
 
