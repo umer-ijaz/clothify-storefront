@@ -49,63 +49,144 @@ interface CustomerInfo {
 const StripeCheckoutForm = ({
   clientSecret,
   onSuccessfulPayment,
+  customerInfo, // Add customerInfo as a prop
 }: {
   clientSecret: string;
   onSuccessfulPayment: (paymentIntentId: string) => void;
+  customerInfo: CustomerInfo; // Add this type
 }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Wait for stripe and elements to be ready
+    if (stripe && elements) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 1000); // Give it a moment to fully initialize
+      return () => clearTimeout(timer);
+    }
+  }, [stripe, elements]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!stripe || !elements) {
+      setErrorMessage("Payment system is not ready. Please try again.");
       return;
     }
 
     setIsProcessing(true);
     setErrorMessage(null);
 
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/orders`,
-      },
-      redirect: "if_required",
-    });
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/orders`,
+          payment_method_data: {
+            billing_details: {
+              name: customerInfo.fullName,
+              email: customerInfo.email,
+              phone: customerInfo.phone,
+              address: {
+                line1: customerInfo.streetAddress,
+                line2: customerInfo.additionalAddress || undefined,
+                city: customerInfo.townCity,
+                postal_code: customerInfo.postcode,
+                country: "DE", // Germany country code
+              },
+            },
+          },
+        },
+        redirect: "if_required",
+      });
 
-    if (error) {
-      setErrorMessage(error.message || "An unexpected error occurred.");
+      if (error) {
+        console.error("Payment error:", error);
+        setErrorMessage(error.message || "An unexpected error occurred.");
+        setIsProcessing(false);
+        return;
+      }
+
+      if (paymentIntent && paymentIntent.status === "succeeded") {
+        toast.success("Payment successful!");
+        onSuccessfulPayment(paymentIntent.id);
+      } else if (paymentIntent) {
+        setErrorMessage(`Payment status: ${paymentIntent.status}`);
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error("Payment processing error:", error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
       setIsProcessing(false);
-      return;
     }
-
-    if (paymentIntent && paymentIntent.status === "succeeded") {
-      toast.success("Payment successful!");
-      onSuccessfulPayment(paymentIntent.id);
-    } else if (paymentIntent) {
-      setErrorMessage(`Payment status: ${paymentIntent.status}`);
-    }
-
-    setIsProcessing(false);
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
-      <div className="w-full">
-        <Button
-          type="submit"
-          disabled={isProcessing || !stripe || !elements}
-          text={isProcessing ? "Processing..." : "Pay with Stripe"}
-        />
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="animate-pulse">
+          <div className="h-12 bg-gray-200 rounded mb-4"></div>
+          <div className="h-12 bg-gray-200 rounded mb-4"></div>
+          <div className="h-12 bg-gray-200 rounded"></div>
+        </div>
+        <p className="text-sm text-gray-600 text-center">Loading payment form...</p>
       </div>
-      {errorMessage && (
-        <div className="text-red-500 text-sm">{errorMessage}</div>
-      )}
-    </form>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="min-h-[200px]">
+          <PaymentElement 
+            options={{
+              layout: "tabs",
+              paymentMethodOrder: ["card"],
+              fields: {
+                // billingDetails: {
+                //   email: "never",
+                //   phone: "never",
+                //   address: "never"
+                // }
+              },
+              defaultValues: {
+                billingDetails: {
+                  email: '',
+                }
+              }
+            }}
+          />
+        </div>
+        
+        {errorMessage && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          </div>
+        )}
+
+        <div className="w-full">
+          <button
+            type="submit"
+            disabled={isProcessing || !stripe || !elements}
+            className="w-full bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white py-3 px-4 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+          >
+            {isProcessing ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Processing Payment...</span>
+              </div>
+            ) : (
+              "Complete Payment"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
@@ -247,24 +328,45 @@ export default function Payments() {
       toast.error("Cart is empty or total is zero.");
       return;
     }
+
+    // Show loading state
+    setShowStripeModal(true);
+    setClientSecret(null);
+
     try {
       const response = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount: totalPrice }),
+        body: JSON.stringify({ 
+          amount: totalPrice,
+          currency: "eur", // Explicitly set EUR currency
+          metadata: {
+            customerEmail: customerInfo.email,
+            customerName: customerInfo.fullName,
+            country: customerInfo.country,
+            totalAmount: totalPrice.toString(),
+          }
+        }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
-        setShowStripeModal(true);
       } else {
-        toast.error(data.error || "Failed to initialize payment.");
+        throw new Error(data.error || "No client secret received");
       }
     } catch (error) {
       console.error("Failed to create payment intent:", error);
+      setShowStripeModal(false);
+      setClientSecret(null);
       toast.error("Failed to initialize payment. Please try again.");
     }
   };
@@ -371,7 +473,39 @@ export default function Payments() {
     clientSecret: clientSecret || undefined,
     appearance: {
       theme: "stripe",
+      variables: {
+        fontFamily: "system-ui, sans-serif",
+        fontSizeBase: "16px",
+        borderRadius: "8px",
+        colorPrimary: "#EB1E24",
+        spacingUnit: "4px",
+      },
+      rules: {
+        ".Tab": {
+          backgroundColor: "#f8f9fa",
+          border: "1px solid #e9ecef",
+          borderRadius: "8px",
+          padding: "12px",
+        },
+        ".Tab:hover": {
+          backgroundColor: "#f1f3f4",
+        },
+        ".Tab--selected": {
+          backgroundColor: "white",
+          borderColor: "#EB1E24",
+        },
+        ".Input": {
+          fontSize: "16px", // Prevents zoom on iOS
+          padding: "12px",
+        },
+        ".Label": {
+          fontSize: "14px",
+          fontWeight: "500",
+        },
+      },
     },
+    locale: "de",
+    loader: "auto",
   };
 
   return (
@@ -732,11 +866,11 @@ export default function Payments() {
                 </div>
               )}
 
-              {paymentMethod === "card" && showStripeModal && clientSecret && (
-                <div className="fixed inset-0 bg-[#0d0e112d] bg-opacity-50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl font-semibold">
+              {paymentMethod === "card" && showStripeModal && (
+                <div className="fixed inset-0 bg-[#1b1b1b2a] bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+                  <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-lg sm:text-xl font-semibold">
                         Enter Card Details
                       </h3>
                       <button
@@ -744,21 +878,34 @@ export default function Payments() {
                           setShowStripeModal(false);
                           setClientSecret(null);
                         }}
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-gray-500 hover:text-gray-700 p-1"
                       >
                         <X size={24} />
                       </button>
                     </div>
-                    <Elements
-                      stripe={stripePromise}
-                      options={stripeOptions}
-                      key={clientSecret}
-                    >
-                      <StripeCheckoutForm
-                        clientSecret={clientSecret}
-                        onSuccessfulPayment={handleSuccessfulStripePayment}
-                      />
-                    </Elements>
+                    <div className="mb-4">
+                      <div className="text-sm text-gray-600 mb-2">
+                        Total Amount: <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    {clientSecret ? (
+                      <Elements
+                        stripe={stripePromise}
+                        options={stripeOptions}
+                        key={clientSecret}
+                      >
+                        <StripeCheckoutForm
+                          clientSecret={clientSecret}
+                          onSuccessfulPayment={handleSuccessfulStripePayment}
+                          customerInfo={customerInfo} // Pass customerInfo here
+                        />
+                      </Elements>
+                    ) : (
+                      <div className="space-y-4 text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+                        <p className="text-gray-600">Initializing secure payment...</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

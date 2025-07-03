@@ -7,7 +7,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-05-28.basil", // Use a valid API version
+  apiVersion: "2025-05-28.basil", // Use the latest stable API version
 });
 
 export async function POST(request: Request) {
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { amount, currency = "usd" } = await request.json();
+    const { amount, currency = "eur", metadata } = await request.json();
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
@@ -29,10 +29,12 @@ export async function POST(request: Request) {
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Amount in cents
-      currency: currency,
+      currency: "eur", // Correct currency code for Euro
+      payment_method_types: ["card"], // Restrict to card payments only
       automatic_payment_methods: {
-        enabled: true,
+        enabled: false, // Disable to have full control over payment methods
       },
+      metadata: metadata || {},
     });
 
     return NextResponse.json({
