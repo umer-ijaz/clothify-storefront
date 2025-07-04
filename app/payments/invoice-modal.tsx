@@ -17,11 +17,16 @@ interface InvoiceModalProps {
       address: string;
       city: string;
       phone: string;
-      apartment?: string; // Added apartment field
+      country?: string;
+      postcode?: string;
+      companyName?: string;
+      deliveryPreferences?: string;
+      deliveryNotes?: string;
+      accessCodes?: string;
     };
     subtotal: number;
     tax: number;
-    shipping: number;
+    deliveryFee: number;
     total: number;
     invoice: {
       invoiceId: string;
@@ -29,16 +34,16 @@ interface InvoiceModalProps {
       date: string;
     };
     paymentMethod: string;
-    paymentDetails?: {
-      cardType?: string;
-      lastFour?: string;
+    paymentDetails: {
       transactionId: string;
       date: string;
       time?: string;
       status: string;
       expectedDelivery?: string;
     };
-    status?: string;
+    deliveryMethod: string;
+    createdAt: string;
+    status: string;
   };
 }
 
@@ -53,377 +58,318 @@ export default function InvoiceModal({
 
   const generateInvoicePDF = () => {
     const doc = new jsPDF();
-    const invoiceNumber =
-      orderData.invoice.invoiceId ||
-      `INV-${Math.floor(100000 + Math.random() * 900000)}`;
-    const currentDate = new Date(
-      orderData.invoice.date || new Date()
-    ).toLocaleDateString();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    let currentY = 0;
 
-    // Function to add header to each page
-    const addPageHeader = () => {
-      // Light gray background for header
+    const addHeader = () => {
       doc.setFillColor(248, 249, 250);
-      doc.rect(0, 0, pageWidth, 40, "F");
+      doc.rect(0, 0, pageWidth, 50, "F");
 
-      // Accent color bar on left side
-      doc.setFillColor(220, 38, 38); // Red color
+      doc.setFillColor(220, 38, 38);
       doc.rect(0, 0, 10, pageHeight, "F");
 
-      // Logo and Title in header
-      doc.setFontSize(24);
-      doc.setTextColor(220, 38, 38); // Red color for main title
-      doc.setFont("helvetica", "bold");
-      doc.text("DANIEL", 20, 20);
-      doc.setFontSize(12);
-      doc.text("E-COMMERCE", 20, 28);
-
-      // Add "logo" on right side
-      const logoWidth = 30;
-      const logoHeight = 20;
-      const logoX = pageWidth - 40;
-      const logoY = 10;
-
       try {
-        doc.addImage("/logo.png", "PNG", logoX, logoY, logoWidth, logoHeight);
-      } catch (error) {
-        // Fallback to text if image fails to load
-        doc.setFillColor(220, 38, 38);
-        doc.rect(logoX, logoY, logoWidth, logoHeight, "F");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        doc.text("DANIEL", logoX + logoWidth / 2, logoY + 10, {
-          align: "center",
-        });
-        doc.text("SHOP", logoX + logoWidth / 2, logoY + 15, {
-          align: "center",
-        });
+        doc.addImage("/logo.png", "PNG", pageWidth - 50, 10, 30, 20);
+      } catch {
+        doc.setFontSize(16);
+        doc.setTextColor(220, 38, 38);
+        doc.text("DANIEL SHOP", pageWidth - 50, 20);
       }
-    };
 
-    // Function to add footer to each page
-    const addPageFooter = () => {
-      const footerY = pageHeight - 20;
-      doc.setDrawColor(220, 38, 38);
-      doc.setLineWidth(0.5);
-      doc.line(20, footerY - 10, pageWidth - 20, footerY - 10);
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(220, 38, 38);
+      doc.text("DANIEL", margin, 20);
+      doc.setFontSize(10);
+      doc.text("E-COMMERCE", margin, 28);
 
       doc.setFontSize(8);
+      doc.setTextColor(90, 90, 90);
+
+      const contactInfo = [
+        `E-Mail: info@danilsbelive.de`,
+        `Tel: 0049 152 2381 5822`,
+        `Adresse: Richthofenstraße 39, 24159 Kiel`,
+      ];
+
+      contactInfo.forEach((line, index) => {
+        doc.text(line, margin, 36 + index * 6);
+      });
+
+      currentY = 60;
+    };
+
+    const addFooter = () => {
+      const footerY = pageHeight - 20;
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(220, 38, 38);
+      doc.line(margin, footerY - 10, pageWidth - margin, footerY - 10);
+      doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
-      doc.setFont("helvetica", "normal");
       doc.text(
-        "Thank you for shopping with Daniel E-Commerce!",
+        "Vielen Dank für Ihren Einkauf bei Daniel E-Commerce!",
         pageWidth / 2,
         footerY - 5,
         { align: "center" }
       );
       doc.text(
-        `www.daniel-ecommerce.com | support@daniel-ecommerce.com | +1 (555) 123-4567`,
+        "www.danielsbelieve.de | info@danilsbelive.de",
         pageWidth / 2,
         footerY,
-        {
-          align: "center",
-        }
+        { align: "center" }
       );
     };
 
-    // Add first page header
-    addPageHeader();
+    const addInvoiceInfo = () => {
+      doc.setFontSize(16);
+      doc.setTextColor(60, 60, 60);
+      doc.text("RECHNUNG", margin, currentY);
 
-    // Invoice title and number
-    doc.setFontSize(16);
-    doc.setTextColor(60, 60, 60);
-    doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", 20, 50);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Invoice #: ${invoiceNumber}`, 20, 58);
-    doc.text(`Date: ${currentDate}`, 20, 65);
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Order #: ${orderData.id}`, 105, 58);
-
-    // Horizontal line
-    doc.setDrawColor(220, 38, 38);
-    doc.setLineWidth(0.5);
-    doc.line(20, 70, pageWidth - 20, 70);
-
-    // Two-column layout for customer and payment info
-    const colWidth = (pageWidth - 40) / 2;
-
-    // Left column - Customer Information
-    doc.setFontSize(12);
-    doc.setTextColor(60, 60, 60);
-    doc.setFont("helvetica", "bold");
-    doc.text("BILL TO", 20, 85);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${orderData.customerInfo.name}`, 20, 95);
-
-    // Handle address with apartment if available
-    let addressY = 102;
-    const addressLines = orderData.customerInfo.address.split(", ");
-    doc.text(addressLines[0], 20, addressY);
-    addressY += 7;
-
-    if (addressLines.length > 1) {
-      doc.text(addressLines[1], 20, addressY);
-      addressY += 7;
-    }
-
-    if (orderData.customerInfo.apartment) {
-      doc.text(`Apt: ${orderData.customerInfo.apartment}`, 20, addressY);
-      addressY += 7;
-    }
-
-    doc.text(`${orderData.customerInfo.city}`, 20, addressY);
-    addressY += 7;
-    doc.text(`Phone: ${orderData.customerInfo.phone}`, 20, addressY);
-    addressY += 7;
-    doc.text(`Email: ${orderData.customerInfo.email}`, 20, addressY);
-
-    // Right column - Payment Information
-    doc.setFontSize(12);
-    doc.setTextColor(60, 60, 60);
-    doc.setFont("helvetica", "bold");
-    doc.text("PAYMENT DETAILS", 20 + colWidth, 85);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Method: ${orderData.paymentMethod}`, 20 + colWidth, 95);
-
-    // Add detailed payment information based on payment method
-    if (orderData.paymentMethod.includes("Credit Card")) {
-      const cardType =
-        orderData.paymentDetails?.cardType ||
-        (orderData.paymentMethod.includes("mastercard")
-          ? "Mastercard"
-          : "Visa");
-
-      doc.text(`Card Type: ${cardType}`, 20 + colWidth, 102);
+      doc.setFontSize(10);
       doc.text(
-        `Card Number: **** **** **** ${
-          orderData.paymentDetails?.lastFour || "1234"
-        }`,
-        20 + colWidth,
-        109
+        `Rechnungsnummer: ${orderData.invoice.invoiceId}`,
+        margin,
+        currentY + 8
       );
       doc.text(
-        `Transaction ID: ${
-          orderData.paymentDetails?.transactionId ||
-          "TXN" + Math.floor(Math.random() * 1000000)
-        }`,
-        20 + colWidth,
-        116
+        `Datum: ${new Date(orderData.invoice.date).toLocaleDateString(
+          "de-DE"
+        )}`,
+        margin,
+        currentY + 16
       );
-      doc.text(
-        `Status: ${orderData.paymentDetails?.status || "Completed"}`,
-        20 + colWidth,
-        123
-      );
-    } else {
-      doc.text(
-        `Status: ${
-          orderData.paymentDetails?.status || "Pending (Cash on Delivery)"
-        }`,
-        20 + colWidth,
-        102
-      );
-      doc.text(
-        `Transaction ID: ${
-          orderData.paymentDetails?.transactionId ||
-          "COD" + Math.floor(Math.random() * 1000000)
-        }`,
-        20 + colWidth,
-        109
-      );
-      doc.text(
-        `Expected Delivery: ${
-          orderData.paymentDetails?.expectedDelivery ||
-          new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString()
-        }`,
-        20 + colWidth,
-        116
-      );
-    }
+      doc.text(`Bestellnummer: ${orderData.id}`, pageWidth / 2, currentY + 8);
 
-    // Horizontal line before table
-    doc.setDrawColor(220, 220, 220);
-    doc.setLineWidth(0.3);
-    doc.line(20, 135, pageWidth - 20, 135);
+      currentY += 30;
+    };
 
-    // Order Items Table with enhanced columns for size and color
-    const tableColumn = ["Item", "Size", "Color", "Quantity", "Price", "Total"];
-    const tableRows = orderData.items.map((item) => [
-      item.name,
-      item.size || "N/A",
-      item.color || "N/A",
-      item.quantity,
-      `€${item.price.toFixed(2)}`,
-      `€${(item.price * item.quantity).toFixed(2)}`,
-    ]);
+    const addCustomerAndPaymentInfo = () => {
+      const colWidth = (pageWidth - margin * 3) / 2;
+      const leftX = margin;
+      const rightX = margin * 2 + colWidth;
+      const lineHeight = 6; // Consistent line height
+      const maxLines = 10; // Maximum expected lines per column
 
-    // Add the table with custom styling and dynamic pagination
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 145,
-      theme: "grid",
-      styles: {
-        fontSize: 9,
-        textColor: [80, 80, 80],
-        cellPadding: 6,
-      },
-      headStyles: {
-        fillColor: [220, 38, 38],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto" },
-        1: { cellWidth: 25, halign: "center" },
-        2: { cellWidth: 25, halign: "center" },
-        3: { cellWidth: 25, halign: "center" },
-        4: { cellWidth: 30, halign: "right" },
-        5: { cellWidth: 30, halign: "right" },
-      },
-      margin: { left: 20, right: 20 },
-      // Add these options for better page handling
-      didDrawPage: (data) => {
-        // Add header and footer to each page
-        addPageHeader();
-        addPageFooter();
-      },
-      // Enable automatic page breaks
-      showHead: "everyPage",
-    });
+      doc.setFontSize(12);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont("helvetica", "bold");
+      doc.text("RECHNUNGSADRESSE", leftX, currentY);
+      doc.text("ZAHLUNGSINFORMATIONEN", rightX, currentY);
 
-    // Get the final Y position after the table
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
-
-    // Check if there's enough space for the summary box
-    const summaryBoxHeight = 60;
-    const footerHeight = 30;
-
-    // Always put the summary on a new page if we're close to the bottom
-    // This ensures consistent placement and avoids crowding
-    if (finalY + summaryBoxHeight > pageHeight - footerHeight) {
-      // Not enough space, add a new page
-      doc.addPage();
-
-      // Add header to the new page
-      addPageHeader();
-
-      // Add summary at the top of the new page with some margin
-      const newFinalY = 60; // Start after the header with some margin
-
-      // Summary box with totals on the new page
-      doc.setFillColor(248, 249, 250);
-      doc.roundedRect(pageWidth - 100, newFinalY, 80, 50, 3, 3, "F");
-
-      // Add summary with right alignment
       doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(90, 90, 90);
+
+      const leftY = currentY + 10;
+      const rightY = currentY + 10;
+
+      // Customer Info (left column) - with automatic line breaks
+      const customer = orderData.customerInfo;
+
+      // Split address into multiple lines if needed
+      const addressLines = doc.splitTextToSize(
+        `${customer.name}\n${
+          customer.companyName ? customer.companyName + "\n" : ""
+        }${customer.address}\n${customer.postcode || ""} ${
+          customer.city
+        }\nLand: ${customer.country || "Deutschland"}\nTelefon: ${
+          customer.phone
+        }\nEmail: ${customer.email}`,
+        colWidth - 5 // Slightly less than column width for padding
+      );
+
+      // Payment Info (right column)
+      const payment = orderData.paymentDetails;
+      const paymentInfo = [
+        `Zahlungsmethode: ${orderData.paymentMethod}`,
+        `Transaktions-ID: ${payment.transactionId}`,
+        `Datum: ${new Date(payment.date).toLocaleDateString("de-DE")}`,
+        ...(payment.time ? [`Uhrzeit: ${payment.time}`] : []),
+        `Status: ${translateStatus(payment.status)}`,
+        ...(payment.expectedDelivery
+          ? [`Voraussichtliche Lieferung: ${payment.expectedDelivery}`]
+          : []),
+      ];
+
+      // Calculate total lines needed (use whichever is longer)
+      const totalLines = Math.max(
+        addressLines.length,
+        paymentInfo.length,
+        maxLines
+      );
+
+      // Draw left column lines
+      addressLines.forEach((line: any, index: any) => {
+        if (index < maxLines) {
+          doc.text(line, leftX, leftY + index * lineHeight);
+        }
+      });
+
+      // Draw right column lines
+      paymentInfo.forEach((line, index) => {
+        if (index < maxLines) {
+          doc.text(line, rightX, rightY + index * lineHeight);
+        }
+      });
+
+      // Add empty lines if needed to balance columns
+      for (let i = addressLines.length; i < totalLines; i++) {
+        doc.text("", leftX, leftY + i * lineHeight);
+      }
+      for (let i = paymentInfo.length; i < totalLines; i++) {
+        doc.text("", rightX, rightY + i * lineHeight);
+      }
+
+      currentY += totalLines * lineHeight + 10;
+    };
+
+    const addItemsTable = () => {
+      const itemRows = orderData.items.map((item) => [
+        item.name,
+        item.size || "N/A",
+        item.color || "N/A",
+        item.quantity,
+        `€${item.price.toFixed(2)}`,
+        `€${(item.price * item.quantity).toFixed(2)}`,
+      ]);
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [["Artikel", "Größe", "Farbe", "Menge", "Preis", "Gesamt"]],
+        body: itemRows,
+        theme: "grid",
+        styles: {
+          fontSize: 9,
+          textColor: [60, 60, 60],
+          cellPadding: 4,
+        },
+        headStyles: {
+          fillColor: [220, 38, 38],
+          textColor: 255,
+        },
+        columnStyles: {
+          0: { cellWidth: "auto" },
+          1: { halign: "center" },
+          2: { halign: "center" },
+          3: { halign: "center" },
+          4: { halign: "right" },
+          5: { halign: "right" },
+        },
+        margin: { left: margin, right: margin },
+        didDrawPage: () => {
+          addHeader();
+          addFooter();
+        },
+        showHead: "everyPage",
+      });
+
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+    };
+
+    const addSummaryAndPaymentDetails = () => {
+      const summaryWidth = 80;
+      const summaryX = pageWidth - margin - summaryWidth;
+
+      // Summary Box
+      doc.setFillColor(248, 249, 250);
+      doc.roundedRect(summaryX, currentY, summaryWidth, 50, 3, 3, "F");
+
+      const labelX = summaryX + 40;
+      const valueX = summaryX + summaryWidth - 5;
+      let lineY = currentY + 10;
+
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
-      doc.text(`Subtotal:`, pageWidth - 60, newFinalY + 10, { align: "right" });
-      doc.text(`Tax:`, pageWidth - 60, newFinalY + 20, { align: "right" });
-      doc.text(`Shipping:`, pageWidth - 60, newFinalY + 30, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      doc.text("Zwischensumme:", labelX, lineY, { align: "right" });
+      doc.text("Steuer:", labelX, (lineY += 6), { align: "right" });
+      doc.text("Versand:", labelX, (lineY += 6), { align: "right" });
 
       doc.setFont("helvetica", "bold");
       doc.setTextColor(60, 60, 60);
-      doc.text(
-        `€${orderData.subtotal.toFixed(2)}`,
-        pageWidth - 25,
-        newFinalY + 10,
-        { align: "right" }
-      );
-      doc.text(`€${orderData.tax.toFixed(2)}`, pageWidth - 25, newFinalY + 20, {
+      lineY = currentY + 10;
+      doc.text(`€${orderData.subtotal.toFixed(2)}`, valueX, lineY, {
         align: "right",
       });
-      doc.text(
-        `€${orderData.shipping.toFixed(2)}`,
-        pageWidth - 25,
-        newFinalY + 30,
-        { align: "right" }
-      );
+      doc.text(`€${orderData.tax.toFixed(2)}`, valueX, (lineY += 6), {
+        align: "right",
+      });
+      doc.text(`€${orderData.deliveryFee.toFixed(2)}`, valueX, (lineY += 6), {
+        align: "right",
+      });
 
-      // Total with highlight
       doc.setDrawColor(220, 38, 38);
-      doc.setLineWidth(0.5);
-      doc.line(pageWidth - 100, newFinalY + 40, pageWidth - 20, newFinalY + 40);
+      doc.line(summaryX, currentY + 40, summaryX + summaryWidth, currentY + 40);
 
       doc.setFontSize(12);
       doc.setTextColor(220, 38, 38);
-      doc.text(`TOTAL:`, pageWidth - 60, newFinalY + 48, { align: "right" });
-      doc.text(
-        `€${orderData.total.toFixed(2)}`,
-        pageWidth - 25,
-        newFinalY + 48,
-        { align: "right" }
-      );
+      doc.text("GESAMTSUMME:", labelX, currentY + 48, { align: "right" });
+      doc.text(`€${orderData.total.toFixed(2)}`, valueX, currentY + 48, {
+        align: "right",
+      });
 
-      // Add footer to the new page
-      addPageFooter();
-    } else {
-      // Enough space, add summary box on the same page
-      doc.setFillColor(248, 249, 250);
-      doc.roundedRect(pageWidth - 100, finalY, 80, 50, 3, 3, "F");
+      // Terms Block
+      currentY += 60;
+      const terms = [
+        "Vielen Dank für Ihre Bestellung.",
+        "Zahlungsbedingungen: Sofort fällig",
+        "Bitte geben Sie bei Zahlungen und Anfragen immer die Rechnungsnummer an!",
+        "",
+        "Bankverbindung:",
+        "Bank: Targo Bank",
+        "Kontoinhaber: Khurram Rehmat",
+        "IBAN: DE67300209005370724163",
+        "BIC: CMCIDEDDXXX",
+      ];
 
-      // Add summary with right alignment
-      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text(`Subtotal:`, pageWidth - 60, finalY + 10, { align: "right" });
-      doc.text(`Tax:`, pageWidth - 60, finalY + 20, { align: "right" });
-      doc.text(`Shipping:`, pageWidth - 60, finalY + 30, { align: "right" });
+      doc.setTextColor(90, 90, 90);
+      doc.setFont("helvetica", "normal");
 
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(60, 60, 60);
-      doc.text(
-        `€${orderData.subtotal.toFixed(2)}`,
-        pageWidth - 25,
-        finalY + 10,
-        { align: "right" }
-      );
-      doc.text(`€${orderData.tax.toFixed(2)}`, pageWidth - 25, finalY + 20, {
-        align: "right",
-      });
-      doc.text(
-        `€${orderData.shipping.toFixed(2)}`,
-        pageWidth - 25,
-        finalY + 30,
-        { align: "right" }
-      );
+      for (const line of terms) {
+        if (currentY > pageHeight - 30) {
+          doc.addPage();
+          currentY = 20;
+          addHeader();
+          addFooter();
+        }
+        doc.text(line, margin, currentY);
+        currentY += 6;
+      }
+    };
 
-      // Total with highlight
-      doc.setDrawColor(220, 38, 38);
-      doc.setLineWidth(0.5);
-      doc.line(pageWidth - 100, finalY + 40, pageWidth - 20, finalY + 40);
-
-      doc.setFontSize(12);
-      doc.setTextColor(220, 38, 38);
-      doc.text(`TOTAL:`, pageWidth - 60, finalY + 48, { align: "right" });
-      doc.text(`€${orderData.total.toFixed(2)}`, pageWidth - 25, finalY + 48, {
-        align: "right",
-      });
-    }
-
-    // Save the PDF
-    doc.save(`invoice-${invoiceNumber}.pdf`);
+    // Generate full PDF
+    addHeader();
+    addInvoiceInfo();
+    addCustomerAndPaymentInfo();
+    addItemsTable();
+    addSummaryAndPaymentDetails();
+    doc.save(`rechnung-${orderData.invoice.invoiceId}.pdf`);
     setInvoiceGenerated(true);
+  };
+
+  const translateStatus = (status: string) => {
+    switch (status) {
+      case "Completed":
+        return "Abgeschlossen";
+      case "Pending":
+        return "Ausstehend";
+      case "Processing":
+        return "In Bearbeitung";
+      case "Shipped":
+        return "Versandt";
+      case "Cancelled":
+        return "Storniert";
+      default:
+        return status;
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 w-full">
       <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
@@ -432,9 +378,8 @@ export default function InvoiceModal({
         </button>
 
         <div className="flex flex-col items-center justify-center py-6">
-          {/* Show order status */}
           <div className="mb-2 text-sm">
-            <span className="font-semibold">Order Status: </span>
+            <span className="font-semibold">Bestellstatus: </span>
             <span
               className={
                 orderData.status === "Completed"
@@ -444,7 +389,7 @@ export default function InvoiceModal({
                   : "text-gray-600"
               }
             >
-              {orderData.status || "Processing"}
+              {translateStatus(orderData.status)}
             </span>
           </div>
           {invoiceGenerated ? (
@@ -452,33 +397,28 @@ export default function InvoiceModal({
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="h-10 w-10 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Order Confirmed!</h2>
-              <p className="text-gray-600 text-center mb-6">
-                Your order has been placed and your invoice has been downloaded.
-              </p>
+              <h2 className="text-2xl font-bold mb-2">
+                Rechnung heruntergeladen
+              </h2>
               <button
                 onClick={onClose}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-full cursor-pointer"
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-full"
               >
-                Close
+                Schließen
               </button>
             </>
           ) : (
             <>
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Order Confirmed!</h2>
+              <h2 className="text-2xl font-bold mb-2">Bestellung bestätigt!</h2>
               <p className="text-gray-600 text-center mb-6">
-                Your order has been placed. Thank you for shopping with us!
+                Klicken Sie unten, um Ihre Rechnung herunterzuladen.
               </p>
               <button
                 onClick={generateInvoicePDF}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] hover:bg-red-600 text-white py-3 px-6 rounded-full w-full transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center cursor-pointer
-    hover:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604]"
+                className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 text-white py-3 px-6 rounded-full flex items-center gap-2"
               >
-                <Download className="h-5 w-5" />
-                Download Invoice
+                <Download size={18} />
+                Rechnung herunterladen
               </button>
             </>
           )}

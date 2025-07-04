@@ -131,8 +131,8 @@ export function SearchResults({
     return (
       <div className="text-center py-10">
         <p className="text-lg text-gray-600">
-          No products found matching &quot;{query}&quot;. Try a different search
-          term.
+          Keine Produkte gefunden für &quot;{query}&quot;. Bitte versuchen Sie
+          einen anderen Suchbegriff.
         </p>
       </div>
     );
@@ -143,30 +143,13 @@ export function SearchResults({
       <div className="px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-4 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-gray-400">Search</span>
+        <span className="text-gray-400">Suche</span>
         <span className="text-gray-400">/</span>
         <span className="text-red-500 hover:text-red-700"> {query}</span>
       </div>
       <TextField text={query.charAt(0).toUpperCase() + query.slice(1)} />
-      {/* <p className="mb-4 text-gray-600">
-        Found {filteredProducts.length} product
-        {filteredProducts.length !== 1 ? "s" : ""}
-      </p> */}
-      {/* {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-          {Array.from({ length: currentProducts.length }).map((_, index) => (
-            <ItemCardSkeleton key={index} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {currentProducts.map((product) => (
-            <ItemCard key={product.id} {...product} />
-          ))}
-        </div>
-      )} */}
       {/* Page Layout with padding to avoid overlap */}
-      <div className="flex-1 py-8  relative">
+      <div className="flex-1 py-8 relative">
         <Image
           src="/design.svg"
           alt="Design"
@@ -178,7 +161,7 @@ export function SearchResults({
 
         {currentProducts.length === 0 ? (
           <div className="flex items-center text-gray-400 justify-center">
-            No Product found for the following category!
+            Keine Produkte in dieser Kategorie gefunden!
           </div>
         ) : (
           <div>
@@ -188,13 +171,13 @@ export function SearchResults({
                 <summary className="list-none flex items-center justify-between p-4 cursor-pointer">
                   <div className="flex items-center">
                     <Filter className="h-5 w-5 mr-2" />
-                    <span className="font-medium">Filters</span>
+                    <span className="font-medium">Filter</span>
                   </div>
                   <span className="text-sm text-red-500">
                     {(() => {
                       let count = 0;
                       if (currentProducts.length > 0) count++;
-                      return count > 0 ? `${count} active` : "";
+                      return count > 0 ? `${count} aktiv` : "";
                     })()}
                   </span>
                 </summary>

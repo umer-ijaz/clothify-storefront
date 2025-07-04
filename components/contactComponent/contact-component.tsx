@@ -77,15 +77,15 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="firstName"
-                className="block text-sm font-normal text-gray-700"
+                className="block text-sm font-bold text-gray-700"
               >
-                First Name*
+                Vorname*
               </label>
               <input
                 type="text"
                 id="firstName"
                 name="firstName"
-                placeholder="Write Here"
+                placeholder="Hier schreiben"
                 value={formData.firstName}
                 onChange={handleChange}
                 required
@@ -97,15 +97,15 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="lastName"
-                className="block text-sm font-normal text-gray-700"
+                className="block text-sm font-bold text-gray-700"
               >
-                Last Name*
+                Nachname*
               </label>
               <input
                 type="text"
                 id="lastName"
                 name="lastName"
-                placeholder="Write Here"
+                placeholder="Hier schreiben"
                 value={formData.lastName}
                 onChange={handleChange}
                 required
@@ -117,15 +117,15 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="phoneNumber"
-                className="block text-sm font-normal text-gray-700"
+                className="block text-sm font-bold text-gray-700"
               >
-                Phone Number
+                Telefonnummer
               </label>
               <input
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
-                placeholder="Write Here"
+                placeholder="Hier schreiben"
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
@@ -136,7 +136,7 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-normal text-gray-700"
+                className="block text-sm font-bold text-gray-700"
               >
                 Email
               </label>
@@ -144,7 +144,7 @@ export default function ContactForm() {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="Write Here"
+                placeholder="Hier schreiben"
                 value={formData.email}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
@@ -156,14 +156,14 @@ export default function ContactForm() {
           <div className="mt-4 flex-1 md:mt-0">
             <label
               htmlFor="message"
-              className="block text-sm font-normal text-gray-700"
+              className="block text-sm font-bold text-gray-700"
             >
-              Message
+              Nachricht
             </label>
             <textarea
               id="message"
               name="message"
-              placeholder="Write Here"
+              placeholder="Write HereHier schreiben"
               value={formData.message}
               onChange={handleChange}
               rows={7}
@@ -179,7 +179,7 @@ export default function ContactForm() {
             className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] px-5 py-2 text-sm font-medium text-white transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer hover:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604]"
           >
             <Send className="h-4 w-4" />
-            Send
+            Senden
           </button>
         </div>
       </form>

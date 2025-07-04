@@ -67,7 +67,7 @@ const TopBar: React.FC = () => {
               href={`/services/${service.id}`}
               className="text-blue-600 text-sm hover:underline"
             >
-              Read More
+              Mehr lesen
             </Link>
           </div>
         </div>

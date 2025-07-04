@@ -151,9 +151,9 @@ export default function About() {
       <div className="py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-0 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-red-500">About</span>
+        <span className="text-red-500">Über</span>
       </div>
-      <TextField text={"About"} />
+      <TextField text={"Über"} />
 
       {/* Our Story Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 px-2 sm:px-4 md:px-8 lg:px-12">
@@ -359,16 +359,20 @@ export default function About() {
       {/* Team Section - Dynamic from Firebase */}
       <section className="py-16 bg-gray-100">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
-              {aboutData?.teamTitle || "Meet Our Team"}
-            </h2>
-            <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
-            <pre className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
-              {aboutData?.teamDescription ||
-                "The dedicated professionals behind Daniel's E-commerce who work tirelessly to serve you better."}
-            </pre>
-          </div>
+          {aboutData?.teamMembers &&
+          aboutData.teamMembers.length > 0 &&
+          aboutData.teamMembers[0].name ? (
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                {aboutData?.teamTitle || "Meet Our Team"}
+              </h2>
+              <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
+              <pre className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+                {aboutData?.teamDescription ||
+                  "The dedicated professionals behind Daniel's E-commerce who work tirelessly to serve you better."}
+              </pre>
+            </div>
+          ) : null}
 
           {aboutData?.teamMembers &&
           aboutData.teamMembers.length > 0 &&
@@ -401,23 +405,7 @@ export default function About() {
                   </div>
                 ))}
             </div>
-          ) : (
-            <div className="text-center py-16 bg-white rounded-lg shadow-md max-w-md mx-auto">
-              <Image
-                src="/empty-box.svg"
-                alt="No team members found"
-                width={120}
-                height={120}
-                className="mx-auto mb-4"
-              />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                No Team Members Found
-              </h3>
-              <p className="text-gray-500">
-                We couldn&apos;t find any team members at the moment.
-              </p>
-            </div>
-          )}
+          ) : null}
         </div>
       </section>
 
@@ -448,7 +436,7 @@ export default function About() {
               <MapPin className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Our Location
+              Unser Standort
             </h3>
             <p className="text-gray-600 text-center">
               {aboutData?.contactInfo?.address?.line1 || "123 Commerce Street"}
@@ -464,7 +452,7 @@ export default function About() {
               <Clock className="w-6 h-6 text-orange-500" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Business Hours
+              Öffnungszeiten
             </h3>
             <p className="text-gray-600 text-center">
               {aboutData?.contactInfo?.hours?.weekdays ||
@@ -482,7 +470,7 @@ export default function About() {
               <Users className="w-6 h-6 text-gray-700" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Customer Support
+              Kundendienst
             </h3>
             <p className="text-gray-600 text-center">
               Email:{" "}

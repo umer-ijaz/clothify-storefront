@@ -70,11 +70,11 @@ export default function ServicesPage() {
         <nav className="flex items-center mb-8 text-md md:text-xl font-small capitalize">
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500">Services</span>
+          <span className="text-red-500">Dienstleistungen</span>
         </nav>
 
         {/* Services Header */}
-        <TextField text={"Services"} />
+        <TextField text={"Dienstleistungen"} />
 
         {/* Services Grid */}
         {services.length > 0 ? (
@@ -104,7 +104,7 @@ export default function ServicesPage() {
                     href={`/services/${service.id}`}
                     className="flex justify-center items-center m-auto"
                   >
-                    <Button text={"Read More"} />
+                    <Button text={"Mehr lesen"} />
                   </Link>
                 </div>
               </div>
@@ -121,10 +121,10 @@ export default function ServicesPage() {
                 className="mx-auto mb-4"
               />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                No Services Found
+                Keine Dienstleistungen gefunden
               </h3>
               <p className="text-gray-500">
-                We couldn&apos;t find any services at the moment.
+                Wir konnten im Moment keine Dienstleistungen finden.
               </p>
             </div>
           </div>

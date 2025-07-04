@@ -32,7 +32,7 @@ export default function ProductCardWithModal({ product }: ProductCardProps) {
       size: product.sizes?.[0] || "",
     });
 
-    toast.success("Product added to cart");
+    toast.success("Produkt wurde in den Warenkorb gelegt");
   };
 
   const handleQuickView = (e: React.MouseEvent) => {

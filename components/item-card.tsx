@@ -11,7 +11,7 @@ import { ShoppingBag, Star } from "lucide-react";
 
 interface ProductCardEnhancedProps {
   id: string;
-  subcategory:string;
+  subcategory: string;
   name: string;
   category: string;
   images: string[];
@@ -55,7 +55,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             height={500}
             quality={100}
             className={cn(
-              "object-cover transition-transform duration-500 p-4 shadow-sm",
+              "object-cover transition-transform duration-500 p-4 shadow-sm"
             )}
           />
         </Link>
@@ -73,7 +73,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           <div className="absolute top-0 right-0 w-full h-full">
             {/* Sale Ribbon */}
             <div className="absolute right-[-30px] top-2 bg-green-600 text-white text-xs font-bold py-1 px-8 transform rotate-45 shadow-md">
-              SALE
+              VERKAUF
             </div>
           </div>
         )}
@@ -81,12 +81,12 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
         {/* Stock indicator */}
         {props.stock <= 5 && props.stock > 0 && (
           <div className="absolute bottom-2 left-2 bg-amber-100 text-amber-900 text-sm px-2 py-1 rounded-full">
-            Only {props.stock} left
+            Nur noch {props.stock} verfügbar
           </div>
         )}
         {props.stock === 0 && (
           <div className="absolute bottom-2 left-2 bg-red-100 text-red-900 text-sm px-2 py-1 rounded-full">
-            Out of Stock
+            Nicht auf Lager
           </div>
         )}
       </div>
@@ -95,7 +95,15 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
         <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground mb-1">
             {props.category.charAt(0).toUpperCase() +
-              props.category.slice(1).toLowerCase()}
+              props.category.slice(1).toLowerCase() ==
+            "Men"
+              ? "Herren"
+              : props.category.charAt(0).toUpperCase() +
+                  props.category.slice(1).toLowerCase() ==
+                "Women"
+              ? "Damen"
+              : props.category.charAt(0).toUpperCase() +
+                props.category.slice(1).toLowerCase()}
           </div>
           <div className="flex flex-col gap-4 z-0">
             <ProductQuickViewButton product={props} iconOnly />
@@ -125,15 +133,15 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           {props.originalPrice && props.originalPrice > props.currentPrice ? (
             <>
               <span className="font-semibold text-green-500">
-                 €{props.currentPrice.toFixed(2)}
+                €{props.currentPrice.toFixed(2)}
               </span>
               <span className="text-muted-foreground text-sm line-through text-red-500">
-                 €{props.originalPrice.toFixed(2)}
+                €{props.originalPrice.toFixed(2)}
               </span>
             </>
           ) : (
             <span className="font-semibold text-green-500">
-               €{props.currentPrice.toFixed(2)}
+              €{props.currentPrice.toFixed(2)}
             </span>
           )}
         </div>
@@ -151,7 +159,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             href={`/product/${props.id}`}
           >
             <ShoppingBag className="h-4 w-4" />
-            Buy Now
+            Jetzt kaufen
           </Link>
         </div>
       </div>

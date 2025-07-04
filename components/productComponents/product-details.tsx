@@ -83,7 +83,11 @@ export default function ProductDetailPage({
             href={`/category/${product.category}`}
             className="text-gray-500 hover:text-gray-700"
           >
-            {product.category}
+            {product.category == "men"
+              ? "Herren"
+              : product.category == "women"
+              ? "Damen"
+              : product.category}
           </Link>
           <span className="mx-2 text-gray-400">/</span>
           <span className="text-red-500">{product.name}</span>
@@ -100,7 +104,7 @@ export default function ProductDetailPage({
                 setSelectedImage={setSelectedImage}
               />
             </div>
-            <div className="px-0 sm:px-2 md:px-4 lg:px-8 mb-8 w-full md:w-1/3">
+            <div className="px-0 sm:px-2 md:px-4 lg:px-8 mb-8 w-full md:w-1/2">
               <div className="bg-white p-4 sm:p-6 md:p-8">
                 <ProductInfo
                   product={product}
@@ -122,7 +126,7 @@ export default function ProductDetailPage({
         {/* Features Section */}
         {(product?.features ?? []).length > 0 && (
           <div className="mt-10">
-            <TextBox text="Features" />
+            <TextBox text="Merkmale" />
             <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-sm md:shadow-md mt-4">
               <ul className="grid gap-2 text-gray-700 text-sm">
                 {product.features!.map((feature: string, index: number) => (
@@ -141,7 +145,9 @@ export default function ProductDetailPage({
 
         {/* Reviews Section */}
         <div className="relative mt-10">
-          <TextBox text="Reviews" />
+          <TextBox
+            text="Bewertungen"
+          />
           <Image
             src="/bubble.svg"
             alt="Bubble graphic"

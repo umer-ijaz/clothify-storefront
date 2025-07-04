@@ -17,29 +17,30 @@ const paymentMethods: Record<
   }
 > = {
   paypal: {
-    title: "PayPal Payment",
+    title: "PayPal-Zahlung",
     description:
-      "PayPal is a secure online payment system. Log in, confirm, and pay in a few easy steps.",
+      "PayPal ist ein sicheres Online-Zahlungssystem. Melden Sie sich an, bestätigen Sie und bezahlen Sie in wenigen einfachen Schritten.",
     perfectMethod:
-      "Use a verified PayPal account linked to your primary bank for faster transactions and enhanced security.",
+      "Verwenden Sie ein verifiziertes PayPal-Konto, das mit Ihrer Hauptbank verbunden ist, für schnellere Transaktionen und erhöhte Sicherheit.",
     steps: [
-      "Go to PayPal and log in to your account.",
-      "Confirm the payment details.",
-      "Click 'Pay Now' to complete the transaction.",
+      "Gehen Sie zu PayPal und melden Sie sich in Ihrem Konto an.",
+      "Bestätigen Sie die Zahlungsdetails.",
+      "Klicken Sie auf 'Jetzt bezahlen', um die Transaktion abzuschließen.",
     ],
     img: "/Plain-card.jpg",
     icon: <ShieldCheck className="text-blue-500 w-8 h-8" />,
   },
+
   "via-bank": {
-    title: "Credit/Debit Card Payment",
+    title: "Kredit-/Debitkartenzahlung",
     description:
-      "Use your card to pay securely. We support Visa, MasterCard, and more.",
+      "Verwenden Sie Ihre Karte, um sicher zu bezahlen. Wir unterstützen Visa, MasterCard und mehr.",
     perfectMethod:
-      "Use a card with 3D Secure enabled and keep your billing address updated for smooth processing.",
+      "Verwenden Sie eine Karte mit aktiviertem 3D-Secure und halten Sie Ihre Rechnungsadresse aktuell für eine reibungslose Abwicklung.",
     steps: [
-      "Enter your card details (Card Number, Expiry Date, CVV).",
-      "Verify your details and click 'Proceed'.",
-      "Complete any additional security checks (OTP, 3D Secure).",
+      "Geben Sie Ihre Kartendaten ein (Kartennummer, Ablaufdatum, CVV).",
+      "Überprüfen Sie Ihre Angaben und klicken Sie auf 'Weiter'.",
+      "Führen Sie eventuell erforderliche zusätzliche Sicherheitsprüfungen durch (OTP, 3D Secure).",
     ],
     img: "/credit_debit.jpg",
     icon: <CreditCard className="text-green-600 w-8 h-8" />,
@@ -67,15 +68,18 @@ function PaymentMethodPage() {
       <div className="px-2 sm:px-4 md:px-8 lg:px-12 flex flex-row gap-2 text-sm md:text-xl font-small mb-4 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-gray-400">Payment Method</span>
+        <span className="text-gray-400">Zahlungsmethode</span>
         <span className="text-gray-400">/</span>
         <span className="text-red-500">{methodDetails.title}</span>
       </div>
+
       <TextField text={methodDetails.title} />
+
       <div className="min-h-screen flex flex-col md:flex-row items-center justify-center pb-10 pt-0 gap-10 md:gap-5">
         <div className="w-full md:w-1/2">
-          <img src={methodDetails.img} alt="Card Image" />
+          <img src={methodDetails.img} alt="Kartenbild" />
         </div>
+
         <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center gap-4 mb-6">
             {methodDetails.icon}
@@ -83,18 +87,22 @@ function PaymentMethodPage() {
               {methodDetails.title}
             </h1>
           </div>
+
           <p className="text-gray-600 text-base mb-4">
             {methodDetails.description}
           </p>
+
           <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400 mb-6">
             <h2 className="text-blue-700 font-semibold text-lg mb-1">
-              Perfect Method 💡
+              Perfekte Methode 💡
             </h2>
             <p className="text-blue-800">{methodDetails.perfectMethod}</p>
           </div>
+
           <h2 className="text-xl font-semibold text-gray-800 mb-3">
-            Steps to Pay
+            Schritte zur Bezahlung
           </h2>
+
           <ul className="space-y-3 text-gray-700">
             {methodDetails.steps.map((step, index) => (
               <li key={index} className="flex items-start gap-2">

@@ -21,7 +21,7 @@ import Loading from "../loading";
 import InvoiceModal from "../payments/invoice-modal";
 import ProductReviewModal from "@/components/productComponents/product-reiw-modal";
 import ReturnItemModal from "@/components/return-item-modal";
-import ReturnManagement from "@/components/return-management"; // Import new component
+import ReturnManagement from "@/components/return-management";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -35,27 +35,40 @@ interface OrderItem {
 
 interface Order {
   id: string;
-  createdAt: string;
-  status: string;
-  total: number;
   items: OrderItem[];
-  invoice?: {
-    invoiceId: string;
-    date: string;
-    details: string;
-  };
-  customerInfo?: {
+  customerInfo: {
     name: string;
     email: string;
     address: string;
     city: string;
     phone: string;
+    country?: string;
+    postcode?: string;
+    companyName?: string;
+    deliveryPreferences?: string;
+    deliveryNotes?: string;
+    accessCodes?: string;
   };
-  subtotal?: number;
-  tax?: number;
-  deliveryFee?: number;
-  paymentMethod?: string;
-  paymentDetails?: any;
+  subtotal: number;
+  tax: number;
+  deliveryFee: number;
+  total: number;
+  invoice: {
+    invoiceId: string;
+    details: string;
+    date: string;
+  };
+  paymentMethod: string;
+  paymentDetails: {
+    transactionId: string;
+    date: string;
+    time?: string;
+    status: string;
+    expectedDelivery?: string;
+  };
+  deliveryMethod: string;
+  createdAt: string;
+  status: string;
 }
 
 interface ReturnRequest {
@@ -112,19 +125,44 @@ export default function OrdersPage() {
             createdAt: data.createdAt,
             total: data.total,
             items: data.items || [],
-            invoice: data.invoice || undefined,
-            customerInfo: data.customerInfo || undefined,
-            subtotal: data.subtotal,
-            tax: data.tax,
-            deliveryFee: data.deliveryFee,
-            paymentMethod: data.paymentDetails?.paymentMethod || "",
-            paymentDetails: data.paymentDetails || {},
+            invoice: data.invoice || {
+              invoiceId: `INV-${Date.now()}`,
+              details: `Rechnung generiert für Bestellung ${doc.id}`,
+              date: new Date().toISOString(),
+            },
+            customerInfo: data.customerInfo || {
+              name: "",
+              email: "",
+              address: "",
+              city: "",
+              phone: "",
+              country: "",
+              postcode: "",
+              companyName: "",
+              deliveryPreferences: "",
+              deliveryNotes: "",
+              accessCodes: "",
+            },
+            subtotal: data.subtotal || 0,
+            tax: data.tax || 0,
+            deliveryFee: data.deliveryFee || 0,
+            paymentMethod:
+              data.paymentMethod || data.paymentDetails?.paymentMethod || "",
+            paymentDetails: data.paymentDetails || {
+              transactionId: "",
+              date: "",
+              time: "",
+              status: "",
+              expectedDelivery: "",
+            },
+            deliveryMethod: data.deliveryMethod || "",
             status: data.status || "Pending",
           } as Order;
         });
         setOrders(fetchedOrders);
       } catch (err) {
-        console.error("Failed to fetch orders:", err);
+        console.error("Fehler beim Laden der Bestellungen:", err);
+        toast.error("Bestellungen konnten nicht geladen werden");
       } finally {
         setFetching(false);
       }
@@ -134,9 +172,9 @@ export default function OrdersPage() {
 
   useEffect(() => {
     // Force clear cache and refetch on mount (for testing only)
-    console.log("OrdersPage: Force clearing cache and refetching...");
+    console.log("OrdersPage: Cache wird geleert und neu geladen...");
     clearCache();
-  }, [clearCache]); // Only run once on mount
+  }, [clearCache]);
 
   useEffect(() => {
     const fetchReturnRequests = async () => {
@@ -144,12 +182,7 @@ export default function OrdersPage() {
 
       try {
         const returnsRef = collection(firestore, "returns");
-        // Temporarily remove orderBy to avoid index requirement
-        const q = query(
-          returnsRef,
-          where("userId", "==", user.uid)
-          // Remove orderBy("requestedAt", "desc") temporarily
-        );
+        const q = query(returnsRef, where("userId", "==", user.uid));
 
         const snapshot = await getDocs(q);
         let fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
@@ -170,13 +203,16 @@ export default function OrdersPage() {
         });
 
         // Sort in JavaScript instead of Firestore
-        fetchedReturns = fetchedReturns.sort((a, b) =>
-          new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
+        fetchedReturns = fetchedReturns.sort(
+          (a, b) =>
+            new Date(b.requestedAt).getTime() -
+            new Date(a.requestedAt).getTime()
         );
 
         setReturnRequests(fetchedReturns);
       } catch (err) {
-        console.error("Failed to fetch return requests:", err);
+        console.error("Fehler beim Laden der Rückgabeanfragen:", err);
+        toast.error("Rückgabeanfragen konnten nicht geladen werden");
       }
     };
 
@@ -184,24 +220,18 @@ export default function OrdersPage() {
   }, [user]);
 
   useEffect(() => {
-    // Check if policy is not loaded and not currently loading
     if (!returnPolicy && !isPolicyLoading) {
-      console.log("OrdersPage: Triggering fetchReturnPolicy..."); // Add log
+      console.log("OrdersPage: Rückgaberichtlinien werden geladen...");
       fetchReturnPolicy();
     }
-  }, [returnPolicy, isPolicyLoading, fetchReturnPolicy]); // Add dependencies
+  }, [returnPolicy, isPolicyLoading, fetchReturnPolicy]);
 
   const refreshReturnRequests = async () => {
     if (!user) return;
 
     try {
       const returnsRef = collection(firestore, "returns");
-      // Also remove orderBy here
-      const q = query(
-        returnsRef,
-        where("userId", "==", user.uid)
-        // Remove orderBy("requestedAt", "desc")
-      );
+      const q = query(returnsRef, where("userId", "==", user.uid));
 
       const snapshot = await getDocs(q);
       let fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
@@ -221,14 +251,15 @@ export default function OrdersPage() {
         };
       });
 
-      // Sort in JavaScript
-      fetchedReturns = fetchedReturns.sort((a, b) =>
-        new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
+      fetchedReturns = fetchedReturns.sort(
+        (a, b) =>
+          new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
       );
 
       setReturnRequests(fetchedReturns);
     } catch (err) {
-      console.error("Failed to refresh return requests:", err);
+      console.error("Fehler beim Aktualisieren der Rückgabeanfragen:", err);
+      toast.error("Rückgabeanfragen konnten nicht aktualisiert werden");
     }
   };
 
@@ -241,8 +272,8 @@ export default function OrdersPage() {
     rating: number;
     comment: string;
   }) => {
-    console.log("New review:", review);
-    console.log("Would update product with new review:", review);
+    console.log("Neue Bewertung:", review);
+    toast.success("Bewertung wurde erfolgreich hinzugefügt");
   };
 
   const handleCancelOrder = async (orderId: string) => {
@@ -259,18 +290,12 @@ export default function OrdersPage() {
           order.id === orderId ? { ...order, status: "Cancelled" } : order
         )
       );
-      toast.success("Order has been Cancelled Successfully");
+      toast.success("Bestellung wurde erfolgreich storniert");
     } catch (err) {
-      console.error("Failed to cancel order:", err);
-      toast.error("Failed to cancel order.");
+      console.error("Fehler beim Stornieren der Bestellung:", err);
+      toast.error("Bestellung konnte nicht storniert werden");
     }
   };
-  console.log(
-    "Return Policy (in render):",
-    returnPolicy,
-    "Loading:",
-    isPolicyLoading
-  ); // Updated log
 
   const isWithinReturnPeriod = (orderCreationDate: string): boolean => {
     if (
@@ -282,20 +307,12 @@ export default function OrdersPage() {
     }
     try {
       const createdAt = new Date(orderCreationDate);
-      console.log("Order date:", createdAt);
-      console.log("Current date:", new Date());
-      console.log("Return period days:", returnPolicy.returnPeriodDays);
-
       const deadline = new Date(createdAt);
       deadline.setDate(createdAt.getDate() + returnPolicy.returnPeriodDays);
       deadline.setHours(23, 59, 59, 999);
-      console.log("Return deadline:", deadline);
-
-      const isWithin = new Date() <= deadline;
-      console.log("Is within period:", isWithin);
-      return isWithin;
+      return new Date() <= deadline;
     } catch (e) {
-      console.error("Error calculating return deadline:", e);
+      console.error("Fehler bei der Berechnung der Rückgabefrist:", e);
       return false;
     }
   };
@@ -313,34 +330,71 @@ export default function OrdersPage() {
     setShowReturnModal(true);
   };
 
+  const getStatusText = (status: string): string => {
+    const statusMap: { [key: string]: string } = {
+      Completed: "Abgeschlossen",
+      Pending: "Ausstehend",
+      Processing: "In Bearbeitung",
+      Delivered: "Geliefert",
+      Shipped: "Versandt",
+      Cancelled: "Storniert",
+    };
+    return statusMap[status] || status;
+  };
+
+  const getReturnStatusText = (status: string): string => {
+    const statusMap: { [key: string]: string } = {
+      Pending: "Rückgabe ausstehend",
+      Approved: "Rückgabe genehmigt",
+      Rejected: "Rückgabe abgelehnt",
+      Processing: "Rückgabe wird bearbeitet",
+      Completed: "Rückgabe abgeschlossen",
+    };
+    return statusMap[status] || status;
+  };
+
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleString("de-DE", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   return (
     <div className="bg-white mt-0 pb-10">
       <div className="py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-2 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-red-500">Orders</span>
+        <span className="text-red-500">Bestellungen</span>
       </div>
-      <TextField text={"Orders & Returns"} />
+      <TextField text={"Bestellungen & Retouren"} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400 mb-6">
-          <h2 className="text-blue-700 font-semibold text-lg mb-1">Reminder</h2>
+          <h2 className="text-blue-700 font-semibold text-lg mb-1">Hinweis</h2>
           <p className="text-blue-800">
-            Order Can Only be Cancelled when the Status of Order is
-            <strong> Pending</strong>. Returns are possible within{" "}
-            <strong>{returnPolicy?.returnPeriodDays ?? 1} days</strong> of
-            delivery.
+            Bestellungen können nur storniert werden, wenn der Status der
+            Bestellung <strong>Ausstehend</strong> ist. Retouren sind innerhalb
+            von <strong>{returnPolicy?.returnPeriodDays ?? 1} Tagen</strong>{" "}
+            nach Lieferung möglich.
           </p>
         </div>
 
-        {/* Add Tabs for Orders and Returns */}
         <Tabs defaultValue="orders" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="orders">
-              My Orders ({orders.length})
+              Meine Bestellungen ({orders.length})
             </TabsTrigger>
             <TabsTrigger value="returns">
-              Return Management ({returnRequests.length})
+              Retourenverwaltung ({returnRequests.length})
             </TabsTrigger>
           </TabsList>
 
@@ -349,16 +403,16 @@ export default function OrdersPage() {
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <div className="text-gray-400 text-6xl mb-4">📦</div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No Orders Found
+                  Keine Bestellungen gefunden
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  You haven&apos;t placed any orders yet.
+                  Sie haben noch keine Bestellungen aufgegeben.
                 </p>
                 <Link
                   href="/allproducts"
                   className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white font-semibold rounded-full hover:shadow-lg transition-shadow"
                 >
-                  Start Shopping
+                  Jetzt einkaufen
                 </Link>
               </div>
             ) : (
@@ -368,12 +422,12 @@ export default function OrdersPage() {
                   .map((order) => (
                     <div
                       key={order.id}
-                      className="border rounded-lg p-6 shadow-md bg-white hover:shadow-lg active:shadow-lg transition-shadow"
+                      className="border rounded-lg p-6 shadow-md bg-white hover:shadow-lg transition-shadow"
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                         <div>
                           <span className="text-gray-500 text-sm">
-                            Order ID:
+                            Bestellnummer:
                           </span>
                           <span className="font-semibold ml-2 text-gray-800">
                             {order.id}
@@ -391,142 +445,169 @@ export default function OrdersPage() {
                                 ? "bg-blue-100 text-blue-800"
                                 : order.status === "Delivered"
                                 ? "bg-green-100 text-green-800"
+                                : order.status === "Shipped"
+                                ? "bg-blue-100 text-blue-800"
                                 : "bg-gray-100 text-gray-800"
                             }`}
                           >
-                            {order.status}
+                            {getStatusText(order.status)}
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-sm text-gray-500 mb-4">
-                        Placed on:{" "}
-                        {order.createdAt
-                          ? new Date(order.createdAt).toLocaleString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
+                        <div>
+                          <span className="font-medium">Bestellt am:</span>{" "}
+                          {formatDate(order.createdAt)}
+                        </div>
+                        {order.paymentDetails.expectedDelivery && (
+                          <div>
+                            <span className="font-medium">
+                              Erwartete Lieferung:
+                            </span>{" "}
+                            {formatDate(order.paymentDetails.expectedDelivery)}
+                          </div>
+                        )}
+                        {order.deliveryMethod && (
+                          <div>
+                            <span className="font-medium">Liefermethode:</span>{" "}
+                            {order.deliveryMethod}
+                          </div>
+                        )}
+                        {order.paymentMethod && (
+                          <div>
+                            <span className="font-medium">
+                              Zahlungsmethode:
+                            </span>{" "}
+                            {order.paymentMethod}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Customer Info Section */}
+                      <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                        <h4 className="font-medium text-gray-800 mb-2">
+                          Lieferadresse:
+                        </h4>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div>{order.customerInfo.name}</div>
+                          {order.customerInfo.companyName && (
+                            <div>{order.customerInfo.companyName}</div>
+                          )}
+                          <div>{order.customerInfo.address}</div>
+                          <div>
+                            {order.customerInfo.postcode}{" "}
+                            {order.customerInfo.city}
+                          </div>
+                          {order.customerInfo.country && (
+                            <div>{order.customerInfo.country}</div>
+                          )}
+                          <div>Tel: {order.customerInfo.phone}</div>
+                          <div>E-Mail: {order.customerInfo.email}</div>
+                          {order.customerInfo.deliveryNotes && (
+                            <div>
+                              <span className="font-medium">
+                                Lieferhinweise:
+                              </span>{" "}
+                              {order.customerInfo.deliveryNotes}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="border-t border-b py-4 my-4">
                         <h4 className="font-medium text-gray-800 mb-2">
-                          Items:
+                          Artikel:
                         </h4>
                         <ul className="space-y-4">
                           {order.items.map((item, idx) => {
                             const canReturn =
-                              order.status === "Delivered" &&
+                              (order.status === "Delivered" ||
+                                order.status === "Shipped") &&
                               isWithinReturnPeriod(order.createdAt) &&
-                              !getReturnStatus(order.id, item.id); // Only allow return if no existing request
+                              !getReturnStatus(order.id, item.id);
 
                             const returnStatus = getReturnStatus(
                               order.id,
                               item.id
                             );
 
-                            // Add this debug log
-                            console.log(`Order ${order.id}, Item ${idx}:`, {
-                              status: order.status,
-                              createdAt: order.createdAt,
-                              withinPeriod: isWithinReturnPeriod(
-                                order.createdAt
-                              ),
-                              canReturn,
-                            });
-
                             return (
-                              <li key={idx} className="flex flex-col gap-2">
+                              <li
+                                key={idx}
+                                className="flex flex-col gap-2 relative"
+                              >
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1 flex items-center gap-3">
-                                    <div className="h-12 w-12 overflow-hidden rounded-md border border-gray-200 flex-shrink-0">
+                                    <div className="h-16 w-16 overflow-hidden rounded-md border border-gray-200 flex-shrink-0">
                                       <Image
                                         src={
                                           item.image ||
-                                          "/placeholder.svg?height=48&width=48"
+                                          "/placeholder.svg?height=64&width=64"
                                         }
                                         alt={item.name}
-                                        width={48}
-                                        height={48}
+                                        width={64}
+                                        height={64}
                                         className="h-full w-full object-cover"
                                       />
                                     </div>
-                                    <div>
-                                      <span className="font-medium text-sm">
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-sm mb-1">
                                         {item.name}
-                                      </span>
-                                      <span className="text-gray-500 text-xs block">
-                                        x{item.quantity}
-                                      </span>
+                                      </h5>
+                                      <div className="text-gray-500 text-xs space-y-1">
+                                        <div>Menge: {item.quantity}</div>
+                                        <div>
+                                          Einzelpreis: €{item.price.toFixed(2)}
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
-                                  <div className="text-right font-medium text-sm">
-                                    €{(item.price * item.quantity).toFixed(2)}
+                                  <div className="text-right">
+                                    <div className="font-medium text-sm">
+                                      €{(item.price * item.quantity).toFixed(2)}
+                                    </div>
+                                    {returnStatus && (
+                                      <span
+                                        className={`mt-1 inline-block px-2 py-1 text-xs rounded-full ${
+                                          returnStatus === "Pending"
+                                            ? "bg-yellow-100 text-yellow-800"
+                                            : returnStatus === "Approved"
+                                            ? "bg-green-100 text-green-800"
+                                            : returnStatus === "Rejected"
+                                            ? "bg-red-100 text-red-800"
+                                            : returnStatus === "Processing"
+                                            ? "bg-blue-100 text-blue-800"
+                                            : "bg-gray-100 text-gray-800"
+                                        }`}
+                                      >
+                                        {getReturnStatusText(returnStatus)}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
 
-                                {returnStatus && (
-                                  <span
-                                    className={`absolute top-0 right-0 px-2 py-1 text-xs rounded-full 
-                  ${
-                    returnStatus === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : returnStatus === "Approved"
-                      ? "bg-green-100 text-green-800"
-                      : returnStatus === "Rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                                  >
-                                    Return {returnStatus}
-                                  </span>
-                                )}
-
-                                <div className="w-full mt-1 flex justify-end gap-2">
-                                  {order.status === "Delivered" &&
-                                    !returnStatus && (
-                                      <ProductReviewModal
-                                        onAddReview={handleAddReview}
-                                        product={{
-                                          id: item.id,
-                                          name: item.name,
-                                          image: item.image!,
-                                        }}
-                                      />
-                                    )}
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {(order.status === "Delivered" ||
+                                    order.status === "Shipped") && (
+                                    <ProductReviewModal
+                                      onAddReview={handleAddReview}
+                                      product={{
+                                        id: item.id,
+                                        name: item.name,
+                                        image: item.image || "/placeholder.svg",
+                                      }}
+                                    />
+                                  )}
                                   {canReturn && (
                                     <button
-                                      className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-3 
-    bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] bg-[length:200%_200%] bg-left
-    text-md md:text-md text-white font-semibold rounded-full shadow-lg 
-    transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center
-    hover:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604] active:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604]"
+                                      className="px-4 py-2 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white text-sm font-semibold rounded-full hover:shadow-lg transition-all duration-300"
                                       onClick={() =>
                                         handleOpenReturnModal(item, order)
                                       }
                                     >
-                                      Return Item
+                                      Artikel zurückgeben
                                     </button>
-                                  )}
-                                  {returnStatus && (
-                                    <div className="text-sm">
-                                      <span
-                                        className={`${
-                                          returnStatus === "Pending"
-                                            ? "text-yellow-600"
-                                            : returnStatus === "Approved"
-                                            ? "text-green-600"
-                                            : returnStatus === "Rejected"
-                                            ? "text-red-600"
-                                            : "text-gray-600"
-                                        }`}
-                                      >
-                                        Return request: {returnStatus}
-                                      </span>
-                                    </div>
                                   )}
                                 </div>
                               </li>
@@ -535,43 +616,74 @@ export default function OrdersPage() {
                         </ul>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                          <span className="text-gray-500">Total:</span>
-                          <span className="ml-2 text-lg font-bold text-gray-800">
-                            €{order.total.toFixed(2)}
-                          </span>
-                          {order.invoice && (
-                            <div className="mt-1 text-xs text-gray-400">
-                              Invoice: {order.invoice.invoiceId} |{" "}
-                              {order.invoice.date &&
-                                new Date(order.invoice.date).toLocaleString()}
+                      {/* Order Summary */}
+                      <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Zwischensumme:</span>
+                            <span>€{order.subtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Lieferkosten:</span>
+                            <span>€{order.deliveryFee.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Steuern:</span>
+                            <span>€{order.tax.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between font-semibold text-lg border-t pt-2">
+                            <span>Gesamt:</span>
+                            <span>€{order.total.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Payment Details */}
+                      {order.paymentDetails.transactionId && (
+                        <div className="text-xs text-gray-500 mb-4">
+                          <div>
+                            Transaktions-ID:{" "}
+                            {order.paymentDetails.transactionId}
+                          </div>
+                          {order.paymentDetails.date && (
+                            <div>
+                              Bezahlt am:{" "}
+                              {formatDate(order.paymentDetails.date)}
                             </div>
                           )}
                         </div>
+                      )}
 
-                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                          {order.status === "Pending" && (
-                            <button
-                              className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-3 w-full sm:w-auto bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] bg-[length:200%_200%] bg-left
-                            text-sm md:text-md text-white font-semibold rounded-full shadow-lg  transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center
-                            hover:bg-right hover:to-[#ff3604] py-2 px-6 active:bg-right hover:from-[#EB1E24] hover:via-[#F05021] active:to-[#ff3604]"
-                              onClick={() => handleCancelOrder(order.id)}
-                            >
-                              Cancel Order
-                            </button>
+                      {/* Invoice Info */}
+                      {order.invoice && (
+                        <div className="text-xs text-gray-500 mb-4">
+                          <div>Rechnungsnummer: {order.invoice.invoiceId}</div>
+                          {order.invoice.date && (
+                            <div>
+                              Rechnungsdatum: {formatDate(order.invoice.date)}
+                            </div>
                           )}
-                          <button
-                            className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-3 w-full sm:w-auto bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B]  text-white py-2 px-6 rounded-full text-sm font-semibold transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center
-                            hover:bg-right  hover:to-[#ff3604] active:bg-right hover:from-[#EB1E24] hover:via-[#F05021] active:to-[#ff3604]"
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setShowInvoiceModal(true);
-                            }}
-                          >
-                            Download Invoice
-                          </button>
                         </div>
+                      )}
+
+                      <div className="flex flex-col sm:flex-row justify-end gap-2">
+                        {order.status === "Pending" && (
+                          <button
+                            className="px-6 py-2 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors"
+                            onClick={() => handleCancelOrder(order.id)}
+                          >
+                            Bestellung stornieren
+                          </button>
+                        )}
+                        <button
+                          className="px-6 py-2 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white text-sm font-semibold rounded-full hover:shadow-lg transition-all duration-300"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setShowInvoiceModal(true);
+                          }}
+                        >
+                          Rechnung herunterladen
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -590,27 +702,19 @@ export default function OrdersPage() {
           isOpen={showInvoiceModal}
           onClose={() => setShowInvoiceModal(false)}
           orderData={{
-            ...selectedOrder,
-            shipping: selectedOrder.deliveryFee ?? 0,
-            subtotal: selectedOrder.subtotal ?? 0,
-            tax: selectedOrder.tax ?? 0,
-            total: selectedOrder.total ?? 0,
-            paymentMethod: selectedOrder.paymentMethod ?? "",
-            paymentDetails: selectedOrder.paymentDetails ?? {},
-            customerInfo: selectedOrder.customerInfo ?? {
-              name: "",
-              email: "",
-              address: "",
-              city: "",
-              phone: "",
-            },
+            id: selectedOrder.id,
             items: selectedOrder.items,
+            customerInfo: selectedOrder.customerInfo,
+            subtotal: selectedOrder.subtotal,
+            tax: selectedOrder.tax,
+            deliveryFee: selectedOrder.deliveryFee,
+            total: selectedOrder.total,
+            paymentMethod: selectedOrder.paymentMethod,
+            paymentDetails: selectedOrder.paymentDetails,
+            deliveryMethod: selectedOrder.deliveryMethod,
+            createdAt: selectedOrder.createdAt,
             status: selectedOrder.status,
-            invoice: selectedOrder.invoice ?? {
-              invoiceId: `INV-${Date.now()}`,
-              details: `Invoice generated for order ${selectedOrder.id}`,
-              date: new Date().toISOString(),
-            },
+            invoice: selectedOrder.invoice,
           }}
         />
       )}

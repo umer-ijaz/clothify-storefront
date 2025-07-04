@@ -142,7 +142,17 @@ export default function DeliveryOptions() {
               >
                 <div className="flex items-center gap-2">
                   {option.icon}
-                  <span className="font-medium">{option.title}</span>
+                  <span className="font-medium">
+                    {option.title == "Standard Delivery"
+                      ? "Standard Lieferung"
+                      : option.title == "Free Delivery"
+                      ? "Kostenlose Lieferung"
+                      : option.title == "Personal Pickup"
+                      ? "Persönliche Abholung"
+                      : option.title == "Warranty"
+                      ? "Garantie"
+                      : option.title}
+                  </span>
                 </div>
                 <p className="text-sm text-gray-500 ml-7">
                   {option.description}
@@ -151,7 +161,7 @@ export default function DeliveryOptions() {
             ))
           ) : (
             <p className="text-sm text-gray-500">
-              No delivery options available.
+              Keine Lieferoptionen verfügbar.
             </p>
           )}
         </div>
@@ -162,7 +172,7 @@ export default function DeliveryOptions() {
 
       {/* Seller Ratings */}
       <div className="p-5">
-        <h4 className="font-medium mb-4 text-gray-800">Seller Ratings</h4>
+        <h4 className="font-medium mb-4 text-gray-800">Verkäuferbewertungen</h4>
         <div className="flex gap-6 justify-center">
           {/* Keep RatingCircle static for now, or fetch if needed */}
           <RatingCircle percentage={89} label="Shipping on time" />

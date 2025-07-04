@@ -85,19 +85,19 @@ function CategoryProducts({ productsArray, setIsLoading }: ProductListProps) {
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 px-2 sm:px-4 md:px-8 lg:px-12 py-2 rounded-lg transition-all duration-300">
         <p className="text-gray-600 mb-2 sm:mb-0">
-          Showing <span className="font-medium">{filteredProducts.length}</span>{" "}
-          results
+          Zeige <span className="font-medium">{filteredProducts.length}</span>{" "}
+          Ergebnisse
         </p>
         <div className="flex items-center">
-          <span className="text-gray-600 mr-2">Sort by:</span>
+          <span className="text-gray-600 mr-2">Sortieren nach:</span>
           <select
             className="border border-gray-300 rounded-md px-2 py-1 text-sm cursor-pointer transition-all duration-200 hover:border-gray-400 focus:border-gray-500 focus:outline-none"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
           >
-            <option value="Featured">Featured</option>
-            <option value="Price: Low to High">Price: Low to High</option>
-            <option value="Price: High to Low">Price: High to Low</option>
+            <option value="Featured">Ausgewählt</option>
+            <option value="Price: Low to High">Preis: Niedrig bis Hoch</option>
+            <option value="Price: High to Low">Preis: Hoch bis Niedrig</option>
           </select>
         </div>
       </div>
@@ -111,10 +111,10 @@ function CategoryProducts({ productsArray, setIsLoading }: ProductListProps) {
       ) : filteredProducts.length === 0 ? (
         <div className="text-center py-12 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md">
           <h3 className="text-xl font-medium text-gray-700">
-            No products found
+            Keine Produkte gefunden
           </h3>
           <p className="text-gray-500 mt-2">
-            Try adjusting your filters to find what you&apos;re looking for.
+            Versuchen Sie, Ihre Filter anzupassen, um das Gesuchte zu finden.
           </p>
         </div>
       ) : (

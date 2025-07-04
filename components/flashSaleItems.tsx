@@ -64,19 +64,19 @@ const FlashSaleCarousel = () => {
   return (
     <div className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10">
       <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
-        <TextBox text={"Today's"} />
+        <TextBox text={"Angebote des Tages"} />
         <Link
           href={"/flashsaleproducts"}
           className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
         >
-          View All
+          Alle anzeigen
           <IoIosArrowForward size={20} />
         </Link>
       </div>
 
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4 px-3 sm:px-4 lg:px-8 xl:px-12 mt-4">
-        <h2 className="text-2xl font-bold">Flash Sales</h2>
+        <h2 className="text-2xl font-bold">Blitzangebote</h2>
         <div className="flex gap-2">
           <button
             type="button"

@@ -26,8 +26,8 @@ export default function FlashSalePage() {
         (product: any) => ({
           ...product,
           id: String(product.id),
-          brand: product.brand ?? "Unknown Brand",
-          material: product.material ?? "Unknown Material",
+          brand: product.brand ?? "Unbekannte Marke",
+          material: product.material ?? "Unbekanntes Material",
         })
       );
 
@@ -68,10 +68,12 @@ export default function FlashSalePage() {
         <div className="px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="text-gray-400">/</span>
-          <span className="text-red-500 hover:text-red-700 active:text-red-700">Flash Sale</span>
+          <span className="text-red-500 hover:text-red-700 active:text-red-700">
+            Blitzverkauf
+          </span>
         </div>
 
-        <TextField text={"Flash Sale"} />
+        <TextField text={"Blitzverkauf"} />
 
         <Image
           src="/design.svg"
@@ -84,7 +86,7 @@ export default function FlashSalePage() {
 
         {products.length === 0 ? (
           <div className="flex items-center text-gray-400 justify-center">
-            No Product found for the following category!
+            Kein Produkt in der folgenden Kategorie gefunden!
           </div>
         ) : (
           <div>

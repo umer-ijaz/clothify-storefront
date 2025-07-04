@@ -34,19 +34,19 @@ export default function CartClient() {
         <h1 className="py-8 mx-4 sm:mx-6 md:mx-8 lg:mx-12 flex gap-1 md:gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500">Cart</span>
+          <span className="text-red-500">Warenkorb</span>
         </h1>
 
-        <TextField text={"Cart"} />
+        <TextField text={"Warenkorb"} />
         <div className="mx-2 sm:mx-4 md:mx-8 lg:mx-12 py-12 px-2 sm:px-4 md:px-8 lg:px-12 rounded-xl bg-white shadow-lg">
-          <h1 className="text-xl font-semibold mb-1">Shopping cart</h1>
+          <h1 className="text-xl font-semibold mb-1">Einkaufswagen</h1>
           <p className="text-gray-600 text-md mb-6">
-            You have {cart.length} items in your cart
+            Sie haben {cart.length} Artikel in Ihrem Warenkorb.
           </p>
 
           {cart.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-gray-500 mb-4">Your cart is empty.</p>
+              <p className="text-gray-500 mb-4">Ihr Warenkorb ist leer.</p>
               <Link
                 href="/"
                 className="inline-block items-center gap-2 px-4 md:px-5 py-2 md:py-3 
@@ -55,7 +55,7 @@ export default function CartClient() {
     transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center
     hover:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604] active:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604] text-white px-6 py-2 text-sm font-medium hover:bg-[#EB1E24] active:bg-[#EB1E24] transition-all rounded-full"
               >
-                Continue Shopping
+                Weiter einkaufen
               </Link>
             </div>
           ) : (
@@ -63,14 +63,14 @@ export default function CartClient() {
               <div className="flex-1">
                 {/* Desktop View Header - Hidden on Mobile */}
                 <div className="mb-4 hidden md:grid grid-cols-4 font-semibold text-xl">
-                  <div className="col-span-1">Product</div>
-                  <div className="text-center col-span-1">Price</div>
-                  <div className="text-center col-span-1">Quantity</div>
+                  <div className="col-span-1">Produkt</div>
+                  <div className="text-center col-span-1">Preis</div>
+                  <div className="text-center col-span-1">Menge</div>
                 </div>
 
                 {/* Mobile View Header */}
                 <div className="mb-4 md:hidden font-semibold text-xl">
-                  <div>Items</div>
+                  <div>Artikel</div>
                 </div>
 
                 <div className="space-y-4">
@@ -101,7 +101,7 @@ export default function CartClient() {
                         </div>
 
                         <div className="text-center text-gray-500">
-                           €{item.price.toFixed(2)}
+                          €{item.price.toFixed(2)}
                         </div>
 
                         <div className="flex items-center justify-center gap-20">
@@ -197,7 +197,7 @@ export default function CartClient() {
                                 {item.size && ` | Size: ${item.size}`}
                               </p>
                               <p className="text-sm text-gray-500 mt-1">
-                                 €{item.price.toFixed(2)}
+                                €{item.price.toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -276,30 +276,32 @@ export default function CartClient() {
 
               <div className="w-full md:w-80">
                 <div className="border rounded-xl p-4">
-                  <h2 className="text-center font-semibold mb-4">Cart Total</h2>
+                  <h2 className="text-center font-semibold mb-4">
+                    Gesamtsumme
+                  </h2>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span>Subtotal</span>
+                      <span>Zwischensumme</span>
                       <span className="font-medium">
-                         €{totalPrice.toFixed(2)}
+                        €{totalPrice.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Tax</span>
+                      <span>Steuer</span>
                       <span className="font-medium">
-                         €{(totalPrice * (taxRate / 100)).toFixed(2)}
+                        €{(totalPrice * (taxRate / 100)).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Tax Percentage</span>
+                      <span>Steuerprozentsatz</span>
                       <span className="font-medium">{taxRate}%</span>
                     </div>
 
                     <div className="pt-2">
                       <div className="flex justify-between font-medium">
-                        <span>Total</span>
+                        <span>Gesamt</span>
                         <span>
-                           €
+                          €
                           {(totalPrice + totalPrice * (taxRate / 100)).toFixed(
                             2
                           )}
@@ -308,7 +310,9 @@ export default function CartClient() {
                     </div>
 
                     <Link href="/payments" className="flex justify-center">
-                      <Button text="Proceed to checkout" />
+                      <Button
+                        text="Zur Bezahlung fortfahren"
+                      />
                     </Link>
                   </div>
                 </div>

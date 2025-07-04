@@ -10,9 +10,9 @@ export default function Contact() {
       <nav className="py-8 flex items-center mb-2 text-md md:text-xl font-small capitalize">
         <HomeLink />
         <span className="mx-2 text-gray-400">/</span>
-        <span className="text-red-500">Contact Us</span>
+        <span className="text-red-500">Kontaktieren Sie uns</span>
       </nav>
-      <TextField text={"Contact Us"} />
+      <TextField text={"Kontaktieren Sie uns"} />
       <div className="container w-full mx-auto flex flex-col-reverse md:flex-row items-center pb-20 gap-10 md:gap-0">
         <div className="w-full md:w-3/5">
           <ContactForm />

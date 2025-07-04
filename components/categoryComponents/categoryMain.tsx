@@ -112,9 +112,15 @@ export default function CategoryPage({
         <div className="px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="text-gray-400">/</span>
-          <span className="text-gray-400">Category</span>
+          <span className="text-gray-400">Kategorie</span>
           <span className="text-gray-400">/</span>
-          <span className="text-red-500">{params.slug[0]}</span>
+          <span className="text-red-500">
+            {params.slug[0] == "men"
+              ? "Herren"
+              : params.slug[0] == "women"
+              ? "Damen"
+              : params.slug[0]}
+          </span>
           {params.slug[1] ? (
             <div className="flex gap-2">
               <span className="text-gray-400">/</span>
@@ -128,6 +134,14 @@ export default function CategoryPage({
             params.slug[1]
               ? params.slug[1][0].charAt(0).toUpperCase() +
                 params.slug[1].slice(1)
+              : params.slug[0][0].charAt(0).toUpperCase() +
+                  params.slug[0].slice(1) ==
+                "Men"
+              ? "Herren"
+              : params.slug[0][0].charAt(0).toUpperCase() +
+                  params.slug[0].slice(1) ==
+                "Women"
+              ? "Damen"
               : params.slug[0][0].charAt(0).toUpperCase() +
                 params.slug[0].slice(1)
           }
@@ -144,7 +158,7 @@ export default function CategoryPage({
 
         {products.length === 0 ? (
           <div className="flex items-center text-gray-400 justify-center">
-            No Product found for the following category!
+            Für die folgende Kategorie wurden keine Produkte gefunden!
           </div>
         ) : (
           <div>

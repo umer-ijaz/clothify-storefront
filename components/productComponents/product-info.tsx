@@ -86,7 +86,7 @@ export default function ProductInfo({
               {product.name}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-end gap-5">
             <span className="text-3xl font-bold text-green-500">
               €{product.currentPrice.toFixed(2)}
             </span>
@@ -120,13 +120,13 @@ export default function ProductInfo({
               ))}
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
-              <span>({product.reviewsCount} Reviews)</span>
+              <span>({product.reviewsCount} Bewertungen )</span>
               <span
                 className={`font-medium ${
                   product.stock > 0 ? "text-green-500" : "text-red-500"
                 }`}
               >
-                {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                {product.stock > 0 ? "Auf Lager" : "Ausverkauft"}
               </span>
             </div>
           </div>
@@ -149,15 +149,21 @@ export default function ProductInfo({
       {/* Category and Subcategory */}
       <div className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-2">
         <div>
-          <h2 className="text-lg font-semibold text-gray-700">Category</h2>
+          <h2 className="text-lg font-semibold text-gray-700">Kategorie</h2>
           <div className="text-gray-600">
-            {product.category.charAt(0).toUpperCase() +
-              product.category.slice(1).toLowerCase()}
+            {product.category === "men"
+              ? "Herren"
+              : product.category === "women"
+              ? "Damen"
+              : product.category.charAt(0).toUpperCase() +
+                product.category.slice(1)}
           </div>
         </div>
         {product.subcategory && (
           <div>
-            <h2 className="text-lg font-semibold text-gray-700">Subcategory</h2>
+            <h2 className="text-lg font-semibold text-gray-700">
+              Unterkategorie
+            </h2>
             <div className="text-gray-600">
               {product.subcategory.charAt(0).toUpperCase() +
                 product.subcategory.slice(1).toLowerCase()}
@@ -169,7 +175,7 @@ export default function ProductInfo({
       {/* Brand and Material */}
       <div className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-2">
         <div>
-          <h2 className="text-lg font-semibold text-gray-700">Brand</h2>
+          <h2 className="text-lg font-semibold text-gray-700">Marke</h2>
           <p className="text-gray-600">{product.brand}</p>
         </div>
         <div>
@@ -182,7 +188,7 @@ export default function ProductInfo({
       <div className="flex flex-col gap-2">
         {/* Colors */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Colors</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Farben</h2>
           <div className="flex gap-3">
             {product.colors?.map((color) => (
               <button
@@ -202,7 +208,7 @@ export default function ProductInfo({
 
         {/* Sizes */}
         <div>
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">Size</h2>
+          <h2 className="text-xl font-semibold mb-2 text-gray-800">Größe</h2>
           <div className="flex flex-wrap gap-3">
             {availableSizes.length > 0 ? (
               availableSizes.map((size) => {
@@ -225,14 +231,14 @@ export default function ProductInfo({
                 );
               })
             ) : (
-              <p className="text-gray-500 text-sm">No sizes available.</p>
+              <p className="text-gray-500 text-sm">Keine Größen verfügbar.</p>
             )}
           </div>
         </div>
 
         {/* Quantity */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Quantity</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Menge</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleQuantityChange(quantity - 1)}
@@ -258,10 +264,12 @@ export default function ProductInfo({
       {/* Actions */}
       <div className="flex flex-row gap-3 pt-4 justify-start items-center">
         <Button
-          text={"Add to Cart"}
+          text={"In den Warenkorb"}
           onClick={() => {
             if (!selectedSize) {
-              toast("Please Select Size to Add Item to the Cart");
+              toast(
+                "Bitte wählen Sie eine Größe aus, um den Artikel in den Warenkorb zu legen."
+              );
               return;
             }
             addToCart({
@@ -273,17 +281,17 @@ export default function ProductInfo({
               color: selectedColor,
               size: selectedSize,
             });
-            toast.success("Product has been added to cart");
+            toast.success("Produkt wurde zum Warenkorb hinzugefügt.");
           }}
         />
         <Button
-          text={"Buy Now"}
+          text={"Jetzt kaufen"}
           onClick={() => {
             if (!user) {
               setModal(true);
               setIsPaymentModalOpen(false);
               toast.error(
-                "User Must be logged in to make any kind of Payments."
+                "Der Benutzer muss angemeldet sein, um Zahlungen durchführen zu können."
               );
             } else {
               setIsPaymentModalOpen(true);

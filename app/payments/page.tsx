@@ -50,11 +50,11 @@ interface CustomerInfo {
 const StripeCheckoutForm = ({
   clientSecret,
   onSuccessfulPayment,
-  customerInfo, // Add customerInfo as a prop
+  customerInfo,
 }: {
   clientSecret: string;
   onSuccessfulPayment: (paymentIntentId: string) => void;
-  customerInfo: CustomerInfo; // Add this type
+  customerInfo: CustomerInfo;
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -63,11 +63,10 @@ const StripeCheckoutForm = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for stripe and elements to be ready
     if (stripe && elements) {
       const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 1000); // Give it a moment to fully initialize
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [stripe, elements]);
@@ -76,7 +75,9 @@ const StripeCheckoutForm = ({
     event.preventDefault();
 
     if (!stripe || !elements) {
-      setErrorMessage("Payment system is not ready. Please try again.");
+      setErrorMessage(
+        "Zahlungssystem nicht bereit. Bitte versuchen Sie es erneut."
+      );
       return;
     }
 
@@ -98,7 +99,7 @@ const StripeCheckoutForm = ({
                 line2: customerInfo.additionalAddress || undefined,
                 city: customerInfo.townCity,
                 postal_code: customerInfo.postcode,
-                country: "DE", // Germany country code
+                country: "DE",
               },
             },
           },
@@ -107,22 +108,26 @@ const StripeCheckoutForm = ({
       });
 
       if (error) {
-        console.error("Payment error:", error);
-        setErrorMessage(error.message || "An unexpected error occurred.");
+        console.error("Zahlungsfehler:", error);
+        setErrorMessage(
+          error.message || "Ein unerwarteter Fehler ist aufgetreten."
+        );
         setIsProcessing(false);
         return;
       }
 
       if (paymentIntent && paymentIntent.status === "succeeded") {
-        toast.success("Payment successful!");
+        toast.success("Zahlung erfolgreich!");
         onSuccessfulPayment(paymentIntent.id);
       } else if (paymentIntent) {
-        setErrorMessage(`Payment status: ${paymentIntent.status}`);
+        setErrorMessage(`Zahlungsstatus: ${paymentIntent.status}`);
         setIsProcessing(false);
       }
     } catch (error) {
-      console.error("Payment processing error:", error);
-      setErrorMessage("An unexpected error occurred. Please try again.");
+      console.error("Fehler bei der Zahlungsabwicklung:", error);
+      setErrorMessage(
+        "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      );
       setIsProcessing(false);
     }
   };
@@ -135,7 +140,9 @@ const StripeCheckoutForm = ({
           <div className="h-12 bg-gray-200 rounded mb-4"></div>
           <div className="h-12 bg-gray-200 rounded"></div>
         </div>
-        <p className="text-sm text-gray-600 text-center">Loading payment form...</p>
+        <p className="text-sm text-gray-600 text-center">
+          Zahlungsformular wird geladen...
+        </p>
       </div>
     );
   }
@@ -144,26 +151,20 @@ const StripeCheckoutForm = ({
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="min-h-[200px]">
-          <PaymentElement 
+          <PaymentElement
             options={{
               layout: "tabs",
               paymentMethodOrder: ["card"],
-              fields: {
-                // billingDetails: {
-                //   email: "never",
-                //   phone: "never",
-                //   address: "never"
-                // }
-              },
+              fields: {},
               defaultValues: {
                 billingDetails: {
-                  email: '',
-                }
-              }
+                  email: "",
+                },
+              },
             }}
           />
         </div>
-        
+
         {errorMessage && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-600">{errorMessage}</p>
@@ -179,10 +180,10 @@ const StripeCheckoutForm = ({
             {isProcessing ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Processing Payment...</span>
+                <span>Zahlung wird bearbeitet...</span>
               </div>
             ) : (
-              "Complete Payment"
+              "Zahlung abschließen"
             )}
           </button>
         </div>
@@ -200,7 +201,7 @@ export default function Payments() {
   const [paymentMethod, setPaymentMethod] = useState("card");
   const { taxRate } = useTaxStore();
   const { deliveryPrice } = useDeliveryPriceStore();
-  const {expressPrice} = useExpressDeliveryPriceStore();
+  const { expressPrice } = useExpressDeliveryPriceStore();
   const [modal, setModal] = useState(false);
   const [showDeliveryInstructions, setShowDeliveryInstructions] =
     useState(false);
@@ -208,7 +209,7 @@ export default function Payments() {
   const [showStripeModal, setShowStripeModal] = useState(false);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    country: "Germany",
+    country: "Deutschland",
     fullName: "",
     companyName: "",
     phone: "",
@@ -230,7 +231,7 @@ export default function Payments() {
     }
     if (!user) {
       setModal(true);
-      toast.error("You must be logged in to make payments.");
+      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
     }
     setMounted(true);
   }, [user]);
@@ -243,7 +244,12 @@ export default function Payments() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const deliveryFee = deliveryMethod === "standard" ? deliveryPrice : deliveryMethod == "express" ? expressPrice : 0;
+  const deliveryFee =
+    deliveryMethod === "standard"
+      ? deliveryPrice
+      : deliveryMethod == "express"
+      ? expressPrice
+      : 0;
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
@@ -308,7 +314,7 @@ export default function Payments() {
         date: now.toLocaleDateString(),
         time: now.toLocaleTimeString(),
         status: paymentDetails.status,
-        ...(paymentDetails.method === "Cash on Delivery" && {
+        ...(paymentDetails.method === "Barzahlung bei Lieferung" && {
           expectedDelivery: new Date(
             Date.now() + 5 * 24 * 60 * 60 * 1000
           ).toLocaleDateString(),
@@ -317,21 +323,20 @@ export default function Payments() {
       invoice: {
         invoiceId: `INV-${Date.now()}`,
         date: now.toISOString(),
-        details: `Invoice for order placed on ${now.toLocaleDateString()}`,
+        details: `Rechnung für Bestellung vom ${now.toLocaleDateString()}`,
       },
       deliveryMethod: deliveryMethod,
       createdAt: now.toISOString(),
-      status: "Pending",
+      status: "Ausstehend",
     };
   };
 
   const createPaymentIntent = async () => {
     if (totalPrice <= 0) {
-      toast.error("Cart is empty or total is zero.");
+      toast.error("Warenkorb ist leer oder Gesamtbetrag ist null.");
       return;
     }
 
-    // Show loading state
     setShowStripeModal(true);
     setClientSecret(null);
 
@@ -341,35 +346,39 @@ export default function Payments() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           amount: totalPrice,
-          currency: "eur", // Explicitly set EUR currency
+          currency: "eur",
           metadata: {
             customerEmail: customerInfo.email,
             customerName: customerInfo.fullName,
             country: customerInfo.country,
             totalAmount: totalPrice.toString(),
-          }
+          },
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.error || `HTTP-Fehler! Status: ${response.status}`
+        );
       }
 
       const data = await response.json();
-      
+
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
       } else {
-        throw new Error(data.error || "No client secret received");
+        throw new Error(data.error || "Kein Client Secret erhalten");
       }
     } catch (error) {
-      console.error("Failed to create payment intent:", error);
+      console.error("Fehler beim Erstellen des Zahlungsauftrags:", error);
       setShowStripeModal(false);
       setClientSecret(null);
-      toast.error("Failed to initialize payment. Please try again.");
+      toast.error(
+        "Fehler bei der Initialisierung der Zahlung. Bitte versuchen Sie es erneut."
+      );
     }
   };
 
@@ -386,16 +395,16 @@ export default function Payments() {
     for (const field of requiredFields) {
       if (!customerInfo[field as keyof CustomerInfo]) {
         toast.error(
-          `Please fill in the ${field
+          `Bitte füllen Sie das Feld ${field
             .replace(/([A-Z])/g, " $1")
-            .toLowerCase()} field.`
+            .toLowerCase()} aus.`
         );
         return false;
       }
     }
 
     if (!/^\S+@\S+\.\S+$/.test(customerInfo.email)) {
-      toast.error("Please enter a valid email address.");
+      toast.error("Bitte geben Sie eine gültige E-Mail-Adresse ein.");
       return false;
     }
 
@@ -405,11 +414,11 @@ export default function Payments() {
   const proceedToStripePayment = async () => {
     if (!user) {
       setModal(true);
-      toast.error("You must be logged in to make payments.");
+      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
       return;
     }
     if (cart.length === 0) {
-      toast.error("Your cart is empty.");
+      toast.error("Ihr Warenkorb ist leer.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -420,23 +429,23 @@ export default function Payments() {
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
     if (!user) {
-      toast.error("User session lost. Please log in again.");
+      toast.error("Benutzersitzung verloren. Bitte melden Sie sich erneut an.");
       return;
     }
     try {
       const order = createOrder({
         method: "Stripe",
         transactionId: paymentIntentId,
-        status: "Completed",
+        status: "Abgeschlossen",
       });
       await addOrderToUserProfile(user.uid, order);
       clearCart();
-      toast.success("Order placed successfully with Stripe!");
+      toast.success("Bestellung mit Stripe erfolgreich aufgegeben!");
       router.push("/orders");
     } catch (error) {
-      console.error("Error placing order after Stripe payment:", error);
+      console.error("Fehler bei der Bestellung nach Stripe-Zahlung:", error);
       toast.error(
-        "Failed to finalize order after payment. Please contact support."
+        "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
       );
     }
   };
@@ -444,11 +453,11 @@ export default function Payments() {
   const handleCashCheckout = async () => {
     if (!user) {
       setModal(true);
-      toast.error("You must be logged in to make payments.");
+      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
       return;
     }
     if (cart.length === 0) {
-      toast.error("Your cart is empty.");
+      toast.error("Ihr Warenkorb ist leer.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -457,17 +466,21 @@ export default function Payments() {
 
     try {
       const order = createOrder({
-        method: "Cash on Delivery",
+        method: "Barzahlung bei Lieferung",
         transactionId: "COD" + Math.floor(Math.random() * 1000000),
-        status: "Pending",
+        status: "Ausstehend",
       });
       await addOrderToUserProfile(user.uid, order);
       clearCart();
-      toast.success("Order placed successfully! (Cash on Delivery)");
+      toast.success(
+        "Bestellung erfolgreich aufgegeben! (Barzahlung bei Lieferung)"
+      );
       router.push("/orders");
     } catch (error) {
-      console.error("Error placing cash order:", error);
-      toast.error("Failed to place cash order. Please try again.");
+      console.error("Fehler bei der Barzahlungsbestellung:", error);
+      toast.error(
+        "Fehler bei der Barzahlungsbestellung. Bitte versuchen Sie es erneut."
+      );
     }
   };
 
@@ -517,20 +530,20 @@ export default function Payments() {
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
           <Link href={"/cart"} className="text-gray-400 hover:text-gray-700">
-            Cart
+            Warenkorb
           </Link>
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500">Payment</span>
+          <span className="text-red-500">Zahlung</span>
         </nav>
-        <TextField text={"Payment"} />
+        <TextField text={"Zahlung"} />
         <div className="grid md:grid-cols-5 gap-8 px-2 sm:px-4 md:px-8 lg:px-12">
           <div className="md:col-span-3 bg-white p-6 rounded-lg border border-gray-200 shadow-md">
-            <h2 className="text-xl font-semibold mb-6">Customer Information</h2>
+            <h2 className="text-xl font-semibold mb-6">Kundeninformationen</h2>
             <div className="grid gap-6">
               {/* Country/Region */}
               <div className="space-y-2">
                 <Label htmlFor="country" className="text-sm font-medium">
-                  Country/Region <span className="text-red-500">*</span>
+                  Land/Region <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
                   <select
@@ -555,12 +568,12 @@ export default function Payments() {
               {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-sm font-medium">
-                  Full name (first name and surname){" "}
+                  Vollständiger Name (Vor- und Nachname){" "}
                   <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="fullName"
-                  placeholder="Enter your full name"
+                  placeholder="Geben Sie Ihren vollständigen Namen ein"
                   className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   value={customerInfo.fullName}
                   onChange={handleInputChange}
@@ -571,11 +584,11 @@ export default function Payments() {
               {/* Company Name (Optional) */}
               <div className="space-y-2">
                 <Label htmlFor="companyName" className="text-sm font-medium">
-                  Company name (optional)
+                  Firmenname (optional)
                 </Label>
                 <Input
                   id="companyName"
-                  placeholder="Enter company name"
+                  placeholder="Firmenname eingeben"
                   className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   value={customerInfo.companyName}
                   onChange={handleInputChange}
@@ -585,29 +598,30 @@ export default function Payments() {
               {/* Phone Number */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium">
-                  Phone number <span className="text-red-500">*</span>
+                  Telefonnummer
+                  <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="phone"
-                  placeholder="Enter phone number"
+                  placeholder="Telefonnummer eingeben"
                   className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   value={customerInfo.phone}
                   onChange={handleInputChange}
                   required
                 />
                 <p className="text-xs text-gray-500">
-                  May be used to assist delivery
+                  Kann zur Unterstützung der Lieferung verwendet werden
                 </p>
               </div>
 
               {/* Address Section */}
               <div className="space-y-4">
-                <Label className="text-sm font-medium">Address</Label>
+                <Label className="text-sm font-medium">Adresse</Label>
 
                 {/* Street Address */}
                 <Input
                   id="streetAddress"
-                  placeholder="Street name and number, pickup location"
+                  placeholder="Straße und Hausnummer, Abholort"
                   className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   value={customerInfo.streetAddress}
                   onChange={handleInputChange}
@@ -617,7 +631,7 @@ export default function Payments() {
                 {/* Additional Address Info */}
                 <Input
                   id="additionalAddress"
-                  placeholder="PO Box, c/o, Pakadoo PAK-ID, etc."
+                  placeholder="Postfach, c/o, Pakadoo PAK-ID, etc."
                   className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   value={customerInfo.additionalAddress}
                   onChange={handleInputChange}
@@ -628,11 +642,11 @@ export default function Payments() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="postcode" className="text-sm font-medium">
-                    Postcode <span className="text-red-500">*</span>
+                    Postleitzahl <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="postcode"
-                    placeholder="Enter postcode"
+                    placeholder="Postleitzahl eingeben"
                     className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                     value={customerInfo.postcode}
                     onChange={handleInputChange}
@@ -641,11 +655,11 @@ export default function Payments() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="townCity" className="text-sm font-medium">
-                    Town/City <span className="text-red-500">*</span>
+                    Stadt/Ort <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="townCity"
-                    placeholder="Enter town/city"
+                    placeholder="Stadt/Ort eingeben"
                     className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                     value={customerInfo.townCity}
                     onChange={handleInputChange}
@@ -657,11 +671,11 @@ export default function Payments() {
               {/* Email Address */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
-                  Email Address <span className="text-red-500">*</span>
+                  E-Mail-Adresse <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="email"
-                  placeholder="Enter email address"
+                  placeholder="E-Mail-Adresse eingeben"
                   className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   value={customerInfo.email}
                   onChange={handleInputChange}
@@ -679,7 +693,7 @@ export default function Payments() {
                   }
                   className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
-                  <span>Delivery instructions</span>
+                  <span>Lieferanweisungen</span>
                   <ChevronDown
                     className={`ml-1 w-4 h-4 transition-transform ${
                       showDeliveryInstructions ? "rotate-180" : ""
@@ -687,7 +701,7 @@ export default function Payments() {
                   />
                 </button>
                 <p className="text-xs text-gray-500">
-                  Add preferences, notes, access codes and more
+                  Wünsche, Notizen, Zugangscodes und mehr hinzufügen
                 </p>
 
                 {showDeliveryInstructions && (
@@ -697,11 +711,11 @@ export default function Payments() {
                         htmlFor="deliveryPreferences"
                         className="text-sm font-medium"
                       >
-                        Delivery Preferences
+                        Lieferwünsche
                       </Label>
                       <Textarea
                         id="deliveryPreferences"
-                        placeholder="Add your delivery preferences here..."
+                        placeholder="Fügen Sie hier Ihre Lieferwünsche hinzu..."
                         className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                         value={customerInfo.deliveryPreferences}
                         onChange={handleInputChange}
@@ -713,11 +727,11 @@ export default function Payments() {
                         htmlFor="deliveryNotes"
                         className="text-sm font-medium"
                       >
-                        Notes
+                        Notizen
                       </Label>
                       <Textarea
                         id="deliveryNotes"
-                        placeholder="Add any additional notes here..."
+                        placeholder="Fügen Sie hier zusätzliche Notizen hinzu..."
                         className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                         value={customerInfo.deliveryNotes}
                         onChange={handleInputChange}
@@ -729,11 +743,11 @@ export default function Payments() {
                         htmlFor="accessCodes"
                         className="text-sm font-medium"
                       >
-                        Access Codes
+                        Zugangscodes
                       </Label>
                       <Textarea
                         id="accessCodes"
-                        placeholder="Add access codes or gate codes here..."
+                        placeholder="Fügen Sie hier Zugangscodes oder Torcodes hinzu..."
                         className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                         value={customerInfo.accessCodes}
                         onChange={handleInputChange}
@@ -744,14 +758,15 @@ export default function Payments() {
               </div>
 
               <div className="text-xs text-muted-foreground">
-                <span className="text-red-500">*</span> Required fields. Save
-                this information for faster check-out next time
+                <span className="text-red-500">*</span> Pflichtfelder. Speichern
+                Sie diese Informationen für einen schnelleren Checkout beim
+                nächsten Mal
               </div>
             </div>
           </div>
 
           <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-md h-full">
-            <h2 className="text-xl font-semibold mb-4">Cart Total</h2>
+            <h2 className="text-xl font-semibold mb-4">Warenkorbsumme</h2>
             <div className="space-y-4 w-full">
               {cart.map((item) => (
                 <div
@@ -766,15 +781,15 @@ export default function Payments() {
                 </div>
               ))}
               <div className="flex justify-between items-center border-t pt-2">
-                <span className="font-medium">Subtotal</span>
+                <span className="font-medium">Zwischensumme</span>
                 <span className="font-medium"> €{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="font-medium">Tax ({taxRate}%)</span>
+                <span className="font-medium">Steuer ({taxRate}%)</span>
                 <span className="font-medium"> €{tax.toFixed(2)}</span>
               </div>
               <div className="space-y-2 border-t pt-2">
-                <span className="font-medium block mb-2">Delivery Options</span>
+                <span className="font-medium block mb-2">Lieferoptionen</span>
                 <RadioGroup
                   value={deliveryMethod}
                   onValueChange={setDeliveryMethod}
@@ -787,7 +802,7 @@ export default function Payments() {
                         id="standard"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                       />
-                      <Label htmlFor="standard">Standard Delivery</Label>
+                      <Label htmlFor="standard">Standard-Lieferung</Label>
                     </div>
                     <span className="text-emerald-500"> €{deliveryPrice}</span>
                   </div>
@@ -798,7 +813,7 @@ export default function Payments() {
                         id="express"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                       />
-                      <Label htmlFor="standard">Express Delivery</Label>
+                      <Label htmlFor="express">Express-Lieferung</Label>
                     </div>
                     <span className="text-emerald-500"> €{expressPrice}</span>
                   </div>
@@ -809,13 +824,13 @@ export default function Payments() {
                         id="pickup"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                       />
-                      <Label htmlFor="pickup">Personal Pickup</Label>
+                      <Label htmlFor="pickup">Selbstabholung</Label>
                     </div>
-                    <span className="text-emerald-500">Free</span>
+                    <span className="text-emerald-500">Kostenlos</span>
                   </div>
                 </RadioGroup>
               </div>
-              <span className="font-medium">Payment Methods</span>
+              <span className="font-medium">Zahlungsmethoden</span>
               <div className="space-y-2">
                 <RadioGroup
                   value={paymentMethod}
@@ -834,7 +849,7 @@ export default function Payments() {
                         id="card_stripe"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                       />
-                      <Label htmlFor="card_stripe">Card (Stripe)</Label>
+                      <Label htmlFor="card_stripe">Karte (Stripe)</Label>
                     </div>
                     <div className="flex space-x-1">
                       <Image
@@ -859,12 +874,12 @@ export default function Payments() {
                       id="cash"
                       className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                     />
-                    <Label htmlFor="cash">Cash on Delivery</Label>
+                    <Label htmlFor="cash">Barzahlung bei Lieferung</Label>
                   </div>
                 </RadioGroup>
               </div>
               <div className="flex justify-between items-center border-t pt-2">
-                <span className="font-bold">Total</span>
+                <span className="font-bold">Gesamtsumme</span>
                 <span className="font-bold">
                   {" "}
                   €{cart.length > 0 ? totalPrice.toFixed(2) : "0.00"}
@@ -873,7 +888,7 @@ export default function Payments() {
               {paymentMethod === "card" && !showStripeModal && (
                 <div className="flex flex-row justify-center mt-4">
                   <Button
-                    text="Proceed to Secure Payment"
+                    text="Zur sicheren Zahlung"
                     onClick={proceedToStripePayment}
                   />
                 </div>
@@ -884,7 +899,7 @@ export default function Payments() {
                   <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-lg sm:text-xl font-semibold">
-                        Enter Card Details
+                        Kartendaten eingeben
                       </h3>
                       <button
                         onClick={() => {
@@ -898,7 +913,7 @@ export default function Payments() {
                     </div>
                     <div className="mb-4">
                       <div className="text-sm text-gray-600 mb-2">
-                        Total Amount:{" "}
+                        Gesamtbetrag:{" "}
                         <span className="font-semibold">
                           €{totalPrice.toFixed(2)}
                         </span>
@@ -920,7 +935,7 @@ export default function Payments() {
                       <div className="space-y-4 text-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
                         <p className="text-gray-600">
-                          Initializing secure payment...
+                          Sichere Zahlung wird initialisiert...
                         </p>
                       </div>
                     )}
@@ -930,7 +945,10 @@ export default function Payments() {
 
               {paymentMethod === "cash" && (
                 <div className="flex flex-row justify-center mt-4">
-                  <Button text="Checkout (Cash)" onClick={handleCashCheckout} />
+                  <Button
+                    text="Zur Kasse (Barzahlung)"
+                    onClick={handleCashCheckout}
+                  />
                 </div>
               )}
             </div>

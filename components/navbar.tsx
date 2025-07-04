@@ -46,16 +46,9 @@ import { fetchCategories, type Category } from "@/lib/categories";
 import { getProducts } from "@/lib/products";
 
 const popularSearches = [
-  "man shoes",
-  "1 dollar items free shipping",
-  "woman clothing",
-  "mini drone",
-  "earbuds bluetooth",
-  "samsung s22 ultra",
-  "clothes for ladies",
-  "air pods",
-  "mobile",
-  "smart watch 2025",
+  "Herrenschuhe", // man shoes
+  "Damenbekleidung", // woman clothing
+  "Kleidung für Damen", // clothes for ladies
 ];
 
 export default function Navbar() {
@@ -228,9 +221,9 @@ export default function Navbar() {
 
   const mainNavItems = [
     {
-      title: "Home",
+      title: "Startseite",
       href: "/",
-      description: "Explore our latest collections and offers.",
+      description: "Entdecken Sie unsere neuesten Kollektionen und Angebote.",
     },
     {
       title: "Shop",
@@ -238,19 +231,21 @@ export default function Navbar() {
       children: categories,
     },
     {
-      title: "Service",
+      title: "Dienstleistungen",
       href: "/services",
-      description: "Learn about our customer support and repair services.",
+      description:
+        "Erfahren Sie mehr über unseren Kundenservice und Reparaturdienste.",
     },
     {
-      title: "About",
+      title: "Über uns",
       href: "/about",
-      description: "Get to know our story, mission, and values.",
+      description:
+        "Erfahren Sie mehr über unsere Geschichte, Mission und Werte.",
     },
     {
-      title: "Contact",
+      title: "Kontakt",
       href: "/contact",
-      description: "Reach out to us for inquiries, support, or feedback.",
+      description: "Kontaktieren Sie uns für Anfragen, Support oder Feedback.",
     },
   ];
 
@@ -322,7 +317,7 @@ export default function Navbar() {
             className="md:hidden text-white p-2"
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
+            <span className="sr-only">Menü öffnen</span>
           </Button>
         </SheetTrigger>
         <SheetContent
@@ -330,7 +325,7 @@ export default function Navbar() {
           className="bg-white w-[90vw] sm:w-[350px] p-0"
         >
           <SheetHeader className="p-4 border-b">
-            <SheetTitle className="text-left">Menu</SheetTitle>
+            <SheetTitle className="text-left">Menü</SheetTitle>
           </SheetHeader>
           <div className="h-full overflow-y-auto scrollbar-hide">
             <nav className="py-2">
@@ -398,7 +393,11 @@ export default function Navbar() {
                                     }
                                     className="flex-1 text-left px-4 py-2.5 text-sm font-medium hover:bg-white transition-colors"
                                   >
-                                    {category.title}
+                                    {category.title === "Women"
+                                      ? "Damen"
+                                      : category.title === "Men"
+                                      ? "Herren"
+                                      : category.title}
                                   </button>
                                 </SheetClose>
                                 {category.subcategories &&
@@ -493,7 +492,7 @@ export default function Navbar() {
                     className="w-full bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] border-none hover:opacity-90 text-white"
                     onClick={() => setIsModalOpen(true)}
                   >
-                    {user ? "My Account" : "Login"}
+                    {user ? "Mein Konto" : "Anmelden"}
                   </Button>
                 )}
               </div>
@@ -537,7 +536,7 @@ export default function Navbar() {
                       <div className="w-full lg:w-80 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200">
                         <div className="p-4 lg:p-6">
                           <h3 className="text-lg lg:text-xl font-bold mb-3 lg:mb-4 text-gray-800 border-b border-gray-300 pb-2">
-                            Categories
+                            Kategorien
                           </h3>
                           <div className="max-h-[300px] lg:max-h-[400px] overflow-y-auto custom-scrollbar scrollbar-hide">
                             <ul className="space-y-1">
@@ -567,11 +566,15 @@ export default function Navbar() {
                                   >
                                     <div className="flex-1">
                                       <div className="font-semibold text-sm lg:text-base text-gray-800 group-hover:text-red-600 transition-colors">
-                                        {category.title}
+                                        {category.title === "Women"
+                                          ? "Damen"
+                                          : category.title === "Men"
+                                          ? "Herren"
+                                          : category.title}
                                       </div>
                                       <p className="text-xs text-gray-500 mt-1 line-clamp-1">
                                         {category.description ||
-                                          "Browse all products"}
+                                          "Alle Produkte durchsuchen"}
                                       </p>
                                     </div>
                                     {category.subcategories &&
@@ -626,7 +629,7 @@ export default function Navbar() {
                                     }
                                     className="text-red-600 border-red-200 hover:bg-red-50 text-xs lg:text-sm"
                                   >
-                                    View All
+                                    Alle anzeigen
                                   </Button>
                                 </div>
                               </div>
@@ -654,7 +657,7 @@ export default function Navbar() {
                                                 {subcategory.title}
                                               </div>
                                               <div className="text-xs text-gray-500 mt-1">
-                                                Explore{" "}
+                                                Entdecken Sie{" "}
                                                 {subcategory.title.toLowerCase()}
                                               </div>
                                             </div>
@@ -668,7 +671,7 @@ export default function Navbar() {
                                         <Search className="h-10 w-10 mx-auto" />
                                       </div>
                                       <p className="text-sm text-gray-500">
-                                        No subcategories available for{" "}
+                                        Keine Unterkategorien verfügbar für{" "}
                                         {hoveredCategory}
                                       </p>
                                     </div>
@@ -686,12 +689,13 @@ export default function Navbar() {
                                 </div>
                               </div>
                               <h4 className="text-base lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">
-                                Discover Our Categories
+                                Entdecken Sie unsere Kategorien
                               </h4>
                               <p className="text-xs lg:text-sm text-gray-500 max-w-xs lg:max-w-sm">
-                                Hover over a category on the left to explore its
-                                subcategories and find exactly what you're
-                                looking for.
+                                Fahren Sie mit der Maus über eine Kategorie auf
+                                der linken Seite, um ihre Unterkategorien zu
+                                entdecken und genau das zu finden, was Sie
+                                suchen.
                               </p>
                             </div>
                           )}
@@ -723,7 +727,7 @@ export default function Navbar() {
           (!user ? (
             <button onClick={() => setIsModalOpen(true)}>
               <div className="text-sm font-medium leading-none text-white hover:bg-white/20 hover:text-white transition-colors duration-300 block select-none space-y-1 rounded-md p-3 no-underline outline-none hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 focus:bg-accent focus:text-accent-foreground">
-                Login
+                Anmelden
               </div>
             </button>
           ) : null)}
@@ -741,7 +745,7 @@ export default function Navbar() {
             <div className="flex items-center rounded-full">
               <Input
                 type="search"
-                placeholder="Search for products..."
+                placeholder="Nach Produkten suchen..."
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
@@ -754,7 +758,7 @@ export default function Navbar() {
                   className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-transparent text-red absolute right-1 cursor-pointer"
                 >
                   <Search className="h-4 w-4" />
-                  <span className="sr-only">Search</span>
+                  <span className="sr-only">Suche</span>
                 </Button>
               </div>
             </div>
@@ -785,7 +789,7 @@ export default function Navbar() {
                       ))
                     ) : (
                       <div className="p-4 text-center text-gray-500">
-                        No results found
+                        Keine Ergebnisse gefunden
                       </div>
                     )}
                   </div>
@@ -793,7 +797,7 @@ export default function Navbar() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
                     <div className="max-h-[40vh] overflow-y-auto scrollbar-hide">
                       <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">
-                        Popular Searches
+                        Beliebte Suchanfragen
                       </h3>
                       <div className="space-y-2">
                         {popularSearches.map((search, index) => (
@@ -827,7 +831,7 @@ export default function Navbar() {
         ) : (
           <Search className="h-5 w-5" />
         )}
-        <span className="sr-only">Toggle search</span>
+        <span className="sr-only">Suche öffnen</span>
       </Button>
 
       {/* User and Cart Icons */}
@@ -854,14 +858,14 @@ export default function Navbar() {
                 align="end"
                 className="w-48 md:w-56 bg-white"
               >
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link
                     href="/orders"
                     className="cursor-pointer text-sm md:text-base"
                   >
-                    Orders
+                    Bestellungen
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -869,7 +873,7 @@ export default function Navbar() {
                   onClick={handleSignOut}
                   className="text-red-600 cursor-pointer text-sm md:text-base"
                 >
-                  Sign Out
+                  Abmelden
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -889,7 +893,7 @@ export default function Navbar() {
               <span
                 className={`absolute -top-1 -right-1 bg-red-600 text-white text-[10px] md:text-xs px-1.5 md:px-2 rounded-full
             transform transition-all duration-300
-            ${ 
+            ${
               animate ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
             }`}
               >

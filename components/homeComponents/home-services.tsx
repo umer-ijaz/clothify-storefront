@@ -65,11 +65,12 @@ export default function HomeServices() {
 
   return (
     <section className="py-12">
-      <TextBox text="Services" />
+      <TextBox text="Dienstleistungen" />
       <ShippingPartners images={shippingPartnersImages} />
 
       <h2 className="text-2xl md:text-3xl font-bold px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-        We Offer You the Best<span className="text-red-500">,</span>
+        Wir bieten Ihnen das Beste
+        <span className="text-red-500">,</span>
       </h2>
 
       <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col lg:flex-row items-start gap-8 py-4">

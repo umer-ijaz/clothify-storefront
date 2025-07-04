@@ -66,11 +66,11 @@ export default function Footer() {
               className="w-30 h-25 mx-auto md:mx-0 border p-2"
             />
             <p className="mt-4 text-sm">
-              &ldquo;Wear confidence, own the moment. Fashion that speaks before
-              you do!&rdquo;
+              „Trage Selbstvertrauen, beherrsche den Moment. Mode, die spricht,
+              bevor du es tust!“
               <br />
-              &ldquo;Style isn&apos;t just what you wear, it&apos;s how you
-              express yourself. Shop your vibe today!&rdquo;
+              „Stil ist nicht nur, was du trägst – es ist, wie du dich
+              ausdrückst. Finde deinen Look noch heute!“
             </p>
           </div>
 
@@ -78,31 +78,31 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row gap-10">
             {/* Quick Links */}
             <div>
-              <h3 className="font-bold text-lg mb-3">Quick Links</h3>
+              <h3 className="font-bold text-lg mb-3">Direktlinks</h3>
               <ul className="space-y-2">
                 <li>
                   <Link href="/" className="hover:underline">
-                    Home
+                    Startseite
                   </Link>
                 </li>
                 <li>
                   <Link href="/category/men" className="hover:underline">
-                    Men
+                    Herren
                   </Link>
                 </li>
                 <li>
                   <Link href="/category/women" className="hover:underline">
-                    Women
+                    Damen
                   </Link>
                 </li>
                 <li>
                   <Link href="/contact" className="hover:underline">
-                    Contact
+                    Kontakt
                   </Link>
                 </li>
                 <li>
                   <Link href="/about" className="hover:underline">
-                    About Us
+                    Über uns
                   </Link>
                 </li>
               </ul>
@@ -110,7 +110,7 @@ export default function Footer() {
 
             {/* Contact Info */}
             <div>
-              <h3 className="font-bold text-lg mb-3">Information</h3>
+              <h3 className="font-bold text-lg mb-3">Informationen</h3>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <Mail className="w-5 h-5" />
@@ -132,7 +132,7 @@ export default function Footer() {
           <div className="Shipping_Methods flex flex-col items-center md:items-start gap-10">
             {/* Shipping Methods */}
             <div className="flex flex-col items-center md:items-start gap-4">
-              <h3 className="font-bold text-lg mb-3">SHIPPING METHODS</h3>
+              <h3 className="font-bold text-lg mb-3">Versandarten</h3>
               <div className="flex flex-col-reverse justify-start gap-4">
                 <Image src="/DHL-photo.png" alt="DPD" width={100} height={50} />
                 <Image src="/DPD-Photo.png" alt="DHL" width={80} height={30} />
@@ -141,7 +141,7 @@ export default function Footer() {
 
             {/* Payment Methods */}
             <div className="flex flex-col items-center md:items-start gap-2">
-              <h3 className="font-bold text-lg mb-2">PAYMENT METHODS</h3>
+              <h3 className="font-bold text-lg mb-2">Zahlungsmethoden</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link
                   href="/payment-methods-details/paypal"
@@ -153,17 +153,17 @@ export default function Footer() {
                   href="/payment-methods-details/via-bank"
                   className="hover:underline"
                 >
-                  Credit Card / Debit Card
+                  Kreditkarte / Debitkarte
                 </Link>
               </div>
             </div>
 
             {/* Invoice Methods */}
-            <div className="flex flex-col items-center md:items-start">
-              <h3 className="font-bold text-lg mb-2">INVOICE METHODS</h3>
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <h3 className="font-bold text-lg mb-2">Rechnungsarten</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link href="/invoice" className="hover:underline">
-                  Invoices
+                  Rechnungen
                 </Link>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="text-center mt-10 text-sm">
-        © Copyright 2025. All Rights Reserved.
+        Urheberrecht © 2025. Alle Rechte vorbehalten.
       </div>
     </footer>
   );

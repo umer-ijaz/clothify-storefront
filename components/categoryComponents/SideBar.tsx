@@ -74,53 +74,16 @@ const SideBar = ({ brands, size, materials }: ProductListProps) => {
         onClick={clearFilters}
         className="w-full text-sm text-white bg-red-500 px-4 py-2 rounded-full mb-4 cursor-pointer"
       >
-        Clear Filters
+        Filter zurücksetzen
       </button>
-
-      {/* Category Section */}
-      {/* <div className="mb-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-3">Category</h2>
-        <ul className="space-y-2">
-          {categories.length > 0 ? (
-            categories.map((category) => (
-              <li
-                key={category}
-                className="text-sm text-gray-600 hover:text-red-500 cursor-pointer"
-              >
-                {category}
-              </li>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">No categories available</p>
-          )}
-        </ul>
-      </div> */}
 
       {/* Filters Section */}
       <div className="mb-6">
         <h2 className="text-lg font-medium text-gray-900 mb-3">Filters</h2>
 
-        {/* Price Filter */}
-        {/* <div className="mb-4 space-y-2">
-          <h3 className="text-sm font-semibold text-gray-900">Price</h3>
-          {["Low to High", "High to Low", "On Sale"].map((price) => (
-            <button
-              key={price}
-              onClick={() => setPriceFilter(price)}
-              className={`text-sm w-full text-left py-1 px-2 rounded-md transition-all duration-200 cursor-pointer ${
-                selectedFilters.price === "Price: " + price
-                  ? "bg-red-500 text-white"
-                  : "text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {price}
-            </button>
-          ))}
-        </div> */}
-
         {/* Size Filter */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">Size</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">Größe</h3>
           <div className="flex flex-wrap gap-2">
             {size.map((size) => (
               <button
@@ -140,7 +103,7 @@ const SideBar = ({ brands, size, materials }: ProductListProps) => {
 
         {/* Brand Filter */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">Brands</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">Marken</h3>
           <ul className="space-y-2">
             {brands.map((brand) => (
               <button

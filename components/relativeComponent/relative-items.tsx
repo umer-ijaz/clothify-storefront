@@ -101,13 +101,13 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
   return (
     <div className="relative mt-20 md:mt-10 w-full mb-20">
       <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
-        <TextBox text={"Relative"} />
+        <TextBox text={"Ähnliche Produkte"} />
         {category && (
           <Link
             href={`/category/${category}`}
             className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 hover:text-white px-3 py-1 rounded-full transition-all duration-300"
           >
-            View All
+            Alle anzeigen
             <IoIosArrowForward size={20} />
           </Link>
         )}
@@ -116,8 +116,14 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
       <div className="flex justify-between items-center mb-4 px-3 sm:px-4 lg:px-8 xl:px-12 mt-2">
         <h2 className="text-2xl font-bold">
           {category
-            ? `${category.charAt(0).toUpperCase() + category.slice(1)} Products`
-            : "Related Products"}
+            ? `${
+                category === "men"
+                  ? "Herren"
+                  : category === "women"
+                  ? "Damen"
+                  : category.charAt(0).toUpperCase() + category.slice(1)
+              } Produkte`
+            : "Ähnliche Produkte"}
         </h2>
         <div className="flex gap-2 mt-2">
           <button
@@ -158,7 +164,8 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
           ))
         ) : (
           <div className="col-span-full text-center py-8">
-            No products found{category ? ` in ${category}` : ""}.
+            Keine Produkte gefunden
+            {category ? ` in ${category}` : ""}.
           </div>
         )}
       </Slider>

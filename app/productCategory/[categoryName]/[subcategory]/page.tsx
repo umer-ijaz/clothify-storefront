@@ -10,7 +10,7 @@ function Page() {
   const subcategory = params?.subcategory as string;
 
   if (!categoryName || !subcategory) {
-    return <div>Loading...</div>;
+    return <div>Laden...</div>;
   }
 
   const slug = [categoryName, subcategory];

@@ -290,12 +290,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-} from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 
 interface Review {
@@ -534,12 +529,16 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
   const hasMoreReviews = reviews && reviews.length > initialReviewCount;
 
   if (isLoading) {
-    return <div className="w-full text-center py-8">Loading reviews...</div>;
+    return (
+      <div className="w-full text-center py-8">
+        Bewertungen werden geladen ...
+      </div>
+    );
   }
 
   return (
     <div className="w-full max-w-full mx-auto py-8">
-      <h2 className="text-2xl font-semibold mb-6">Customer Reviews</h2>
+      <h2 className="text-2xl font-semibold mb-6">Kunden bewertungen</h2>
 
       <div className="grid md:grid-cols-[1fr,2fr] gap-8 mb-8">
         {/* Left side - Overall rating */}
@@ -551,7 +550,7 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
             {renderStars(productRating, "md")}
           </div>
           <div className="text-sm text-muted-foreground mb-4">
-            {reviewsCount} ratings
+            {reviewsCount} Bewertungsnoten
           </div>
         </div>
 
@@ -634,7 +633,7 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
                         : "Helpful"}
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                      Was this review helpful?
+                      War diese Bewertung hilfreich?
                     </span>
                   </div>
                 </CardContent>
@@ -649,7 +648,9 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
                   onClick={() => setShowAllReviews(!showAllReviews)}
                   className="group bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white rounded-full"
                 >
-                  {showAllReviews ? "Show Less" : "View More Reviews"}
+                  {showAllReviews
+                    ? "Weniger anzeigen"
+                    : "Weitere Bewertungen anzeigen"}
                   <ChevronDown
                     className={`ml-2 h-4 w-4 transition-transform ${
                       showAllReviews ? "rotate-180" : ""
@@ -661,7 +662,8 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
           </>
         ) : (
           <p className="text-center text-muted-foreground">
-            No reviews yet. Be the first to review this product!
+            Noch keine Bewertungen. Seien Sie der Erste, der dieses Produkt
+            bewertet!
           </p>
         )}
       </div>

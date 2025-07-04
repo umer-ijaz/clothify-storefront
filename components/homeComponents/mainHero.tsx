@@ -235,7 +235,7 @@ const Hero = () => {
 
           {/* Button with Hover, Active & Shadow Effects */}
           <Link href="#products" className="inline-block">
-            <Button text="Shop Now" />
+            <Button text="Jetzt einkaufen" />
           </Link>
         </div>
 

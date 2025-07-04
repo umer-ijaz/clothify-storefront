@@ -7,16 +7,12 @@ import { getProducts } from "@/lib/products";
 
 // Mock data for suggestions
 const popularSearches = [
-  "shoes",
-  "dresses",
-  "jackets",
-  "jeans",
-  "t-shirts",
-  "accessories",
-  "sneakers",
-  "watches",
-  "bags",
-  "sunglasses",
+  "Schuhe", // shoes
+  "Kleider", // dresses
+  "Jacken", // jackets
+  "Jeans", // jeans
+  "T-Shirts", // t-shirts
+  "Sneaker", // sneakers
 ];
 
 interface FilterProps {
@@ -147,14 +143,22 @@ export default function FilterProducts({
           onClick={() => setSelectedCategory(category.toLowerCase())}
           disabled={isLoading}
         >
-          {category}
+          {category === "All"
+            ? "Alle"
+            : category === "Women"
+            ? "Damen"
+            : category === "Men"
+            ? "Herren"
+            : category === "Shoes"
+            ? "Schuhe"
+            : category}
         </button>
       ))}
 
       <div className="relative w-full sm:w-64" ref={searchRef}>
         <input
           type="text"
-          placeholder="Search for products..."
+          placeholder="Nach Produkten suchen..."
           className="px-2 pr-8 py-2 text-sm search bg-white pl-8 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400"
           value={searchTerm}
           onChange={handleInputChange}
@@ -167,7 +171,7 @@ export default function FilterProducts({
           className="h-9 w-9 rounded-full bg-transparent text-red absolute right-0 top-0 cursor-pointer"
         >
           <Search className="h-4 w-4" />
-          <span className="sr-only">Search</span>
+          <span className="sr-only">Suche</span>
         </Button>
 
         {isOpen && suggestions.length > 0 && (

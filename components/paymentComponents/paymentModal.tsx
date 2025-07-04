@@ -202,16 +202,16 @@ export default function PaymentModal({
     for (const field of requiredFields) {
       if (!customerInfo[field as keyof typeof customerInfo]) {
         toast.error(
-          `Please fill in the ${field
+          `Bitte füllen Sie das Feld ${field
             .replace(/([A-Z])/g, " $1")
-            .toLowerCase()} field.`
+            .toLowerCase()} aus.`
         );
         return false;
       }
     }
 
     if (!/^\S+@\S+\.\S+$/.test(customerInfo.email)) {
-      toast.error("Please enter a valid email address.");
+      toast.error("Bitte geben Sie eine gültige E-Mail-Adresse ein.");
       return false;
     }
 
@@ -220,7 +220,7 @@ export default function PaymentModal({
 
   const createPaymentIntent = async () => {
     if (totalPrice <= 0) {
-      toast.error("Cart is empty or total is zero.");
+      toast.error("Warenkorb ist leer oder Gesamtbetrag ist null.");
       return;
     }
     try {
@@ -229,7 +229,16 @@ export default function PaymentModal({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount: totalPrice }),
+        body: JSON.stringify({
+          amount: totalPrice,
+          currency: "eur",
+          metadata: {
+            customerEmail: customerInfo.email,
+            customerName: customerInfo.fullName,
+            country: customerInfo.country,
+            totalAmount: totalPrice.toString(),
+          },
+        }),
       });
 
       const data = await response.json();
@@ -237,22 +246,25 @@ export default function PaymentModal({
         setClientSecret(data.clientSecret);
         setShowStripeModal(true);
       } else {
-        toast.error(data.error || "Failed to initialize payment.");
+        toast.error(data.error || "Zahlung konnte nicht initialisiert werden.");
       }
     } catch (error) {
       console.error("Failed to create payment intent:", error);
-      toast.error("Failed to initialize payment. Please try again.");
+      console.error("Fehler beim Erstellen des Zahlungsauftrags:", error);
+      toast.error(
+        "Zahlung konnte nicht initialisiert werden. Bitte versuchen Sie es erneut."
+      );
     }
   };
 
   const proceedToStripePayment = async () => {
     if (!user) {
       setModal(true);
-      toast.error("You must be logged in to make payments.");
+      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
       return;
     }
     if (products.length === 0) {
-      toast.error("Your cart is empty.");
+      toast.error("Ihr Warenkorb ist leer.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -323,7 +335,7 @@ export default function PaymentModal({
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
     if (!user) {
-      toast.error("User session lost. Please log in again.");
+      toast.error("Benutzersession verloren. Bitte melden Sie sich erneut an.");
       return;
     }
     try {
@@ -333,7 +345,7 @@ export default function PaymentModal({
         status: "Completed",
       });
       await addOrderToUserProfile(user.uid, order);
-      toast.success("Order placed successfully with Stripe!");
+      toast.success("Bestellung mit Stripe erfolgreich aufgegeben!");
 
       const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
       if (onSuccess) {
@@ -345,7 +357,7 @@ export default function PaymentModal({
     } catch (error) {
       console.error("Error placing order after Stripe payment:", error);
       toast.error(
-        "Failed to finalize order after payment. Please contact support."
+        "Bestellung nach Zahlung konnte nicht abgeschlossen werden. Bitte kontaktieren Sie den Support."
       );
     }
   };
@@ -353,11 +365,11 @@ export default function PaymentModal({
   const handleCashCheckout = async () => {
     if (!user) {
       setModal(true);
-      toast.error("You must be logged in to make payments.");
+      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
       return;
     }
     if (products.length === 0) {
-      toast.error("Your cart is empty.");
+      toast.error("Ihr Warenkorb ist leer.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -373,7 +385,7 @@ export default function PaymentModal({
       });
       await addOrderToUserProfile(user.uid, order);
       const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-      toast.success("Order placed successfully! (Cash on Delivery)");
+      toast.success("Bestellung erfolgreich aufgegeben! (Nachnahme)");
 
       if (onSuccess) {
         onSuccess(orderId);
@@ -383,7 +395,10 @@ export default function PaymentModal({
       onClose();
     } catch (error) {
       console.error("Error placing cash order:", error);
-      toast.error("Failed to place cash order. Please try again.");
+      console.error("Fehler bei der Nachnahme-Bestellung:", error);
+      toast.error(
+        "Nachnahme-Bestellung konnte nicht aufgegeben werden. Bitte versuchen Sie es erneut."
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -403,11 +418,11 @@ export default function PaymentModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />
       <DialogContent className="max-w-[99vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
-        <DialogTitle className="sr-only">Complete Your Purchase</DialogTitle>
+        <DialogTitle className="sr-only">Ihren Kauf abschließen</DialogTitle>
         <div className="relative">
           {/* Header */}
           <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b border-red-500">
-            <h2 className="text-xl font-bold">Complete Your Purchase</h2>
+            <h2 className="text-xl font-bold">Ihren Kauf abschließen</h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -420,14 +435,12 @@ export default function PaymentModal({
           <div className="flex flex-col md:grid md:grid-cols-5 gap-8 p-4 md:p-6">
             {/* Customer Information - 3/5 width */}
             <div className="md:col-span-3 bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <h2 className="text-xl font-semibold mb-6">
-                Customer Information
-              </h2>
+              <h2 className="text-xl font-semibold mb-6">Kundendaten</h2>
               <div className="grid gap-6">
                 {/* Country/Region */}
                 <div className="space-y-2">
                   <Label htmlFor="country" className="text-sm font-medium">
-                    Country/Region <span className="text-red-500">*</span>
+                    Land/Region <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <select
@@ -452,12 +465,12 @@ export default function PaymentModal({
                 {/* Full Name */}
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-sm font-medium">
-                    Full name (first name and surname){" "}
+                    Vollständiger Name (Vor- und Nachname){" "}
                     <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="fullName"
-                    placeholder="Enter your full name"
+                    placeholder="Geben Sie Ihren vollständigen Namen ein"
                     className={inputStyle}
                     value={customerInfo.fullName}
                     onChange={handleInputChange}
@@ -468,11 +481,11 @@ export default function PaymentModal({
                 {/* Company Name */}
                 <div className="space-y-2">
                   <Label htmlFor="companyName" className="text-sm font-medium">
-                    Company name (optional)
+                    Firmenname (optional)
                   </Label>
                   <Input
                     id="companyName"
-                    placeholder="Enter company name"
+                    placeholder="Firmenname eingeben"
                     className={inputStyle}
                     value={customerInfo.companyName}
                     onChange={handleInputChange}
@@ -482,11 +495,11 @@ export default function PaymentModal({
                 {/* Phone Number */}
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-sm font-medium">
-                    Phone number <span className="text-red-500">*</span>
+                    Telefonnummer <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="phone"
-                    placeholder="Enter phone number"
+                    placeholder="Telefonnummer eingeben"
                     className={inputStyle}
                     value={customerInfo.phone}
                     onChange={handleInputChange}
@@ -496,10 +509,10 @@ export default function PaymentModal({
 
                 {/* Address Section */}
                 <div className="space-y-4">
-                  <Label className="text-sm font-medium">Address</Label>
+                  <Label className="text-sm font-medium">Adresse</Label>
                   <Input
                     id="streetAddress"
-                    placeholder="Street name and number, pickup location"
+                    placeholder="Straße und Hausnummer, Abholort"
                     className={inputStyle}
                     value={customerInfo.streetAddress}
                     onChange={handleInputChange}
@@ -507,7 +520,7 @@ export default function PaymentModal({
                   />
                   <Input
                     id="additionalAddress"
-                    placeholder="PO Box, c/o, etc."
+                    placeholder="Postfach, c/o, etc."
                     className={inputStyle}
                     value={customerInfo.additionalAddress}
                     onChange={handleInputChange}
@@ -518,11 +531,11 @@ export default function PaymentModal({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="postcode" className="text-sm font-medium">
-                      Postcode <span className="text-red-500">*</span>
+                      Postleitzahl <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="postcode"
-                      placeholder="Enter postcode"
+                      placeholder="Postleitzahl eingeben"
                       className={inputStyle}
                       value={customerInfo.postcode}
                       onChange={handleInputChange}
@@ -531,11 +544,11 @@ export default function PaymentModal({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="townCity" className="text-sm font-medium">
-                      Town/City <span className="text-red-500">*</span>
+                      Ort/Stadt <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="townCity"
-                      placeholder="Enter town/city"
+                      placeholder="Ort/Stadt eingeben"
                       className={inputStyle}
                       value={customerInfo.townCity}
                       onChange={handleInputChange}
@@ -547,11 +560,11 @@ export default function PaymentModal({
                 {/* Email Address */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    Email Address <span className="text-red-500">*</span>
+                    E-Mail-Adresse <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="email"
-                    placeholder="Enter email address"
+                    placeholder="E-Mail-Adresse eingeben"
                     className={inputStyle}
                     value={customerInfo.email}
                     onChange={handleInputChange}
@@ -569,7 +582,7 @@ export default function PaymentModal({
                     }
                     className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
-                    <span>Delivery instructions</span>
+                    <span>Lieferanweisungen</span>
                     <ChevronDown
                       className={`ml-1 w-4 h-4 transition-transform ${
                         showDeliveryInstructions ? "rotate-180" : ""
@@ -577,7 +590,7 @@ export default function PaymentModal({
                     />
                   </button>
                   <p className="text-xs text-gray-500">
-                    Add preferences, notes, access codes and more
+                    Präferenzen, Notizen, Zugangscodes und mehr hinzufügen
                   </p>
 
                   {showDeliveryInstructions && (
@@ -587,11 +600,11 @@ export default function PaymentModal({
                           htmlFor="deliveryPreferences"
                           className="text-sm font-medium"
                         >
-                          Delivery Preferences
+                          Lieferpräferenzen
                         </Label>
                         <Textarea
                           id="deliveryPreferences"
-                          placeholder="Add your delivery preferences here..."
+                          placeholder="Fügen Sie hier Ihre Lieferpräferenzen hinzu..."
                           className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                           value={customerInfo.deliveryPreferences}
                           onChange={handleInputChange}
@@ -603,11 +616,11 @@ export default function PaymentModal({
                           htmlFor="deliveryNotes"
                           className="text-sm font-medium"
                         >
-                          Notes
+                          Notizen
                         </Label>
                         <Textarea
                           id="deliveryNotes"
-                          placeholder="Add any additional notes here..."
+                          placeholder="Fügen Sie hier zusätzliche Notizen hinzu..."
                           className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                           value={customerInfo.deliveryNotes}
                           onChange={handleInputChange}
@@ -619,11 +632,11 @@ export default function PaymentModal({
                           htmlFor="accessCodes"
                           className="text-sm font-medium"
                         >
-                          Access Codes
+                          Zugangscodes
                         </Label>
                         <Textarea
                           id="accessCodes"
-                          placeholder="Add access codes or gate codes here..."
+                          placeholder="Fügen Sie hier Zugangscodes oder Torcodes hinzu..."
                           className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                           value={customerInfo.accessCodes}
                           onChange={handleInputChange}
@@ -637,7 +650,7 @@ export default function PaymentModal({
 
             {/* Order Summary - 2/5 width */}
             <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+              <h2 className="text-xl font-semibold mb-4">Bestellübersicht</h2>
               <div className="space-y-4 w-full">
                 {products.map((item) => (
                   <div
@@ -670,23 +683,21 @@ export default function PaymentModal({
                 ))}
 
                 <div className="flex justify-between items-center border-t pt-2">
-                  <span className="font-medium">Subtotal</span>
+                  <span className="font-medium">Zwischensumme</span>
                   <span className="font-medium"> €{subtotal.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="font-medium">Tax ({taxRate}%)</span>
+                  <span className="font-medium">Steuer ({taxRate}%)</span>
                   <span className="font-medium"> €{tax.toFixed(2)}</span>
                 </div>
 
                 <div className="space-y-2 border-t pt-2">
-                  <span className="font-medium block mb-2">
-                    Delivery Options
-                  </span>
+                  <span className="font-medium block mb-2">Lieferoptionen</span>
                   <RadioGroup
                     value={deliveryMethod}
                     onValueChange={setDeliveryMethod}
-                    className="space-y-2"
+                    className="space-y-2 "
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
@@ -695,7 +706,7 @@ export default function PaymentModal({
                           id="standard"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
-                        <Label htmlFor="standard">Standard Delivery</Label>
+                        <Label htmlFor="standard">Standard-Lieferung</Label>
                       </div>
                       <span className="text-emerald-500">
                         {" "}
@@ -709,7 +720,7 @@ export default function PaymentModal({
                           id="express"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
-                        <Label htmlFor="standard">Express Delivery</Label>
+                        <Label htmlFor="express">Express-Lieferung</Label>
                       </div>
                       <span className="text-emerald-500"> €{expressPrice}</span>
                     </div>
@@ -720,14 +731,14 @@ export default function PaymentModal({
                           id="pickup"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
-                        <Label htmlFor="pickup">Personal Pickup</Label>
+                        <Label htmlFor="pickup">Selbstabholung</Label>
                       </div>
-                      <span className="text-emerald-500">Free</span>
+                      <span className="text-emerald-500">Kostenlos</span>
                     </div>
                   </RadioGroup>
                 </div>
 
-                <span className="font-medium">Payment Methods</span>
+                <span className="font-medium">Zahlungsmethoden</span>
                 <div className="space-y-2">
                   <RadioGroup
                     value={paymentMethod}
@@ -741,7 +752,7 @@ export default function PaymentModal({
                           id="card"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
-                        <Label htmlFor="card">Card (Stripe)</Label>
+                        <Label htmlFor="card">Karte (Stripe)</Label>
                       </div>
                       <div className="flex space-x-1">
                         <Image
@@ -766,20 +777,20 @@ export default function PaymentModal({
                         id="cash"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                       />
-                      <Label htmlFor="cash">Cash on Delivery</Label>
+                      <Label htmlFor="cash">Nachnahme</Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 <div className="flex justify-between items-center border-t pt-2">
-                  <span className="font-bold">Total</span>
+                  <span className="font-bold">Gesamtbetrag</span>
                   <span className="font-bold">€{totalPrice.toFixed(2)}</span>
                 </div>
 
                 {paymentMethod === "card" && !showStripeModal && (
                   <div className="flex flex-row justify-center mt-4">
                     <Button
-                      text="Proceed to Secure Payment"
+                      text="Zur sicheren Zahlung fortfahren"
                       onClick={proceedToStripePayment}
                     />
                   </div>
@@ -790,8 +801,8 @@ export default function PaymentModal({
                     <Button
                       text={
                         isProcessing
-                          ? "Processing..."
-                          : "Complete Purchase (Cash)"
+                          ? "Wird verarbeitet..."
+                          : "Kauf abschließen (Nachnahme)"
                       }
                       onClick={handleCashCheckout}
                       disabled={isProcessing}
@@ -808,7 +819,9 @@ export default function PaymentModal({
           <div className="fixed inset-0 bg-[#0d0e112d] bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Enter Card Details</h3>
+                <h3 className="text-xl font-semibold">
+                  Kartendetails eingeben
+                </h3>
                 <button
                   onClick={() => {
                     setShowStripeModal(false);

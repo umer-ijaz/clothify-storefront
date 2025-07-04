@@ -9,7 +9,11 @@ export default function DropDownFilter({
 }) {
   const [selectedFilter, setSelectedFilter] = useState("");
 
-  const filters = ["Price: Low to High", "Price: High to Low", "Best Rating"];
+  const filters = [
+    "Preis: Niedrig bis Hoch",
+    "Preis: Hoch bis Niedrig",
+    "Beste Bewertung",
+  ];
 
   return (
     <div className="flex justify-center item-center m-0">
@@ -26,7 +30,7 @@ export default function DropDownFilter({
           }}
         >
           <option value="" disabled hidden>
-            Sort By
+            Sortieren nach
           </option>
           {filters.map((filter) => (
             <option

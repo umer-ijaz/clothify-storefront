@@ -6,16 +6,14 @@ function Page() {
   const { categoryName } = useParams();
   console.log(categoryName);
 
-  setTimeout(() => {
-  }, 2000);
+  setTimeout(() => {}, 2000);
   if (!categoryName) {
-    return <div>Loading...</div>;
+    return <div>Laden...</div>;
   }
 
   return (
     <div>
-      <Suspense fallback={<div>Loading...</div>}>
-      </Suspense>
+      <Suspense fallback={<div>Laden...</div>}></Suspense>
     </div>
   );
 }

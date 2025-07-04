@@ -31,8 +31,8 @@ export default function ProductsPage() {
         (product) => ({
           ...product,
           id: String(product.id), // Keep id as a string
-          brand: product.brand || "Unknown Brand",
-          material: product.material || "Unknown Material",
+          brand: product.brand || "Unbekannte Marke",
+          material: product.material || "Unbekanntes Material",
         })
       );
 
@@ -77,11 +77,11 @@ export default function ProductsPage() {
       // Apply sorting
       if (sortFilter) {
         updatedProducts = [...updatedProducts].sort((a, b) => {
-          if (sortFilter === "Price: Low to High")
+          if (sortFilter === "Preis: Niedrig bis Hoch")
             return a.currentPrice - b.currentPrice;
-          if (sortFilter === "Price: High to Low")
+          if (sortFilter === "Preis: Hoch bis Niedrig")
             return b.currentPrice - a.currentPrice;
-          if (sortFilter === "Best Rating") return b.rating - a.rating;
+          if (sortFilter === "Beste Bewertung") return b.rating - a.rating;
           return 0;
         });
       }
@@ -94,19 +94,19 @@ export default function ProductsPage() {
   return (
     <div className="mt-5">
       <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
-        <TextBox text={"Our Products"} />
+        <TextBox text={"Unsere Produkte"} />
         <Link
           href={"/allproducts"}
           className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
         >
-          View All
+          Alle anzeigen
           <IoIosArrowForward size={20} />
         </Link>
       </div>
       <div className="p-6 px-4 lg:px-8 xl:px-12" id="products">
-        <h2 className="text-2xl font-bold mb-4">What&apos;s trending now</h2>
+        <h2 className="text-2xl font-bold mb-4">Aktuelle Trends</h2>
         <p className="text-gray-500 mb-6">
-          Discover the most trending products in our store.
+          Entdecken Sie die angesagtesten Produkte in unserem Shop.
         </p>
         <div className="flex flex-wrap gap-4 justify-center pb-4 border-b border-gray-400">
           <FilterProducts

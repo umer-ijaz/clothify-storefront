@@ -377,26 +377,28 @@ export default function ProductReviewModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button text={"Write Review"} />
+        <Button text={"Bewertung schreiben"} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] bg-white">
         <DialogHeader>
-          <DialogTitle>Write a Review</DialogTitle>
+          <DialogTitle>Bewertung schreiben</DialogTitle>
           <DialogDescription>
-            Share your thoughts about {product.name} with other customers.
+            Teilen Sie Ihre Meinung über {product.name} mit anderen Kunden.
           </DialogDescription>
         </DialogHeader>
         {isLoading ? (
           <div className="py-12 flex flex-col items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4"></div>
-            <p className="text-sm text-gray-600">Loading reviews...</p>
+            <p className="text-sm text-gray-600">
+              Bewertungen werden geladen...
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 py-4">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 overflow-hidden rounded-md border border-gray-400">
                 <Image
-                  src={product.image || "/placeholder.svg?height=64&width=64"}
+                  src={product.image || "/platzhalter.svg?height=64&width=64"}
                   alt={product.name}
                   width={64}
                   height={64}
@@ -426,14 +428,14 @@ export default function ProductReviewModal({
                       />
                     ))}
                   </div>
-                  <span>({reviewsCount} reviews)</span>
+                  <span>({reviewsCount} Bewertungen)</span>
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="rating">
-                Your Rating <span className="text-red-500">*</span>
+                Ihre Bewertung <span className="text-red-500">*</span>
               </Label>
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -457,32 +459,36 @@ export default function ProductReviewModal({
 
             <div className="space-y-2">
               <Label htmlFor="name">
-                Your Name <span className="text-red-500">*</span>
+                Ihr Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder="Ihr Name"
                 className="search bg-white pl-3 focus:border-orange-500 focus:ring-red-500/20 rounded-sm border border-gray-400"
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name}</p>
+                <p className="text-sm text-red-500">Name ist erforderlich</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="comment">
-                Your Review <span className="text-red-500">*</span>
+                Ihre Bewertung <span className="text-red-500">*</span>
               </Label>
               <Textarea
                 id="comment"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
+                placeholder="Teilen Sie Ihre Erfahrungen mit diesem Produkt"
                 rows={4}
                 className="search bg-white pl-3 focus:border-orange-500 focus:ring-red-500/20 rounded-sm border border-gray-400"
               />
               {errors.comment && (
-                <p className="text-sm text-red-500">{errors.comment}</p>
+                <p className="text-sm text-red-500">
+                  Bewertungstext ist erforderlich
+                </p>
               )}
             </div>
 
@@ -491,9 +497,11 @@ export default function ProductReviewModal({
             )}
 
             <DialogFooter className="flex flex-row justify-end items-center gap-2">
-              <Button text={"Cnacel"} onClick={() => setOpen(false)} />
+              <Button text={"Abbrechen"} onClick={() => setOpen(false)} />
               <Button
-                text={isSubmitting ? "Submitting..." : "Submit Review"}
+                text={
+                  isSubmitting ? "Wird übermittelt..." : "Bewertung absenden"
+                }
                 type="submit"
               />
             </DialogFooter>

@@ -37,45 +37,6 @@ export default function ProductReviewsSkeleton() {
       </div>
 
       <Separator className="my-8" />
-
-      {/* <div className="space-y-6">
-        {[...Array(0)].map((_, i) => (
-          <Card key={i} className="border border-gray-200 bg-white">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <div className="bg-gray-300 h-6 w-32 rounded mb-2"></div>
-                  <div className="flex gap-1 mb-2">
-                    {[...Array(5)].map((_, j) => (
-                      <Star key={j} className="w-4 h-4 text-gray-300" />
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-gray-300 h-4 w-20 rounded"></div>
-              </div>
-
-              <div className="bg-gray-300 h-20 w-full rounded mb-4"></div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  disabled
-                  variant="outline"
-                  className="bg-gray-300 h-8 w-24 rounded"
-                />
-                <div className="bg-gray-300 h-4 w-32 rounded"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        <div className="flex justify-center mt-8">
-          <Button
-            disabled
-            variant="outline"
-            className="bg-gray-300 h-10 w-40 rounded"
-          ></Button>
-        </div>
-      </div> */}
     </div>
   );
 }
