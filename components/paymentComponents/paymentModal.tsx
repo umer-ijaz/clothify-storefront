@@ -28,6 +28,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { getCountries } from "@/context/countries";
 import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
+import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -126,6 +127,7 @@ export default function PaymentModal({
   const router = useRouter();
   const { user } = useUser();
   const { deliveryPrice } = useDeliveryPriceStore();
+  const { expressPrice } = useExpressDeliveryPriceStore();
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -155,7 +157,12 @@ export default function PaymentModal({
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const deliveryFee = deliveryMethod === "standard" ? deliveryPrice : 0;
+  const deliveryFee =
+    deliveryMethod === "standard"
+      ? deliveryPrice
+      : deliveryMethod == "express"
+      ? expressPrice
+      : 0;
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
@@ -310,7 +317,7 @@ export default function PaymentModal({
       },
       deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
-      status: paymentDetails.status,
+      status: "Pending",
     };
   };
 
@@ -690,7 +697,21 @@ export default function PaymentModal({
                         />
                         <Label htmlFor="standard">Standard Delivery</Label>
                       </div>
-                      <span className="text-emerald-500"> €{deliveryPrice}</span>
+                      <span className="text-emerald-500">
+                        {" "}
+                        €{deliveryPrice}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="express"
+                          id="express"
+                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                        />
+                        <Label htmlFor="standard">Express Delivery</Label>
+                      </div>
+                      <span className="text-emerald-500"> €{expressPrice}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">

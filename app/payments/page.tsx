@@ -26,6 +26,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { getCountries } from "@/context/countries";
+import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -199,6 +200,7 @@ export default function Payments() {
   const [paymentMethod, setPaymentMethod] = useState("card");
   const { taxRate } = useTaxStore();
   const { deliveryPrice } = useDeliveryPriceStore();
+  const {expressPrice} = useExpressDeliveryPriceStore();
   const [modal, setModal] = useState(false);
   const [showDeliveryInstructions, setShowDeliveryInstructions] =
     useState(false);
@@ -241,7 +243,7 @@ export default function Payments() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const deliveryFee = deliveryMethod === "standard" ? deliveryPrice : 0;
+  const deliveryFee = deliveryMethod === "standard" ? deliveryPrice : deliveryMethod == "express" ? expressPrice : 0;
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
@@ -319,7 +321,7 @@ export default function Payments() {
       },
       deliveryMethod: deliveryMethod,
       createdAt: now.toISOString(),
-      status: paymentDetails.status,
+      status: "Pending",
     };
   };
 
@@ -792,6 +794,17 @@ export default function Payments() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
+                        value="express"
+                        id="express"
+                        className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                      />
+                      <Label htmlFor="standard">Express Delivery</Label>
+                    </div>
+                    <span className="text-emerald-500"> €{expressPrice}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
                         value="pickup"
                         id="pickup"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
@@ -885,7 +898,10 @@ export default function Payments() {
                     </div>
                     <div className="mb-4">
                       <div className="text-sm text-gray-600 mb-2">
-                        Total Amount: <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
+                        Total Amount:{" "}
+                        <span className="font-semibold">
+                          €{totalPrice.toFixed(2)}
+                        </span>
                       </div>
                     </div>
                     {clientSecret ? (
@@ -903,7 +919,9 @@ export default function Payments() {
                     ) : (
                       <div className="space-y-4 text-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
-                        <p className="text-gray-600">Initializing secure payment...</p>
+                        <p className="text-gray-600">
+                          Initializing secure payment...
+                        </p>
                       </div>
                     )}
                   </div>

@@ -85,16 +85,16 @@ export default function ProductInfo({
             <h1 className="text-3xl font-semibold text-gray-900">
               {product.name}
             </h1>
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-green-500">
-                €{product.currentPrice.toFixed(2)}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl font-bold text-green-500">
+              €{product.currentPrice.toFixed(2)}
+            </span>
+            {product.originalPrice > product.currentPrice && (
+              <span className="text-red-500 line-through text-lg">
+                €{product.originalPrice.toFixed(2)}
               </span>
-              {product.originalPrice > product.currentPrice && (
-                <span className="text-red-500 line-through text-lg">
-                  €{product.originalPrice.toFixed(2)}
-                </span>
-              )}
-            </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-1">
