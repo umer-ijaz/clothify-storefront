@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   title: "Daniel's Believe We Ensure - Premium E-commerce Store",
   description: "Discover premium products at Daniel's Believe We Ensure. Shop our curated collection with fast shipping, secure checkout, and exceptional customer service. Your trusted online shopping destination.",
   keywords: "ecommerce, online shopping, premium products, fast shipping, secure checkout, Daniel's store",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   authors: [{ name: "Daniel's Believe We Ensure" }],
   openGraph: {
     title: "Daniel's Believe We Ensure - Premium E-commerce Store",
@@ -45,10 +49,7 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
+  
   viewport: "width=device-width, initial-scale=1",
 };
 
