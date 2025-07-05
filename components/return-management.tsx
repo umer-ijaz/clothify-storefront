@@ -115,7 +115,9 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
     return (
       <div className="text-center py-8">
         <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-        <p className="text-gray-500">No return requests found.</p>
+        <p className="text-gray-500">
+          Es wurden keine Rückgabeanfragen gefunden.
+        </p>
       </div>
     );
   }
@@ -124,10 +126,11 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
     <div className="space-y-6">
       <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
         <h3 className="text-blue-700 font-semibold text-lg mb-1">
-          Return Management 📦
+          Rücksendeverwaltung 📦
         </h3>
         <p className="text-blue-800 text-sm">
-          Track your return requests and download QR codes for easy processing.
+          Verfolgen Sie Ihre Rückgabeanfragen und laden Sie QR-Codes für eine
+          einfache Abwicklung herunter.
         </p>
       </div>
 
@@ -153,20 +156,23 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                 <h4 className="font-semibold text-gray-800 mb-1">
                   {returnRequest.itemName}
                 </h4>
-                
+
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>
-                    <span className="font-medium">Order ID:</span> {returnRequest.orderId}
+                    <span className="font-medium">Bestellnummer:</span>{" "}
+                    {returnRequest.orderId}
                   </p>
                   <p>
-                    <span className="font-medium">Quantity:</span> {returnRequest.itemQuantity} × 
-                    ${returnRequest.itemPrice.toFixed(2)}
+                    <span className="font-medium">Menge:</span>{" "}
+                    {returnRequest.itemQuantity} × €
+                    {returnRequest.itemPrice.toFixed(2)}
                   </p>
                   <p>
-                    <span className="font-medium">Reason:</span> {returnRequest.reason}
+                    <span className="font-medium">Grund:</span>{" "}
+                    {returnRequest.reason}
                   </p>
                   <p>
-                    <span className="font-medium">Requested:</span>{" "}
+                    <span className="font-medium">Beantragt:</span>{" "}
                     {new Date(returnRequest.requestedAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -174,7 +180,7 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                 {returnRequest.adminMessage && (
                   <div className="mt-3 p-3 bg-gray-50 rounded-md">
                     <p className="text-sm text-gray-700">
-                      <span className="font-medium">Admin Message:</span>{" "}
+                      <span className="font-medium">Admin-Nachricht:</span>{" "}
                       {returnRequest.adminMessage}
                     </p>
                   </div>
@@ -191,14 +197,15 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                       className="flex items-center gap-2"
                     >
                       <Eye className="w-4 h-4" />
-                      View QR
+                      QR-Code anzeigen
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Return QR Code</DialogTitle>
+                      <DialogTitle>QR-Code für Rückgabe</DialogTitle>
                       <DialogDescription>
-                        Scan this QR code to track your return status
+                        Scannen Sie diesen QR-Code, um den Status Ihrer Rückgabe
+                        zu verfolgen.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col items-center space-y-4">
@@ -214,7 +221,7 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                         </div>
                       )}
                       <p className="text-sm text-gray-600 text-center">
-                        Return ID: {selectedReturn?.id}
+                        Rückgabe-ID: {selectedReturn?.id}
                       </p>
                     </div>
                   </DialogContent>
@@ -223,11 +230,13 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={() => downloadQRCode(returnRequest.qrCode, returnRequest.id)}
+                  onClick={() =>
+                    downloadQRCode(returnRequest.qrCode, returnRequest.id)
+                  }
                   className="flex items-center gap-2 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B]"
                 >
                   <Download className="w-4 h-4" />
-                  Download QR
+                  QR-Code herunterladen
                 </Button>
               </div>
             </div>

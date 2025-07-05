@@ -64,39 +64,57 @@ export default function InvoiceModal({
     let currentY = 0;
 
     const addHeader = () => {
+      // Set background color for the entire header
       doc.setFillColor(248, 249, 250);
       doc.rect(0, 0, pageWidth, 50, "F");
 
+      // Red accent on the left
       doc.setFillColor(220, 38, 38);
       doc.rect(0, 0, 10, pageHeight, "F");
 
+      const logoWidth = 40;
+      const logoHeight = 30;
+      const logoX = margin;
+      const logoY = 10;
+
       try {
-        doc.addImage("/logo.png", "PNG", pageWidth - 50, 10, 30, 20);
+        doc.addImage("/logo.png", "PNG", logoX, logoY, logoWidth, logoHeight);
       } catch {
         doc.setFontSize(16);
         doc.setTextColor(220, 38, 38);
-        doc.text("DANIEL SHOP", pageWidth - 50, 20);
+        doc.text("LOGO", logoX, 20);
       }
 
-      doc.setFontSize(24);
+      // Add vertical line on right side of logo
+      const lineX = logoX + logoWidth + 10; // 10px right of logo
+      doc.setDrawColor(200, 200, 200); // Light gray color
+      doc.setLineWidth(0.5);
+      doc.line(lineX, logoY, lineX, logoY + logoHeight+3);
+
+      // Company info on the right side - moved closer to logo
+      const rightX = margin + 60; // Reduced space after logo from ~80 to 60
+
+      // "Khurram Rehmat" in bigger bold black text
+      doc.setFontSize(26); // Increased from 20 to 24
       doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text("KHURRAM REHMAT", rightX, 15);
+
+      // "Daniel's Believe" in red and larger
+      doc.setFontSize(18); // Increased from 14 to 18
       doc.setTextColor(220, 38, 38);
-      doc.text("DANIEL", margin, 20);
-      doc.setFontSize(10);
-      doc.text("E-COMMERCE", margin, 28);
+      doc.text("DANIEL'S BELIEVE", rightX, 24); // Adjusted y-position
 
-      doc.setFontSize(8);
+      // "DE359605885" in black with larger text
+      doc.setFontSize(13); // Increased from 11 to 13
+      doc.setTextColor(0, 0, 0);
+      doc.text("DE359605885", rightX, 30); // Adjusted y-position
+
+      // Contact info (email and address) - larger size
+      doc.setFontSize(10); // Increased from 9 to 10
       doc.setTextColor(90, 90, 90);
-
-      const contactInfo = [
-        `E-Mail: info@danilsbelive.de`,
-        `Tel: 0049 152 2381 5822`,
-        `Adresse: Richthofenstraße 39, 24159 Kiel`,
-      ];
-
-      contactInfo.forEach((line, index) => {
-        doc.text(line, margin, 36 + index * 6);
-      });
+      doc.text("Email: info@danilsbelive.de", rightX, 36); // Adjusted y-position
+      doc.text("Address: Richthofenstraße 39, 24159 Kiel", rightX, 41); // Adjusted y-position
 
       currentY = 60;
     };

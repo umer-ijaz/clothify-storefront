@@ -31,7 +31,7 @@ export default function ContactForm() {
 
     if (!user) {
       setModal(true);
-      toast.error("User must be logged in to contact.");
+      toast.error("Benutzer muss angemeldet sein, um Kontakt aufzunehmen.");
       return;
     }
 
@@ -54,7 +54,7 @@ export default function ContactForm() {
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
 
-      toast.success("Message has been sent successfully");
+      toast.success("Nachricht wurde erfolgreich gesendet.");
       setFormData({
         firstName: "",
         lastName: "",
@@ -64,7 +64,10 @@ export default function ContactForm() {
       });
     } catch (error) {
       console.error("EmailJS Error:", error);
-      toast.error("Failed to send message. Try again later.");
+      toast.error(
+        "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut."
+      );
+
     }
   };
 

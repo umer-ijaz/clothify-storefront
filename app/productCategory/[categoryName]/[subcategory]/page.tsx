@@ -17,7 +17,7 @@ function Page() {
 
   return (
     <div>
-      <Suspense fallback={<div>Loading content...</div>}>
+      <Suspense fallback={<div>Laden...</div>}>
         <CategoryPage params={{ slug }} />
       </Suspense>
     </div>

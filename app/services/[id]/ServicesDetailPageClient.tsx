@@ -115,11 +115,10 @@ export default function ServiceDetailPageClient({
               <ArrowLeft className="h-10 w-10 text-red-500" />
             </div>
             <h1 className="text-3xl font-bold text-red-500 mb-4">
-              Service Not Found
+              Dienst nicht gefunden
             </h1>
             <p className="text-gray-600 mb-8">
-              The service you&apos;re looking for doesn&apos;t exist or has been
-              removed.
+              Der gesuchte Dienst existiert nicht oder wurde entfernt.
             </p>
             <Link href="/services">
               <Button text="Back to Services" />
@@ -162,7 +161,7 @@ export default function ServiceDetailPageClient({
             href="/services"
             className="text-gray-600 hover:text-gray-800 transition"
           >
-            Services
+            Dienstleistungen
           </Link>
           <ChevronRight className="mx-2 h-4 w-4 text-gray-400" />
           <span className="text-red-500 font-medium truncate">
@@ -191,7 +190,7 @@ export default function ServiceDetailPageClient({
                 <span>{formattedDate}</span>
                 <span className="mx-2">•</span>
                 <Star className="h-4 w-4 text-yellow-500" />
-                <span>Premium Service</span>
+                <span>Premium-Service</span>
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 leading-tight">
@@ -206,13 +205,18 @@ export default function ServiceDetailPageClient({
                 <div className="bg-gray-50 p-4 rounded-xl mb-6 transform transition-transform hover:scale-102">
                   <div className="flex items-center text-gray-700">
                     <Clock className="h-5 w-5 mr-2 text-red-500" />
-                    <span>Quick response time • Professional service</span>
+                    <span>
+                      German Quick response time • Professional service Schnelle
+                      Reaktionszeit • Professioneller Service
+                    </span>
                   </div>
                 </div>
 
                 <Link href="/contact">
                   <div className="w-full">
-                    <Button text="Contact Us About This Service" />
+                    <Button
+                      text="Kontaktieren Sie uns bezüglich dieses Dienstes"
+                    />
                   </div>
                 </Link>
               </div>

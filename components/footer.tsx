@@ -82,7 +82,7 @@ export default function Footer() {
               <ul className="space-y-2">
                 <li>
                   <Link href="/" className="hover:underline">
-                    Startseite
+                    Home
                   </Link>
                 </li>
                 <li>

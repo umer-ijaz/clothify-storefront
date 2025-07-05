@@ -10,12 +10,12 @@ function Page() {
   const slug = [categoryId];
 
   if (!categoryId) {
-    return <div>Loading...</div>;
+    return <div>Laden...</div>;
   }
 
   return (
     <div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Laden...</div>}>
         <CategoryPage params={{ slug }} />
       </Suspense>
     </div>

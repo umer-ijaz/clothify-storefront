@@ -49,7 +49,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         onClose();
       } else {
         if (password !== confirmPassword) {
-          setError("Passwords do not match.");
+          setError("Passwörter stimmen nicht überein.");
           return;
         }
 
@@ -97,14 +97,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setError("");
 
     if (!email) {
-      setError("Please enter your email address.");
+      setError("Bitte geben Sie Ihre E-Mail-Adresse ein.");
       return;
     }
 
     try {
       await sendPasswordResetEmail(auth, email);
       setError(""); // Clear any existing errors
-      alert("Password reset email sent! Check your inbox.");
+      alert(
+        "E-Mail zum Zurücksetzen des Passworts wurde gesendet! Bitte überprüfen Sie Ihr Postfach."
+      );
       // Optionally switch back to login view
       setIsResetPassword(false);
       setIsLogin(true);

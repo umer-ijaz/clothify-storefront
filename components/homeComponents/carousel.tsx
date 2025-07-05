@@ -82,7 +82,7 @@ const Carousel: React.FC = () => {
   if (!images || images.length === 0)
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">No carousel images found.</div>
+        <div className="text-center">Keine Karussellbilder gefunden.</div>
       </div>
     );
 

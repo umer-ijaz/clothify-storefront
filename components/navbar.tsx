@@ -221,7 +221,7 @@ export default function Navbar() {
 
   const mainNavItems = [
     {
-      title: "Startseite",
+      title: "Home",
       href: "/",
       description: "Entdecken Sie unsere neuesten Kollektionen und Angebote.",
     },

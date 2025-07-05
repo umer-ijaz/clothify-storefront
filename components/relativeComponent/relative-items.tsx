@@ -40,8 +40,8 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
           .map((product) => ({
             ...product,
             id: String(product.id),
-            brand: product.brand || "Unknown Brand",
-            material: product.material || "Unknown Material",
+            brand: product.brand || "Unbekannte Marke",
+            material: product.material || "Unbekanntes Material",
           }));
 
         setProducts(mappedProducts);

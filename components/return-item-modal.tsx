@@ -53,7 +53,7 @@ export default function ReturnItemModal({
     setError("");
 
     if (!reason.trim()) {
-      setError("Please provide a reason for the return.");
+      setError("Bitte geben Sie einen Rücksendegrund an.");
       return;
     }
 
@@ -84,7 +84,7 @@ export default function ReturnItemModal({
       
       await addDoc(returnsCollectionRef, returnData);
 
-      toast.success("Return request submitted successfully.");
+      toast.success("Rückgabeanfrage erfolgreich übermittelt.");
       setReason(""); // Clear reason
 
       // Call the success callback if provided
@@ -95,8 +95,12 @@ export default function ReturnItemModal({
       onClose(); // Close modal
     } catch (err) {
       console.error("Error submitting return request:", err);
-      setError("Failed to submit return request. Please try again.");
-      toast.error("Failed to submit return request.");
+      setError(
+        "Rückgabeanfrage konnte nicht übermittelt werden. Bitte versuchen Sie es erneut."
+      );
+
+      toast.error("Rückgabeanfrage konnte nicht übermittelt werden.");
+
     } finally {
       setIsSubmitting(false);
     }
@@ -115,9 +119,10 @@ export default function ReturnItemModal({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[450px] bg-white">
         <DialogHeader>
-          <DialogTitle>Return Item</DialogTitle>
+          <DialogTitle>Artikel zurücksenden</DialogTitle>
           <DialogDescription>
-            Please tell us why you want to return this item.
+            Bitte teilen Sie uns mit, warum Sie diesen Artikel zurücksenden
+            möchten.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -142,7 +147,7 @@ export default function ReturnItemModal({
 
           {/* Reason Input */}
           <div className="space-y-2">
-            <Label htmlFor="return-reason">Reason for Return</Label>
+            <Label htmlFor="return-reason">Grund für die Rückgabe </Label>
             <Textarea
               id="return-reason"
               placeholder="e.g., Item damaged, Wrong size, Changed mind..."
@@ -156,13 +161,11 @@ export default function ReturnItemModal({
           </div>
 
           <DialogFooter className="flex flex-row justify-end items-center gap-2 pt-2">
+            <Button text={"Cancel"} onClick={onClose} type="button" />
             <Button
-              text={"Cancel"}
-              onClick={onClose}
-              type="button"
-            />
-            <Button
-              text={isSubmitting ? "Submitting..." : "Submit Return"}
+              text={
+                isSubmitting ? "Wird übermittelt..." : "Rückgabe einreichen"
+              }
               type="submit"
             />
           </DialogFooter>

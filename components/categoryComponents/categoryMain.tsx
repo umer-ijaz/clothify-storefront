@@ -71,8 +71,8 @@ export default function CategoryPage({
         .map((product) => ({
           ...product,
           id: String(product.id),
-          brand: product.brand || "Unknown Brand",
-          material: product.material || "Unknown Material",
+          brand: product.brand || "Unbekannte Marke",
+          material: product.material || "Unbekanntes Material",
         }));
 
       const uniqueSizes: (string | number)[] = Array.from(
