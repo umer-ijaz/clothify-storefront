@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, CheckCircle, X } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { fetchGlobalTax } from "@/lib/globalTax";
 
 interface InvoiceModalProps {
   isOpen: boolean;
@@ -89,7 +90,7 @@ export default function InvoiceModal({
       const lineX = logoX + logoWidth + 10; // 10px right of logo
       doc.setDrawColor(200, 200, 200); // Light gray color
       doc.setLineWidth(0.5);
-      doc.line(lineX, logoY, lineX, logoY + logoHeight+3);
+      doc.line(lineX, logoY, lineX, logoY + logoHeight + 3);
 
       // Company info on the right side - moved closer to logo
       const rightX = margin + 60; // Reduced space after logo from ~80 to 60
@@ -158,7 +159,15 @@ export default function InvoiceModal({
         margin,
         currentY + 16
       );
-      doc.text(`Bestellnummer: ${orderData.id}`, pageWidth / 2, currentY + 8);
+      doc.text(
+        `Bestellnummer: ${
+          "OID-" +
+          removeInvPrefix(orderData.invoice.invoiceId) +
+          base62ToLastFour(orderData.id)
+        }`,
+        pageWidth / 2 + 8,
+        currentY + 8
+      );
 
       currentY += 30;
     };
@@ -286,7 +295,7 @@ export default function InvoiceModal({
       currentY = (doc as any).lastAutoTable.finalY + 10;
     };
 
-    const addSummaryAndPaymentDetails = () => {
+    const addSummaryAndPaymentDetails = async () => {
       const summaryWidth = 80;
       const summaryX = pageWidth - margin - summaryWidth;
 
@@ -302,7 +311,9 @@ export default function InvoiceModal({
       doc.setTextColor(100, 100, 100);
       doc.setFont("helvetica", "normal");
       doc.text("Zwischensumme:", labelX, lineY, { align: "right" });
-      doc.text("Steuer:", labelX, (lineY += 6), { align: "right" });
+      doc.text("Steuer (19)%:", labelX, (lineY += 6), {
+        align: "right",
+      });
       doc.text("Versand:", labelX, (lineY += 6), { align: "right" });
 
       doc.setFont("helvetica", "bold");
@@ -332,14 +343,12 @@ export default function InvoiceModal({
       currentY += 60;
       const terms = [
         "Vielen Dank für Ihre Bestellung.",
-        "Zahlungsbedingungen: Sofort fällig",
-        "Bitte geben Sie bei Zahlungen und Anfragen immer die Rechnungsnummer an!",
-        "",
-        "Bankverbindung:",
-        "Bank: Targo Bank",
-        "Kontoinhaber: Khurram Rehmat",
-        "IBAN: DE67300209005370724163",
-        "BIC: CMCIDEDDXXX",
+        "Vekauft von",
+        "Khurram Rehmat",
+        "Daniel’s Believe",
+        "Richthofen Str 39, 24159 Kiel",
+        "Germany",
+        "Ust-IDNr. DE359605885",
       ];
 
       doc.setFontSize(9);
@@ -444,4 +453,26 @@ export default function InvoiceModal({
       </div>
     </div>
   );
+}
+
+function base62ToLastFour(str: string): string {
+  const charset =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = 0n;
+
+  for (let i = 0; i < str.length; i++) {
+    const power = BigInt(str.length - i - 1);
+    const value = BigInt(charset.indexOf(str[i]));
+    result += value * 62n ** power;
+  }
+
+  const decimalStr = result.toString();
+  return decimalStr.slice(-4);
+}
+
+function removeInvPrefix(id: string): string {
+  if (id.startsWith("INV-")) {
+    return id.slice(4); // remove first 4 characters
+  }
+  return id; // return unchanged if prefix not present
 }

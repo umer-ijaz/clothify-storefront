@@ -15,7 +15,10 @@ import TextField from "@/components/text-field";
 import Button from "@/components/button";
 import { useTaxStore } from "@/context/taxContext";
 import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
-import { addOrderToUserProfile, Order } from "@/lib/orders";
+import {
+  addOrderToUserProfile,
+  Order,
+} from "@/lib/orders";
 import { AuthModal } from "@/components/auth-modal";
 import { toast } from "sonner";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
@@ -207,6 +210,7 @@ export default function Payments() {
     useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [showStripeModal, setShowStripeModal] = useState(false);
+  const [uniqueId, setUniqueId] = useState<string | null>(null);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     country: "Deutschland",
@@ -224,6 +228,27 @@ export default function Payments() {
   });
 
   const countries = getCountries();
+
+  useEffect(() => {
+    const fetchId = async () => {
+      try {
+        console.log(user?.uid);
+        const id = base62ToDecimal(user!.uid);
+        setUniqueId(id);
+        console.log(id);
+      } catch (error) {
+        console.error("Failed to Convert Id:", error);
+      }
+    };
+
+    fetchId();
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (uniqueId !== null) {
+      console.log("Updated uniqueId:", uniqueId);
+    }
+  }, [uniqueId]);
 
   useEffect(() => {
     if (user && customerInfo.email === "") {
@@ -321,13 +346,14 @@ export default function Payments() {
         }),
       },
       invoice: {
-        invoiceId: `INV-${Date.now()}`,
+        invoiceId: generateCustomId(uniqueId) ?? generateSimpleInvoiceId(),
+
         date: now.toISOString(),
         details: `Rechnung für Bestellung vom ${now.toLocaleDateString()}`,
       },
       deliveryMethod: deliveryMethod,
       createdAt: now.toISOString(),
-      status: "Ausstehend",
+      status: "Pending",
     };
   };
 
@@ -436,7 +462,7 @@ export default function Payments() {
       const order = createOrder({
         method: "Stripe",
         transactionId: paymentIntentId,
-        status: "Abgeschlossen",
+        status: "Completed",
       });
       await addOrderToUserProfile(user.uid, order);
       clearCart();
@@ -467,8 +493,9 @@ export default function Payments() {
     try {
       const order = createOrder({
         method: "Barzahlung bei Lieferung",
-        transactionId: "COD" + Math.floor(Math.random() * 1000000),
-        status: "Ausstehend",
+        transactionId:
+          "COD" + generateCustomDoc(uniqueId) + Math.floor(Math.random() * 100),
+        status: "Pending",
       });
       await addOrderToUserProfile(user.uid, order);
       clearCart();
@@ -964,4 +991,43 @@ export default function Payments() {
       <AuthModal isOpen={modal} onClose={() => setModal(false)} />
     </div>
   );
+}
+function base62ToDecimal(str: string) {
+  const charset =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = 0n; // use BigInt for large numbers
+
+  for (let i = 0; i < str.length; i++) {
+    const power = BigInt(str.length - i - 1);
+    const value = BigInt(charset.indexOf(str[i]));
+    result += value * 62n ** power;
+  }
+
+  return result.toString(); // convert BigInt to string if needed
+}
+
+function generateCustomId(uniqueId: string | null): string | null {
+  if (!uniqueId) return null;
+
+  const day = new Date().getDate().toString().padStart(2, "0"); // "05"
+  const lastFour = uniqueId.slice(-4); // e.g., "abcd"
+  const randomNum = Math.floor(Math.random() * 10) + 1; // 1–10
+
+  return `INV-${day}${lastFour}${randomNum}`;
+}
+
+function generateCustomDoc(uniqueId: string | null): string | null {
+  if (!uniqueId) return null;
+
+  const day = new Date().getDate().toString().padStart(2, "0"); // "05"
+  const lastFour = uniqueId.slice(-4); // e.g., "abcd"
+  const randomNum = Math.floor(Math.random() * 10) + 1; // 1–10
+
+  return `${day}${lastFour}${randomNum}`;
+}
+
+function generateSimpleInvoiceId(): string {
+  const day = new Date().getDate().toString().padStart(2, "0"); // ensures 01–31
+  const random = Math.floor(Math.random() * 9000) + 1000; // random 4-digit number
+  return `INV-${day}${random}`;
 }

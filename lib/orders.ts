@@ -1,5 +1,8 @@
 import { firestore } from "@/lib/firebaseConfig";
-import { doc, collection, addDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+} from "firebase/firestore";
 
 export interface Order {
   items: Array<{
