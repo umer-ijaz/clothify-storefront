@@ -15,10 +15,7 @@ import TextField from "@/components/text-field";
 import Button from "@/components/button";
 import { useTaxStore } from "@/context/taxContext";
 import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
-import {
-  addOrderToUserProfile,
-  Order,
-} from "@/lib/orders";
+import { addOrderToUserProfile, Order } from "@/lib/orders";
 import { AuthModal } from "@/components/auth-modal";
 import { toast } from "sonner";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
@@ -339,7 +336,7 @@ export default function Payments() {
         date: now.toLocaleDateString(),
         time: now.toLocaleTimeString(),
         status: paymentDetails.status,
-        ...(paymentDetails.method === "Barzahlung bei Lieferung" && {
+        ...(paymentDetails.method === "Cash upon delivery" && {
           expectedDelivery: new Date(
             Date.now() + 5 * 24 * 60 * 60 * 1000
           ).toLocaleDateString(),
@@ -349,7 +346,7 @@ export default function Payments() {
         invoiceId: generateCustomId(uniqueId) ?? generateSimpleInvoiceId(),
 
         date: now.toISOString(),
-        details: `Rechnung für Bestellung vom ${now.toLocaleDateString()}`,
+        details: `Invoice for order placed on ${now.toLocaleDateString()}`,
       },
       deliveryMethod: deliveryMethod,
       createdAt: now.toISOString(),
@@ -492,9 +489,9 @@ export default function Payments() {
 
     try {
       const order = createOrder({
-        method: "Barzahlung bei Lieferung",
+        method: "Cash upon delivery",
         transactionId:
-          "COD" + generateCustomDoc(uniqueId) + Math.floor(Math.random() * 100),
+          "COD-" + generateCustomDoc(uniqueId) + Math.floor(Math.random() * 100),
         status: "Pending",
       });
       await addOrderToUserProfile(user.uid, order);

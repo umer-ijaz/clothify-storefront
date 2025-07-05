@@ -65,16 +65,18 @@ const StripeCheckoutForm = ({
     });
 
     if (error) {
-      setErrorMessage(error.message || "An unexpected error occurred.");
+      setErrorMessage(
+        error.message || "Ein unerwarteter Fehler ist aufgetreten."
+      );
       setIsProcessing(false);
       return;
     }
 
     if (paymentIntent && paymentIntent.status === "succeeded") {
-      toast.success("Payment successful!");
+      toast.success("Zahlung erfolgreich!");
       onSuccessfulPayment(paymentIntent.id);
     } else if (paymentIntent) {
-      setErrorMessage(`Payment status: ${paymentIntent.status}`);
+      setErrorMessage(`Zahlungsstatus: ${paymentIntent.status}`);
     }
 
     setIsProcessing(false);
@@ -87,7 +89,7 @@ const StripeCheckoutForm = ({
         <Button
           type="submit"
           disabled={isProcessing || !stripe || !elements}
-          text={isProcessing ? "Processing..." : "Pay with Stripe"}
+          text={isProcessing ? "Verarbeitung..." : "Bezahlen Sie mit Stripe"}
         />
       </div>
       {errorMessage && (
@@ -136,6 +138,7 @@ export default function PaymentModal({
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [showDeliveryInstructions, setShowDeliveryInstructions] =
     useState(false);
+  const [uniqueId, setUniqueId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [customerInfo, setCustomerInfo] = useState({
@@ -152,6 +155,27 @@ export default function PaymentModal({
     deliveryNotes: "",
     accessCodes: "",
   });
+
+  useEffect(() => {
+    const fetchId = async () => {
+      try {
+        console.log(user?.uid);
+        const id = base62ToDecimal(user!.uid);
+        setUniqueId(id);
+        console.log(id);
+      } catch (error) {
+        console.error("Failed to Convert Id:", error);
+      }
+    };
+
+    fetchId();
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (uniqueId !== null) {
+      console.log("Updated uniqueId:", uniqueId);
+    }
+  }, [uniqueId]);
 
   const subtotal = products.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -323,7 +347,7 @@ export default function PaymentModal({
         }),
       },
       invoice: {
-        invoiceId: `INV-${Date.now()}`,
+        invoiceId: generateCustomId(uniqueId) ?? generateSimpleInvoiceId(),
         date: new Date().toISOString(),
         details: `Invoice for order placed on ${new Date().toLocaleDateString()}`,
       },
@@ -346,13 +370,7 @@ export default function PaymentModal({
       });
       await addOrderToUserProfile(user.uid, order);
       toast.success("Bestellung mit Stripe erfolgreich aufgegeben!");
-
-      const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-      if (onSuccess) {
-        onSuccess(orderId);
-      } else {
-        router.push("/orders");
-      }
+      router.push("/orders");
       onClose();
     } catch (error) {
       console.error("Error placing order after Stripe payment:", error);
@@ -380,18 +398,15 @@ export default function PaymentModal({
     try {
       const order = createOrder({
         method: "Cash on Delivery",
-        transactionId: "COD" + Math.floor(Math.random() * 1000000),
+        transactionId:
+          "COD-" +
+          generateCustomDoc(uniqueId) +
+          Math.floor(Math.random() * 100),
         status: "Pending",
       });
       await addOrderToUserProfile(user.uid, order);
-      const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
       toast.success("Bestellung erfolgreich aufgegeben! (Nachnahme)");
-
-      if (onSuccess) {
-        onSuccess(orderId);
-      } else {
-        router.push("/orders");
-      }
+      router.push("/orders");
       onClose();
     } catch (error) {
       console.error("Error placing cash order:", error);
@@ -849,4 +864,44 @@ export default function PaymentModal({
       <AuthModal isOpen={modal} onClose={() => setModal(false)} />
     </Dialog>
   );
+}
+
+function base62ToDecimal(str: string) {
+  const charset =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = 0n; // use BigInt for large numbers
+
+  for (let i = 0; i < str.length; i++) {
+    const power = BigInt(str.length - i - 1);
+    const value = BigInt(charset.indexOf(str[i]));
+    result += value * 62n ** power;
+  }
+
+  return result.toString(); // convert BigInt to string if needed
+}
+
+function generateCustomId(uniqueId: string | null): string | null {
+  if (!uniqueId) return null;
+
+  const day = new Date().getDate().toString().padStart(2, "0"); // "05"
+  const lastFour = uniqueId.slice(-4); // e.g., "abcd"
+  const randomNum = Math.floor(Math.random() * 10) + 1; // 1–10
+
+  return `INV-${day}${lastFour}${randomNum}`;
+}
+
+function generateCustomDoc(uniqueId: string | null): string | null {
+  if (!uniqueId) return null;
+
+  const day = new Date().getDate().toString().padStart(2, "0"); // "05"
+  const lastFour = uniqueId.slice(-4); // e.g., "abcd"
+  const randomNum = Math.floor(Math.random() * 10) + 1; // 1–10
+
+  return `${day}${lastFour}${randomNum}`;
+}
+
+function generateSimpleInvoiceId(): string {
+  const day = new Date().getDate().toString().padStart(2, "0"); // ensures 01–31
+  const random = Math.floor(Math.random() * 9000) + 1000; // random 4-digit number
+  return `INV-${day}${random}`;
 }
