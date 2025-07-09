@@ -32,7 +32,7 @@ interface ReturnManagementProps {
   returnRequests: ReturnRequest[];
 }
 
-export default function ReturnManagement({ returnRequests }: ReturnManagementProps) {
+export default function  ReturnManagement({ returnRequests }: ReturnManagementProps) {
   const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -123,7 +123,7 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
         <h3 className="text-blue-700 font-semibold text-lg mb-1">
           Rücksendeverwaltung 📦
@@ -134,7 +134,7 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
         </p>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 bg-white">
         {returnRequests.map((returnRequest) => (
           <div
             key={returnRequest.id}
@@ -187,7 +187,7 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 ">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button
@@ -200,7 +200,7 @@ export default function ReturnManagement({ returnRequests }: ReturnManagementPro
                       QR-Code anzeigen
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
+                  <DialogContent className="sm:max-w-md bg-white">
                     <DialogHeader>
                       <DialogTitle>QR-Code für Rückgabe</DialogTitle>
                       <DialogDescription>
