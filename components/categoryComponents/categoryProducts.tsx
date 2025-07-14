@@ -40,11 +40,15 @@ function CategoryProducts({ productsArray, setIsLoading }: ProductListProps) {
 
       if (selectedFilters.sizes.length > 0) {
         updatedProducts = updatedProducts.filter((product) =>
-          selectedFilters.sizes.some(
-            (size) =>
-              product.sizes.includes(size) ||
-              product.sizes.includes(Number(size)) ||
-              product.sizes.includes(size.toString())
+          product.variants.some((variant) =>
+            variant.sizes.some((variantSize) =>
+              selectedFilters.sizes.some(
+                (selectedSize) =>
+                  variantSize === selectedSize ||
+                  variantSize === Number(selectedSize) ||
+                  variantSize === selectedSize.toString()
+              )
+            )
           )
         );
       }
@@ -104,7 +108,7 @@ function CategoryProducts({ productsArray, setIsLoading }: ProductListProps) {
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-          {[...Array(itemsPerPage)].map((_, index) => (
+          {[...Array(displayedProducts.length)].map((_, index) => (
             <ItemCardSkeleton key={index} />
           ))}
         </div>

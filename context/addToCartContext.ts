@@ -21,17 +21,36 @@ export const useCartStore = create<CartState>()(
           );
 
           if (existingItem) {
+            const newQuantity = existingItem.quantity + item.quantity;
+            const maxQuantity = item.stock ?? Infinity;
+
             return {
               cart: state.cart.map((cartItem) =>
                 cartItem.id === item.id &&
                 cartItem.color === item.color &&
                 cartItem.size === item.size
-                  ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+                  ? {
+                      ...cartItem,
+                      quantity:
+                        newQuantity > maxQuantity ? maxQuantity : newQuantity,
+                    }
                   : cartItem
               ),
             };
           }
-          return { cart: [...state.cart, { ...item }] };
+
+          return {
+            cart: [
+              ...state.cart,
+              {
+                ...item,
+                quantity:
+                  item.stock !== undefined && item.quantity > item.stock
+                    ? item.stock
+                    : item.quantity,
+              },
+            ],
+          };
         });
       },
 
@@ -43,9 +62,15 @@ export const useCartStore = create<CartState>()(
 
       updateQuantity: (id, quantity) => {
         set((state) => ({
-          cart: state.cart.map((item) =>
-            item.id === id ? { ...item, quantity } : item
-          ),
+          cart: state.cart.map((item) => {
+            const maxStock = item.stock ?? Infinity;
+            return item.id === id
+              ? {
+                  ...item,
+                  quantity: quantity > maxStock ? maxStock : quantity,
+                }
+              : item;
+          }),
         }));
       },
 

@@ -18,25 +18,38 @@ const FlashSaleCarousel = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [products, setProducts] = useState<FlashSaleItem[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(false);
+  const [skeletonCount, setSkeletonCount] = useState(4); // Default to 4
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+
+      // Set skeleton count based on screen size
+      if (width < 768) {
+        setSkeletonCount(2); // mobile
+      } else if (width < 1024) {
+        setSkeletonCount(3); // md
+      } else {
+        setSkeletonCount(4); // lg and above
+      }
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch flash sale items from Firestore
   useEffect(() => {
     async function fetchFlashSaleItems() {
       setLoading(true);
       const items = await getFlashSaleItems();
       setProducts(items);
       setLoading(false);
+
+      setShowSkeleton(true);
+      setTimeout(() => setShowSkeleton(false), 2000); // Show skeleton for 2 seconds
     }
 
     fetchFlashSaleItems();
@@ -58,92 +71,88 @@ const FlashSaleCarousel = () => {
     ],
   };
 
-  // Calculate number of skeletons to show based on products count or default to 4
-  const skeletonCount = products?.length;
-
   return (
     <div className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10">
-      <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
-        <TextBox text={"Angebote des Tages"} />
-        <Link
-          href={"/flashsaleproducts"}
-          className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
-        >
-          Alle anzeigen
-          <IoIosArrowForward size={20} />
-        </Link>
-      </div>
+      {products?.length === 0 ? null : (
+        <div>
+          <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
+            <TextBox text={"Angebote des Tages"} />
+            <Link
+              href={"/flashsaleproducts"}
+              className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
+            >
+              Alle anzeigen
+              <IoIosArrowForward size={20} />
+            </Link>
+          </div>
 
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-4 px-3 sm:px-4 lg:px-8 xl:px-12 mt-4">
-        <h2 className="text-2xl font-bold">Blitzangebote</h2>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => sliderRef.current?.slickPrev()}
-            className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
-          >
-            <FaChevronLeft
-              size={16}
-              className="text-gray-900 hover:text-white active:text-white"
+          <div className="flex justify-between items-center mb-4 px-3 sm:px-4 lg:px-8 xl:px-12 mt-4">
+            <h2 className="text-2xl font-bold">Blitzangebote</h2>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => sliderRef.current?.slickPrev()}
+                className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
+              >
+                <FaChevronLeft
+                  size={16}
+                  className="text-gray-900 hover:text-white active:text-white"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => sliderRef.current?.slickNext()}
+                className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
+              >
+                <FaChevronRight
+                  size={16}
+                  className="text-gray-900 hover:text-white active:text-white"
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Slider */}
+          <div className="relative">
+            <Slider
+              className="px-2 sm:px-4 lg:px-6 xl:px-8"
+              ref={sliderRef}
+              {...settings}
+              key={isMobile ? "mobile" : "desktop"}
+            >
+              {loading || showSkeleton
+                ? Array(skeletonCount)
+                    .fill(0)
+                    .map((_, index) => (
+                      <div key={index} className="px-2">
+                        <ItemCardSkeleton />
+                      </div>
+                    ))
+                : products?.map((product) => {
+                    if (!product.id) {
+                      console.warn("Product is missing an ID:", product);
+                      return null;
+                    }
+                    return (
+                      <div key={product.id} className="px-2">
+                        <ItemCard {...product} id={product.id.toString()} />
+                      </div>
+                    );
+                  })}
+            </Slider>
+          </div>
+
+          <div className="absolute right-0 bottom-0 -z-50">
+            <Image
+              src="/design.svg"
+              alt="Design"
+              width={200}
+              height={200}
+              priority
             />
-          </button>
-          <button
-            type="button"
-            onClick={() => sliderRef.current?.slickNext()}
-            className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
-          >
-            <FaChevronRight
-              size={16}
-              className="text-gray-900 hover:text-white active:text-white"
-            />
-          </button>
+          </div>
         </div>
-      </div>
-
-      {/* Slider */}
-      <div className="relative">
-        <Slider
-          className="px-2 sm:px-4 lg:px-8 xl:px-12"
-          ref={sliderRef}
-          {...settings}
-          key={isMobile ? "mobile" : "desktop"}
-        >
-          {loading
-            ? Array(skeletonCount)
-                .fill(null)
-                .map((_, index) => (
-                  <div key={index} className="px-2">
-                    <div>
-                      <ItemCardSkeleton />
-                    </div>
-                  </div>
-                ))
-            : products?.map((product) => {
-                if (!product.id) {
-                  console.warn("Product is missing an ID:", product);
-                  return null;
-                }
-
-                return (
-                  <div key={product.id} className="px-2">
-                    <ItemCard {...product} id={product.id.toString()} />
-                  </div>
-                );
-              })}
-        </Slider>
-      </div>
-
-      {/* Background Design */}
-      <div className="absolute right-0 bottom-0 -z-50">
-        <Image
-          src="/design.svg"
-          alt="Design"
-          width={200}
-          height={200}
-          priority
-        />
-      </div>
+      )}
     </div>
   );
 };

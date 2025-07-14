@@ -11,24 +11,44 @@ import { ShoppingBag, Star } from "lucide-react";
 
 interface ProductCardEnhancedProps {
   id: string;
-  subcategory: string;
+  productId: string;
   name: string;
+  brand: string;
   category: string;
-  images: string[];
-  image: string;
+  subcategory: string;
+
+  image: string; // main display image
+  images: string[]; // all additional images
+
   currentPrice: number;
   originalPrice: number;
   discount: number;
+
   stock: number;
   rating: number;
   reviewsCount: number;
-  brand: string;
+  reviews: any[]; // If reviews have a structure, define an interface
+
   sku: string;
-  sizes: (string | number)[];
-  outOfStockSizes?: (string | number)[];
   description: string;
   material: string;
   features: string[];
+
+  createdAt: string;
+  updatedAt: string;
+
+  variants: Variant[];
+}
+
+export interface Variant {
+  color: {
+    name: string;
+    hex: string;
+  };
+  mainImage: string;
+  subImages: string[];
+  sizes: (string | number)[];
+  outOfStockSizes?: (string | number)[];
 }
 
 export default function ItemCard(props: ProductCardEnhancedProps) {
@@ -60,7 +80,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           />
         </Link>
         {props.discount > 0 && (
-          <Badge className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-full text-sm">
+          <Badge className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-full text-xs md:text-sm">
             {(
               ((props.originalPrice - props.currentPrice) /
                 props.originalPrice) *
@@ -72,7 +92,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
         {props.id.startsWith("sale") && (
           <div className="absolute top-0 right-0 w-full h-full">
             {/* Sale Ribbon */}
-            <div className="absolute right-[-30px] top-2 bg-green-600 text-white text-xs font-bold py-1 px-8 transform rotate-45 shadow-md">
+            <div className="absolute right-[-30px] top-4 bg-green-600 text-white text-xs font-medium md:font-bold py-1 px-8 transform rotate-45 shadow-md">
               VERKAUF
             </div>
           </div>
@@ -80,12 +100,12 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
 
         {/* Stock indicator */}
         {props.stock <= 5 && props.stock > 0 && (
-          <div className="absolute bottom-2 left-2 bg-amber-100 text-amber-900 text-sm px-2 py-1 rounded-full">
+          <div className="absolute bottom-2 left-2 bg-amber-100 text-amber-900 text-xs md:text-sm px-2 py-1 rounded-full">
             Nur noch {props.stock} verfügbar
           </div>
         )}
         {props.stock === 0 && (
-          <div className="absolute bottom-2 left-2 bg-red-100 text-red-900 text-sm px-2 py-1 rounded-full">
+          <div className="absolute bottom-2 left-2 bg-red-100 text-red-900 text-xs md:text-sm px-2 py-1 rounded-full">
             Nicht auf Lager
           </div>
         )}
@@ -158,7 +178,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             className="w-full gap-2 flex flex-row justify-center items-center py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white transform transition-transform active:scale-95 rounded-full"
             href={`/product/${props.id}`}
           >
-            <ShoppingBag className="h-4 w-4" />
+            <ShoppingBag className="h-4 w-4 text-sm md:text-md" />
             Jetzt kaufen
           </Link>
         </div>

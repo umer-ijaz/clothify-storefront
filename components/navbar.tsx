@@ -151,6 +151,7 @@ export default function Navbar() {
     setInputValue(suggestion);
     setIsOpen(false);
     router.push(`/search?query=${encodeURIComponent(suggestion)}`);
+    setInputValue("")
   };
 
   // Mobile category toggle
@@ -296,6 +297,7 @@ export default function Navbar() {
     e.preventDefault();
     if (inputValue.trim()) {
       router.push(`/search?query=${encodeURIComponent(inputValue.trim())}`);
+      setInputValue("");
       setIsOpen(false);
       setIsSearchOpen(false);
     }

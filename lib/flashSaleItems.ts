@@ -3,29 +3,49 @@ import { firestore } from "@/lib/firebaseConfig";
 
 export interface FlashSaleItem {
   id: string;
+  productId: string;
   name: string;
+  brand: string;
   category: string;
   subcategory: string;
-  images: string[];
-  image: string;
+
+  image: string; // main display image
+  images: string[]; // all additional images
+
   currentPrice: number;
   originalPrice: number;
   discount: number;
+
   stock: number;
   rating: number;
   reviewsCount: number;
-  brand: string;
+  reviews: any[]; // If reviews have a structure, define an interface
+
   sku: string;
-  sizes: (string | number)[];
-  outOfStockSizes?: (string | number)[];
   description: string;
   material: string;
   features: string[];
+
+  createdAt: string;
+  updatedAt: string;
+
+  variants: Variant[];
+}
+
+export interface Variant {
+  color: {
+    name: string;
+    hex: string;
+  };
+  mainImage: string;
+  subImages: string[];
+  sizes: (string | number)[];
+  outOfStockSizes?: (string | number)[];
 }
 
 export async function getFlashSaleItems(): Promise<FlashSaleItem[]> {
   try {
-    const flashSaleCollection = collection(firestore, "flashSaleItems");
+    const flashSaleCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(flashSaleCollection);
 
     return snapshot.docs.map((doc) => ({

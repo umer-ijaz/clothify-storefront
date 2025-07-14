@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 
 interface Review {
@@ -52,32 +58,31 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
       let itemExists = false;
 
       // Check if item exists in products collection
-      const productDoc = await getDoc(doc(firestore, "products", product.id));
+      const productDoc = await getDoc(doc(firestore, "v_products", product.id));
       if (productDoc.exists()) {
-        collectionName = "products";
+        collectionName = "v_products";
         itemExists = true;
       } else {
         // Check if item exists in flashSaleItems collection
         const flashSaleDoc = await getDoc(
-          doc(firestore, "flashSaleItems", product.id)
+          doc(firestore, "v_flashSaleItems", product.id)
         );
         if (flashSaleDoc.exists()) {
-          collectionName = "flashSaleItems";
+          collectionName = "v_flashSaleItems";
           itemExists = true;
         }
       }
 
       if (!itemExists) {
-        console.error("Item not found in any collection");
         setIsLoading(false);
         return;
       }
 
       // Get the current rating and reviewsCount from the item document
       const itemDoc =
-        collectionName === "products"
+        collectionName === "v_products"
           ? productDoc
-          : await getDoc(doc(firestore, "flashSaleItems", product.id));
+          : await getDoc(doc(firestore, "v_flashSaleItems", product.id));
 
       const itemData = itemDoc.data();
       if (itemData && itemData.rating !== undefined) {
@@ -102,22 +107,27 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
       setReviews(fetchedReviews);
 
       // If rating or reviewsCount wasn't in the document, calculate them from reviews
+      // If rating or reviewsCount wasn't in the document, calculate and update them
       if (
         itemData?.rating === undefined ||
         itemData?.reviewsCount === undefined
       ) {
+        const totalRating = fetchedReviews.reduce(
+          (sum, review) => sum + (review.rating || 0),
+          0
+        );
+        const newAvgRating =
+          fetchedReviews.length > 0 ? totalRating / fetchedReviews.length : 0;
+
+        setProductRating(newAvgRating);
         setReviewsCount(fetchedReviews.length);
 
-        if (fetchedReviews.length > 0) {
-          const totalRating = fetchedReviews.reduce(
-            (sum, review) => sum + (review.rating || 0),
-            0
-          );
-          const avgRating = totalRating / fetchedReviews.length;
-          setProductRating(avgRating);
-        } else {
-          setProductRating(0);
-        }
+        // Update the product document in Firestore
+        const docRef = doc(firestore, collectionName, product.id);
+        await updateDoc(docRef, {
+          rating: newAvgRating,
+          reviewsCount: fetchedReviews.length,
+        });
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -136,25 +146,21 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
       { stars: 1, percentage: 0, count: 0 },
     ];
 
-    if (!reviews || reviews.length === 0) {
-      return distribution;
-    }
+    if (!reviews || reviews.length === 0) return distribution;
 
-    // Count reviews for each star rating
     reviews.forEach((review) => {
-      const starIndex = Math.min(Math.floor(review.rating), 5) - 1;
-      if (starIndex >= 0) {
-        distribution[4 - starIndex].count++;
+      const stars = Math.round(review.rating); // Ensure integer star rating
+      if (stars >= 1 && stars <= 5) {
+        const index = 5 - stars; // 5 stars at index 0
+        distribution[index].count++;
       }
     });
 
-    // Calculate percentages
-    const totalReviews = reviews.length;
-    distribution.forEach((item) => {
-      item.percentage = Math.round((item.count / totalReviews) * 100) || 0;
-    });
-
-    return distribution;
+    const total = reviews.length;
+    return distribution.map((d) => ({
+      ...d,
+      percentage: Math.round((d.count / total) * 100),
+    }));
   };
 
   // Check if product exists

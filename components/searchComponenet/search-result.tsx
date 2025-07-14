@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProducts } from "@/lib/products";
+import { getFlashProducts, getProducts } from "@/lib/products";
 import { useRouter } from "next/navigation";
 import { Pagination } from "../pagination";
 import HomeLink from "../home-link";
@@ -14,25 +14,45 @@ import CategoryProducts from "../categoryComponents/categoryProducts";
 
 interface Product {
   id: string;
+  productId: string;
   name: string;
+  brand: string;
   category: string;
   subcategory: string;
-  images: string[];
-  colors: { name: string; hex?: string }[];
-  image: string;
+
+  image: string; // main display image
+  images: string[]; // all additional images
+
   currentPrice: number;
   originalPrice: number;
   discount: number;
+
   stock: number;
   rating: number;
   reviewsCount: number;
-  brand: string;
+  reviews: any[]; // If reviews have a structure, define an interface
+
   sku: string;
-  sizes: (string | number)[];
-  outOfStockSizes?: (string | number)[];
+
   description: string;
   material: string;
   features: string[];
+
+  createdAt: string;
+  updatedAt: string;
+
+  variants: Variant[];
+}
+
+export interface Variant {
+  color: {
+    name: string;
+    hex: string;
+  };
+  mainImage: string;
+  subImages: string[];
+  sizes: (string | number)[];
+  outOfStockSizes?: (string | number)[];
 }
 
 export function SearchResults({
@@ -56,7 +76,9 @@ export function SearchResults({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const allProducts = await getProducts();
+        let allProducts = await getProducts();
+        const allProducts2 = await getFlashProducts();
+        allProducts = allProducts.concat(allProducts2);
         setProducts(allProducts);
 
         // Filter products based on search query
@@ -103,7 +125,8 @@ export function SearchResults({
     const uniqueSizes: (string | number)[] = Array.from(
       new Set(
         filteredProducts
-          .flatMap((product) => product.sizes || [])
+          .flatMap((product) => product.variants || [])
+          .flatMap((variant) => variant.sizes || [])
           .filter(Boolean)
       )
     );

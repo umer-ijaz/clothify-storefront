@@ -16,7 +16,7 @@ export default function ProductQuickViewButton({
   product,
   buttonText = "Quick View",
   iconOnly = false,
-  className = "cursor-pointer bg-gray-200 border-none p-2 md:p-3 w-auto h-auto shadow-md",
+  className = "cursor-pointer bg-gray-100 border-none p-2 md:p-3 w-auto h-auto shadow-md",
 }: ProductQuickViewButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 

@@ -597,6 +597,11 @@ export default function OrdersPage() {
                                         name: item.name,
                                         image: item.image || "/placeholder.svg",
                                       }}
+                                      itemType={
+                                        item.id.startsWith("sale")
+                                          ? "flashSaleItem"
+                                          : "product"
+                                      }
                                     />
                                   )}
                                   {canReturn && (

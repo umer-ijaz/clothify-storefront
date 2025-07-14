@@ -3,30 +3,50 @@ import { firestore } from "@/lib/firebaseConfig";
 
 export interface Product {
   id: string;
+  productId: string;
   name: string;
+  brand: string;
   category: string;
   subcategory: string;
-  images: string[];
-  colors: { name: string; hex?: string }[];
-  image: string;
+
+  image: string; // main display image
+  images: string[]; // all additional images
+
   currentPrice: number;
   originalPrice: number;
   discount: number;
+
   stock: number;
   rating: number;
   reviewsCount: number;
-  brand: string;
+  reviews: any[]; // If reviews have a structure, define an interface
+
   sku: string;
-  sizes: (string | number)[];
-  outOfStockSizes?: (string | number)[];
+
   description: string;
   material: string;
   features: string[];
+
+  createdAt: string;
+  updatedAt: string;
+
+  variants: Variant[];
+}
+
+export interface Variant {
+  color: {
+    name: string;
+    hex: string;
+  };
+  mainImage: string;
+  subImages: string[];
+  sizes: (string | number)[];
+  outOfStockSizes?: (string | number)[];
 }
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const productsCollection = collection(firestore, "products");
+    const productsCollection = collection(firestore, "v_products");
     const snapshot = await getDocs(productsCollection);
 
     return snapshot.docs.map((doc) => ({
@@ -41,7 +61,7 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getFlashProducts(): Promise<Product[]> {
   try {
-    const productsCollection = collection(firestore, "flashSaleItems");
+    const productsCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(productsCollection);
 
     return snapshot.docs.map((doc) => ({
@@ -57,8 +77,8 @@ export async function getFlashProducts(): Promise<Product[]> {
 export async function getProductById(productId: string): Promise<Product> {
   try {
     // Check both collections in parallel for better performance
-    const productDocRef = doc(firestore, "products", productId);
-    const flashSaleDocRef = doc(firestore, "flashSaleItems", productId);
+    const productDocRef = doc(firestore, "v_products", productId);
+    const flashSaleDocRef = doc(firestore, "v_flashSaleItems", productId);
 
     const [productSnapshot, flashSaleSnapshot] = await Promise.all([
       getDoc(productDocRef),
@@ -86,9 +106,6 @@ export async function getProductById(productId: string): Promise<Product> {
         ...flashSaleData,
       } as Product;
     }
-
-    // If product not found in either collection, throw error
-    console.error("Product not found in any collection. ID:", productId);
     throw new Error(`Product with ID ${productId} not found in any collection`);
   } catch (error) {
     console.error("Error fetching product by ID:", error);
@@ -100,7 +117,7 @@ export async function getFlashSaleItemsProductsById(
   productIds: string[]
 ): Promise<Product[]> {
   try {
-    const productsCollection = collection(firestore, "flashSaleItems");
+    const productsCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(productsCollection);
 
     return snapshot.docs

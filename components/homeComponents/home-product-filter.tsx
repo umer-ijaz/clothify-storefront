@@ -57,7 +57,7 @@ export default function FilterProducts({
 
     debounceTimeoutRef.current = setTimeout(() => {
       setDebouncedSearchTerm(value);
-    }, 500); // 500ms debounce delay
+    }, 700); // 500ms debounce delay
   }, []);
 
   // Update debounced search term when searchTerm changes
@@ -122,6 +122,7 @@ export default function FilterProducts({
     setSearchTerm(suggestion);
     setDebouncedSearchTerm(suggestion);
     setIsOpen(false);
+    setSearchTerm("");
   };
 
   const handleInputFocus = () => {

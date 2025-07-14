@@ -2,7 +2,7 @@
 import { Filter } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import {getProducts } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
 import Loading from "@/components/categoryComponents/loading";
 import HomeLink from "@/components/home-link";
@@ -34,7 +34,8 @@ export default function ProductsPage() {
       const uniqueSizes: (string | number)[] = Array.from(
         new Set(
           mappedProducts
-            .flatMap((product) => product.sizes || [])
+            .flatMap((product) => product.variants || [])
+            .flatMap((variant) => variant.sizes || [])
             .filter(Boolean)
         )
       );

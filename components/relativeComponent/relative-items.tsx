@@ -23,7 +23,27 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
   const sliderRef = useRef<Slider | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [products, setProducts] = useState<CategoryProductsInterface[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Initialize as true
+  const [isLoading, setIsLoading] = useState(true);
+  const [skeletonCount, setSkeletonCount] = useState(4);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+
+      if (width < 768) {
+        setSkeletonCount(2);
+      } else if (width < 1024) {
+        setSkeletonCount(3);
+      } else {
+        setSkeletonCount(4);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -34,7 +54,7 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
         const mappedProducts: CategoryProductsInterface[] = items
           .filter(
             (product) =>
-              !category || // Show all if no category specified
+              !category ||
               product.category?.toLowerCase() === category.toLowerCase()
           )
           .map((product) => ({
@@ -55,24 +75,6 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
     fetchProducts();
   }, [category]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const handlePrev = () => {
-    sliderRef.current?.slickPrev();
-  };
-
-  const handleNext = () => {
-    sliderRef.current?.slickNext();
-  };
-
   const settings = {
     dots: false,
     infinite: false,
@@ -85,18 +87,17 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
     responsive: [
       {
         breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-        },
+        settings: { slidesToShow: 3 },
       },
       {
         breakpoint: 768,
-        settings: {
-          slidesToShow: 2,
-        },
+        settings: { slidesToShow: 2 },
       },
     ],
   };
+
+  // Don't show anything if no products and not loading
+  if (!isLoading && products.length === 0) return null;
 
   return (
     <div className="relative mt-20 md:mt-10 w-full mb-20">
@@ -127,13 +128,13 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
         </h2>
         <div className="flex gap-2 mt-2">
           <button
-            onClick={handlePrev}
+            onClick={() => sliderRef.current?.slickPrev()}
             className="p-2 bg-gray-200 hover:bg-red-500 hover:text-white rounded-full cursor-pointer"
           >
             <FaChevronLeft size={16} />
           </button>
           <button
-            onClick={handleNext}
+            onClick={() => sliderRef.current?.slickNext()}
             className="p-2 bg-gray-200 hover:bg-red-500 hover:text-white rounded-full cursor-pointer"
           >
             <FaChevronRight size={16} />
@@ -148,26 +149,17 @@ const RelativeItems: React.FC<RelativeItemsProps> = ({ category }) => {
         {...settings}
         className="px-2 sm:px-4 lg:px-8 xl:px-12"
       >
-        {isLoading ? (
-          Array(4)
-            .fill(null)
-            .map((_, index) => (
+        {isLoading
+          ? Array.from({ length: skeletonCount }).map((_, index) => (
               <div key={index} className="px-2">
                 <ItemCardSkeleton />
               </div>
             ))
-        ) : products.length > 0 ? (
-          products.map((product) => (
-            <div key={product.id} className="px-2">
-              <ItemCard {...product} />
-            </div>
-          ))
-        ) : (
-          <div className="col-span-full text-center py-8">
-            Keine Produkte gefunden
-            {category ? ` in ${category}` : ""}.
-          </div>
-        )}
+          : products.map((product) => (
+              <div key={product.id} className="px-2">
+                <ItemCard {...product} />
+              </div>
+            ))}
       </Slider>
 
       <div className="absolute right-0 -bottom-48 -z-50">

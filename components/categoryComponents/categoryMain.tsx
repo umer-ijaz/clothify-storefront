@@ -6,7 +6,7 @@ import Image from "next/image";
 import HomeLink from "../home-link";
 import TextField from "../text-field";
 import { useEffect, useState } from "react";
-import { getProducts } from "@/lib/products";
+import { getFlashProducts, getProducts } from "@/lib/products";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
 import Loading from "./loading";
 
@@ -31,8 +31,9 @@ export default function CategoryPage({
     }
     async function fetchProducts() {
       setIsLoading(true);
-      const items = await getProducts();
-      console.log(items);
+      let items = await getProducts();
+      const items2 = await getFlashProducts();
+      items = items.concat(items2);
       const normalize = (str: string) =>
         str
           .toLowerCase()
@@ -78,7 +79,8 @@ export default function CategoryPage({
       const uniqueSizes: (string | number)[] = Array.from(
         new Set(
           mappedProducts
-            .flatMap((product) => product.sizes || [])
+            .flatMap((product) => product.variants || [])
+            .flatMap((variant) => variant.sizes || [])
             .filter(Boolean)
         )
       );

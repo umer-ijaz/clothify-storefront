@@ -42,9 +42,6 @@ const categoryMap = {
   ],
 };
 
-// const sizes = ["XS", "S", "M", "L", "XL"];
-// const brands = ["Louis Vuitton", "Hermès", "Gucci", "Chanel", "Loewe"];
-// const materials = ["Linen", "Silk", "Wool", "Satin", "Cotton", "Leather"];
 interface ProductListProps {
   brands: string[];
   size: (string | number)[];

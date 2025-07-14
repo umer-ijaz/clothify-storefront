@@ -31,7 +31,7 @@ export default function ProductList({ products }: ProductListProps) {
     <div>
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-          {Array.from({ length: products.length }).map((_, index) => (
+          {Array.from({ length: displayedProducts.length }).map((_, index) => (
             <ItemCardSkeleton key={index} />
           ))}
         </div>

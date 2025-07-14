@@ -9,16 +9,7 @@ interface TextBoxProps {
 const TextBox: React.FC<TextBoxProps> = ({ text }) => {
   return (
     <div className="flex flex-row items-center -translate-x-7 relative">
-      {/* {text === "Angebote des Tages" ? (
-        <Image
-          src={"/tag.svg"}
-          alt={"Tag"}
-          width={100}
-          height={100}
-          className="w-20 h-20 md:w-25 md:h-25 absolute -top-9 left-60 md:left-69 md:-top-11 z-50"
-        />
-      ) : null} */}
-      <div className="w-auto flex flex-row justify-end pl-20 md:text-xl py-1 bg-[#ff0000] text-white rounded-full">
+      <div className="w-auto flex flex-row justify-center items-center pl-10 text-sm md:text-xl py-2 bg-[#ff0000] text-white rounded-full">
         <h1 className="text-right pr-5">{text}</h1>
       </div>
     </div>
