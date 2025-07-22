@@ -3,15 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Facebook,
-  Instagram,
-  Linkedin,
-  Twitter,
-} from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { getFooterInfo } from "@/lib/footer";
 
 interface FooterInfo {
@@ -109,22 +101,32 @@ export default function Footer() {
             </div>
 
             {/* Contact Info */}
-            <div>
-              <h3 className="font-bold text-lg mb-3">Informationen</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  {loading ? <Skeleton /> : <span>{footerInfo.email}</span>}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-5 h-5" />
-                  {loading ? <Skeleton /> : <span>{footerInfo.phone}</span>}
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  {loading ? <Skeleton /> : <span>{footerInfo.address}</span>}
-                </li>
-              </ul>
+            <div className="flex flex-col space-y-4">
+              <div>
+                <h3 className="font-bold text-lg mb-3">Informationen</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    {loading ? <Skeleton /> : <span>{footerInfo.email}</span>}
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    {loading ? <Skeleton /> : <span>{footerInfo.phone}</span>}
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    {loading ? <Skeleton /> : <span>{footerInfo.address}</span>}
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-3">Impressum</h3>
+                <ul className="space-y-2">
+                  <Link href="/impression" className="hover:underline">
+                    Impressum
+                  </Link>
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -138,7 +140,16 @@ export default function Footer() {
                 <Image src="/DPD-Photo.png" alt="DHL" width={80} height={30} />
               </div>
             </div>
-
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <h3 className="font-bold text-lg mb-2">
+                Allgemeine Geschäftsbedingungen
+              </h3>
+              <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
+                <Link href="/return-condition" className="hover:underline">
+                  Rückgaberecht
+                </Link>
+              </div>
+            </div>
             {/* Payment Methods */}
             <div className="flex flex-col items-center md:items-start gap-2">
               <h3 className="font-bold text-lg mb-2">Zahlungsmethoden</h3>
@@ -154,19 +165,6 @@ export default function Footer() {
                   className="hover:underline"
                 >
                   Kreditkarte / Debitkarte
-                </Link>
-              </div>
-            </div>
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <h3 className="font-bold text-lg mb-2">
-                Allgemeine Geschäftsbedingungen
-              </h3>
-              <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
-                <Link
-                  href="/return-condition"
-                  className="hover:underline"
-                >
-                  Rückgaberecht
                 </Link>
               </div>
             </div>

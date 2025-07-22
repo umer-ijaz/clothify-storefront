@@ -1,9 +1,11 @@
 "use client";
 
+import TextField from "@/components/text-field";
+
 export default function ReturnCondition() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 text-gray-800 mt-5 mb-5 shadow-md rounded-md pl-10">
-      <h1 className="text-3xl font-bold mb-6">Rückgabe & Umtausch</h1>
+      <TextField text={"Rückgabe & Umtausch"} />
       <p className="text-sm text-gray-500 mb-8">
         Zuletzt aktualisiert: 22-07-2025
       </p>

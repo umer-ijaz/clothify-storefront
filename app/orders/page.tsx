@@ -71,8 +71,12 @@ interface Order {
   status: string;
 }
 
-interface ReturnRequest {
-  requestedAt: string;
+export interface FirestoreTimestamp {
+  seconds: number;
+  nanoseconds: number;
+}
+
+export interface ReturnRequest {
   id: string;
   orderId: string;
   itemId: string;
@@ -81,9 +85,10 @@ interface ReturnRequest {
   itemQuantity: number;
   reason: string;
   status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed";
+  requestedAt: FirestoreTimestamp;
   qrCode: string;
   adminMessage?: string;
-  invoiceId:string;
+  invoiceId: string;
 }
 
 export default function OrdersPage() {
@@ -205,11 +210,16 @@ export default function OrdersPage() {
         });
 
         // Sort in JavaScript instead of Firestore
-        fetchedReturns = fetchedReturns.sort(
-          (a, b) =>
-            new Date(b.requestedAt).getTime() -
-            new Date(a.requestedAt).getTime()
-        );
+        fetchedReturns = fetchedReturns.sort((a, b) => {
+          const timeA =
+            a.requestedAt.seconds * 1000 +
+            a.requestedAt.nanoseconds / 1_000_000;
+          const timeB =
+            b.requestedAt.seconds * 1000 +
+            b.requestedAt.nanoseconds / 1_000_000;
+
+          return timeB - timeA; // descending order
+        });
 
         setReturnRequests(fetchedReturns);
       } catch (err) {
@@ -254,10 +264,14 @@ export default function OrdersPage() {
         };
       });
 
-      fetchedReturns = fetchedReturns.sort(
-        (a, b) =>
-          new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
-      );
+      fetchedReturns = fetchedReturns.sort((a, b) => {
+        const timeA =
+          a.requestedAt.seconds * 1000 + a.requestedAt.nanoseconds / 1_000_000;
+        const timeB =
+          b.requestedAt.seconds * 1000 + b.requestedAt.nanoseconds / 1_000_000;
+
+        return timeB - timeA; // Sort by newest first
+      });
 
       setReturnRequests(fetchedReturns);
     } catch (err) {

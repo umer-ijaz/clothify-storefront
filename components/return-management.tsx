@@ -21,7 +21,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-interface ReturnRequest {
+export interface FirestoreTimestamp {
+  seconds: number;
+  nanoseconds: number;
+}
+
+export interface ReturnRequest {
   id: string;
   orderId: string;
   itemId: string;
@@ -30,7 +35,7 @@ interface ReturnRequest {
   itemQuantity: number;
   reason: string;
   status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed";
-  requestedAt: string;
+  requestedAt: FirestoreTimestamp;
   qrCode: string;
   adminMessage?: string;
   invoiceId: string;
