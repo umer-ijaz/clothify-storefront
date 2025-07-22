@@ -31,9 +31,24 @@ interface ReturnItemModalProps {
   item: Item;
   orderId: string;
   userId: string;
-  orderCreatedAt: string; // Pass the order creation date
-  onSuccess?: () => void; // Add this callback
+  invoiceId: string;
+  orderCreatedAt: string;
+  onSuccess?: () => void;
 }
+
+const REASONS = [
+  "Größen- oder Passformprobleme",
+  "Beschädigter oder defekter Artikel",
+  "Entsprach nicht den Erwartungen",
+  "Meinungsänderung / Spontankauf",
+  "Falsche Bestellung",
+  "Lieferverzögerungen",
+  "Unerwünschtes Geschenk",
+  "Irreführende Produktinformationen",
+  "Inkompatibilität / technische Probleme",
+  "Schlechter Kundenservice",
+  "Sonstiges",
+];
 
 export default function ReturnItemModal({
   isOpen,
@@ -42,9 +57,12 @@ export default function ReturnItemModal({
   orderId,
   userId,
   orderCreatedAt,
+  invoiceId,
   onSuccess,
 }: ReturnItemModalProps) {
-  const [reason, setReason] = useState("");
+  const [selectedReason, setSelectedReason] = useState("");
+  const [customReason, setCustomReason] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -52,8 +70,16 @@ export default function ReturnItemModal({
     e.preventDefault();
     setError("");
 
-    if (!reason.trim()) {
-      setError("Bitte geben Sie einen Rücksendegrund an.");
+    const finalReason =
+      selectedReason === "Sonstiges" ? customReason.trim() : selectedReason;
+
+    if (!finalReason) {
+      setError("Bitte wählen Sie einen Rücksendegrund aus.");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError("Bitte bestätigen Sie die Rückgabebedingungen.");
       return;
     }
 
@@ -61,55 +87,48 @@ export default function ReturnItemModal({
 
     try {
       const returnsCollectionRef = collection(firestore, "returns");
-      
-      // Generate unique QR code data
       const qrCodeData = `RETURN-${orderId}-${item.id}-${Date.now()}`;
-      
+
       const returnData = {
-        userId: userId,
-        orderId: orderId,
-        orderCreatedAt: orderCreatedAt,
+        userId,
+        orderId,
+        orderCreatedAt,
         itemId: item.id,
         itemName: item.name,
         itemQuantity: item.quantity,
         itemPrice: item.price,
-        reason: reason.trim(),
+        reason: finalReason,
         requestedAt: serverTimestamp(),
         status: "Pending",
         qrCode: qrCodeData,
         adminMessage: "",
+        invoiceId,
+        acceptedTerms: true, // ✅ Track checkbox status
       };
 
-      console.log("Creating return request:", returnData); // Debug log
-      
       await addDoc(returnsCollectionRef, returnData);
 
       toast.success("Rückgabeanfrage erfolgreich übermittelt.");
-      setReason(""); // Clear reason
+      setSelectedReason("");
+      setCustomReason("");
+      setAcceptedTerms(false);
 
-      // Call the success callback if provided
-      if (onSuccess) {
-        onSuccess();
-      }
-
-      onClose(); // Close modal
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (err) {
       console.error("Error submitting return request:", err);
-      setError(
-        "Rückgabeanfrage konnte nicht übermittelt werden. Bitte versuchen Sie es erneut."
-      );
-
+      setError("Rückgabeanfrage konnte nicht übermittelt werden.");
       toast.error("Rückgabeanfrage konnte nicht übermittelt werden.");
-
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle modal close/open change
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setReason(""); // Clear reason on close
+      setSelectedReason("");
+      setCustomReason("");
+      setAcceptedTerms(false);
       setError("");
       onClose();
     }
@@ -117,14 +136,14 @@ export default function ReturnItemModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[450px] bg-white">
+      <DialogContent className="sm:max-w-[500px] bg-white">
         <DialogHeader>
           <DialogTitle>Artikel zurücksenden</DialogTitle>
           <DialogDescription>
-            Bitte teilen Sie uns mit, warum Sie diesen Artikel zurücksenden
-            möchten.
+            Bitte wählen Sie den Grund für Ihre Rückgabe aus.
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {/* Item Details */}
           <div className="flex items-center gap-4 p-3 border rounded-md bg-gray-50">
@@ -140,28 +159,68 @@ export default function ReturnItemModal({
             <div>
               <h3 className="font-medium text-sm">{item.name}</h3>
               <p className="text-xs text-gray-500">
-                Qty: {item.quantity} | Price: ${item.price.toFixed(2)}
+                Menge: {item.quantity} | Preis: ${item.price.toFixed(2)}
               </p>
             </div>
           </div>
 
-          {/* Reason Input */}
+          {/* Reason Selection */}
           <div className="space-y-2">
-            <Label htmlFor="return-reason">Grund für die Rückgabe </Label>
-            <Textarea
-              id="return-reason"
-              placeholder="e.g., Item damaged, Wrong size, Changed mind..."
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              rows={4}
-              className="search bg-white pl-4 focus:border-orange-500 focus:ring-red-500/20 rounded-md border border-gray-400"
-              required
-            />
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            <Label htmlFor="reason">Rücksendegrund</Label>
+            <div className="space-y-2">
+              {REASONS.map((reason) => (
+                <label key={reason} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reason"
+                    value={reason}
+                    checked={selectedReason === reason}
+                    onChange={(e) => setSelectedReason(e.target.value)}
+                  />
+                  <span className="text-sm">{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            {selectedReason === "Sonstiges" && (
+              <Textarea
+                placeholder="Bitte geben Sie den Rücksendegrund an..."
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                rows={3}
+                className="bg-white border border-gray-400 rounded-md focus:border-orange-500 focus:ring-red-500/20 pl-4"
+                required
+              />
+            )}
           </div>
 
+          {/* Terms & Conditions Checkbox */}
+          <div className="pt-2">
+            <label className="flex items-start gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+              />
+              <span>
+                Ich habe die{" "}
+                <a
+                  href="/return-condition"
+                  target="_blank"
+                  className="text-blue-600 underline"
+                >
+                  Rückgabebedingungen
+                </a>{" "}
+                gelesen und akzeptiere sie.
+              </span>
+            </label>
+          </div>
+
+          {/* Error Message */}
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
           <DialogFooter className="flex flex-row justify-end items-center gap-2 pt-2">
-            <Button text={"Cancel"} onClick={onClose} type="button" />
+            <Button text="Abbrechen" onClick={onClose} type="button" />
             <Button
               text={
                 isSubmitting ? "Wird übermittelt..." : "Rückgabe einreichen"

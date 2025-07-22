@@ -3,7 +3,14 @@
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import QRCode from "qrcode";
-import { Download, Eye, Package, Clock, CheckCircle, XCircle } from "lucide-react";
+import {
+  Download,
+  Eye,
+  Package,
+  Clock,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,16 +33,22 @@ interface ReturnRequest {
   requestedAt: string;
   qrCode: string;
   adminMessage?: string;
+  invoiceId: string;
 }
 
 interface ReturnManagementProps {
   returnRequests: ReturnRequest[];
 }
 
-export default function  ReturnManagement({ returnRequests }: ReturnManagementProps) {
-  const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(null);
+export default function ReturnManagement({
+  returnRequests,
+}: ReturnManagementProps) {
+  const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(
+    null
+  );
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  console.log(returnRequests);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -160,7 +173,10 @@ export default function  ReturnManagement({ returnRequests }: ReturnManagementPr
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>
                     <span className="font-medium">Bestellnummer:</span>{" "}
-                    {returnRequest.orderId}
+                    {returnRequest.invoiceId &&
+                      "OID-" +
+                        removeInvPrefix(returnRequest.invoiceId) +
+                        base62ToLastFour(returnRequest.orderId)}
                   </p>
                   <p>
                     <span className="font-medium">Menge:</span>{" "}
@@ -173,7 +189,14 @@ export default function  ReturnManagement({ returnRequests }: ReturnManagementPr
                   </p>
                   <p>
                     <span className="font-medium">Beantragt:</span>{" "}
-                    {new Date(returnRequest.requestedAt).toLocaleDateString()}
+                    {new Date(
+                      returnRequest.requestedAt.seconds * 1000 +
+                        returnRequest.requestedAt.nanoseconds / 1_000_000
+                    ).toLocaleDateString("de-DE", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
 
@@ -248,4 +271,25 @@ export default function  ReturnManagement({ returnRequests }: ReturnManagementPr
       <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
   );
+}
+function base62ToLastFour(str: string): string {
+  const charset =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = 0n;
+
+  for (let i = 0; i < str.length; i++) {
+    const power = BigInt(str.length - i - 1);
+    const value = BigInt(charset.indexOf(str[i]));
+    result += value * 62n ** power;
+  }
+
+  const decimalStr = result.toString();
+  return decimalStr.slice(-4);
+}
+
+function removeInvPrefix(id: string): string {
+  if (id.startsWith("INV-")) {
+    return id.slice(4); // remove first 4 characters
+  }
+  return id; // return unchanged if prefix not present
 }

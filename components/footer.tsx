@@ -157,6 +157,19 @@ export default function Footer() {
                 </Link>
               </div>
             </div>
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <h3 className="font-bold text-lg mb-2">
+                Allgemeine Geschäftsbedingungen
+              </h3>
+              <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
+                <Link
+                  href="/return-condition"
+                  className="hover:underline"
+                >
+                  Rückgaberecht
+                </Link>
+              </div>
+            </div>
 
             {/* Invoice Methods */}
             <div className="flex flex-col items-center md:items-start gap-2">

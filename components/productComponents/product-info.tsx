@@ -297,6 +297,7 @@ export default function ProductInfo({
         {/* Colors - Only show if variants exist */}
         {availableColors.length > 0 && (
           <div>
+            <p className="text-sm text-red-500 mb-2">Wählen Sie Farben aus, um relevante Fotos anzuzeigen</p>
             <h3 className="text-xl font-semibold text-gray-800 mb-3">
               Farben{" "}
               {!selectedColor && (

@@ -83,6 +83,7 @@ interface ReturnRequest {
   status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed";
   qrCode: string;
   adminMessage?: string;
+  invoiceId:string;
 }
 
 export default function OrdersPage() {
@@ -198,6 +199,7 @@ export default function OrdersPage() {
             itemQuantity: data.itemQuantity,
             reason: data.reason,
             qrCode: data.qrCode,
+            invoiceId: data.invoiceId,
             adminMessage: data.adminMessage,
           };
         });
@@ -247,6 +249,7 @@ export default function OrdersPage() {
           itemQuantity: data.itemQuantity,
           reason: data.reason,
           qrCode: data.qrCode,
+          invoiceId: data.invoiceId,
           adminMessage: data.adminMessage,
         };
       });
@@ -338,6 +341,7 @@ export default function OrdersPage() {
       Delivered: "Geliefert",
       Shipped: "Versandt",
       Cancelled: "Storniert",
+      "Ready to Pick Up": "Bereit zur Abholung",
     };
     return statusMap[status] || status;
   };
@@ -390,11 +394,17 @@ export default function OrdersPage() {
 
         <Tabs defaultValue="orders" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="orders">
+            <TabsTrigger
+              value="orders"
+              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+            >
               Meine Bestellungen ({orders.length})
             </TabsTrigger>
-            <TabsTrigger value="returns">
-              Retourenverwaltung ({returnRequests.length})
+            <TabsTrigger
+              value="returns"
+              className="data-[state=active]:bg-red-500 data-[state=active]:text-white"
+            >
+              Meine Rendite ({returnRequests.length})
             </TabsTrigger>
           </TabsList>
 
@@ -430,7 +440,9 @@ export default function OrdersPage() {
                             Bestellnummer:
                           </span>
                           <span className="font-semibold ml-2 text-gray-800">
-                            {order.id}
+                            {"OID-" +
+                              removeInvPrefix(order.invoice.invoiceId) +
+                              base62ToLastFour(order.id)}
                           </span>
                         </div>
                         <div>
@@ -447,6 +459,8 @@ export default function OrdersPage() {
                                 ? "bg-green-100 text-green-800"
                                 : order.status === "Shipped"
                                 ? "bg-blue-100 text-blue-800"
+                                : order.status === "Ready to Pick Up"
+                                ? "bg-orange-100 text-orange-500"
                                 : "bg-gray-100 text-gray-800"
                             }`}
                           >
@@ -737,6 +751,7 @@ export default function OrdersPage() {
             }}
             item={selectedItemForReturn}
             orderId={selectedOrderForReturn.id}
+            invoiceId={selectedOrderForReturn?.invoice.invoiceId}
             userId={user.uid}
             orderCreatedAt={selectedOrderForReturn.createdAt}
             onSuccess={refreshReturnRequests}
@@ -744,4 +759,25 @@ export default function OrdersPage() {
         )}
     </div>
   );
+}
+function base62ToLastFour(str: string): string {
+  const charset =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = 0n;
+
+  for (let i = 0; i < str.length; i++) {
+    const power = BigInt(str.length - i - 1);
+    const value = BigInt(charset.indexOf(str[i]));
+    result += value * 62n ** power;
+  }
+
+  const decimalStr = result.toString();
+  return decimalStr.slice(-4);
+}
+
+function removeInvPrefix(id: string): string {
+  if (id.startsWith("INV-")) {
+    return id.slice(4); // remove first 4 characters
+  }
+  return id; // return unchanged if prefix not present
 }

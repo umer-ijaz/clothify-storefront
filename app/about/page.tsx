@@ -377,13 +377,13 @@ export default function About() {
           {aboutData?.teamMembers &&
           aboutData.teamMembers.length > 0 &&
           aboutData.teamMembers[0].name ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex flex-wrap justify-center gap-8 w-full">
               {aboutData.teamMembers
                 .filter((member) => member.name)
                 .map((member) => (
                   <div
                     key={member.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-md mx-auto w-full max-w-xs md:max-w-none"
+                    className="bg-white rounded-lg overflow-hidden shadow-md w-full max-w-xs"
                   >
                     <div className="relative h-64">
                       <Image
@@ -393,12 +393,12 @@ export default function About() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="p-6 text-center md:text-left">
+                    <div className="p-6 text-center">
                       <h3 className="text-xl font-semibold text-gray-800 mb-1">
                         {member.name}
                       </h3>
                       <p className="text-orange-500 mb-4">{member.role}</p>
-                      <pre className="text-gray-600 text-sm mr-5 whitespace-pre-wrap font-sans">
+                      <pre className="text-gray-600 text-sm whitespace-pre-wrap font-sans">
                         {member.bio}
                       </pre>
                     </div>
