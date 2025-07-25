@@ -111,7 +111,7 @@ export default function ImpressionPage() {
             <span className="font-semibold block mb-1">
               Haftung für Inhalte:
             </span>
-            <p className="whitespace-pre-line px-4">
+            <p className="whitespace-pre-line py-2">
               {companyData.liabilityContent}
             </p>
           </div>

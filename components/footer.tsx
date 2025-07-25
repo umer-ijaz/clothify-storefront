@@ -174,7 +174,7 @@ export default function Footer() {
               <h3 className="font-bold text-lg mb-2">Rechnungsarten</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link href="/invoice" className="hover:underline">
-                  Rechnungen
+                  Rechnungskauf
                 </Link>
               </div>
             </div>

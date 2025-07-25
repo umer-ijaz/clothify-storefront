@@ -390,7 +390,7 @@ export default function About() {
                         src={member.image || "/placeholder.svg"}
                         alt={member.name}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                       />
                     </div>
                     <div className="p-6 text-center">

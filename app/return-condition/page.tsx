@@ -7,19 +7,24 @@ export default function ReturnCondition() {
     <div className="max-w-5xl mx-auto px-4 py-10 text-gray-800 mt-5 mb-5 shadow-md rounded-md pl-10">
       <TextField text={"Rückgabe & Umtausch"} />
       <p className="text-sm text-gray-500 mb-8">
-        Zuletzt aktualisiert: 22-07-2025
+        Zuletzt aktualisiert: 25-07-2025
       </p>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">1. Rückgabe & Umtausch</h2>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            Rückgabe oder Umtausch von Textilprodukten innerhalb von 15 Tagen
-            nach Lieferung möglich.
+            Sie können jeden <strong>Artikel von Daniel’s Believe</strong>{" "}
+            innerhalb von
+            <strong> 14 Tagen</strong> nach Lieferung zurückgeben oder
+            umtauschen.
           </li>
           <li>
-            Artikel müssen unbenutzt, ungewaschen, originalverpackt und in
-            einwandfreiem Zustand sein.
+            Die Artikel müssen sich in{" "}
+            <strong>neuem, unbenutztem und ungewaschenem Zustand</strong>{" "}
+            befinden, in der <strong>Originalverpackung</strong>, mit{" "}
+            <strong>angebracht Etiketten</strong> (falls vorhanden) und dürfen
+            keine Flecken, Gerüche oder Beschädigungen aufweisen.
           </li>
         </ul>
       </section>
@@ -27,9 +32,14 @@ export default function ReturnCondition() {
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">2. Rückgabefrist</h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Rücksendeantrag innerhalb von 15 Tagen stellen.</li>
           <li>
-            Artikel müssen spätestens 20 Tage nach Lieferung bei uns eingehen.
+            Rückgabeanträge müssen{" "}
+            <strong>innerhalb von 14 Tagen nach Lieferung</strong> eingereicht
+            werden.
+          </li>
+          <li>
+            Die Artikel müssen spätestens <strong>20 Tage</strong> nach
+            Lieferung bei uns eingehen.
           </li>
         </ul>
       </section>
@@ -39,11 +49,20 @@ export default function ReturnCondition() {
           3. So starten Sie eine Rückgabe
         </h2>
         <ol className="list-decimal pl-5 space-y-1">
-          <li>Support über [E-Mail/Kontaktformular-Link] kontaktieren.</li>
-          <li>Bestellnummer, Artikel und Grund angeben.</li>
-          <li>Auf Rücksendenummer (RA) und ggf. Rücksendeetikett warten.</li>
           <li>
-            Artikel sicher verpacken und innerhalb von 7 Tagen zurücksenden.
+            Klicken Sie auf den Rückgabe-Button, um den Prozess zu starten.
+          </li>
+          <li>Wir erhalten den Rückgabeantrag und genehmigen diesen.</li>
+          <li>
+            Innerhalb von 24 Werktagen erhalten Sie den Barcode per E-Mail.
+          </li>
+          <li>
+            Bringen Sie den Barcode zur nächstgelegenen Filiale des
+            Versanddienstleisters.
+          </li>
+          <li>
+            Nach dem Scannen des Barcodes wird das Paket kostenlos an uns
+            zurückgesendet.
           </li>
         </ol>
       </section>
@@ -53,10 +72,11 @@ export default function ReturnCondition() {
           4. Rückgabeberechtigte Artikel
         </h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>✔️ Alle Textilien im Originalzustand</li>
+          <li>✔️ Alle Textilien im ursprünglichen, einwandfreien Zustand</li>
           <li>
-            ❌ Keine Rückgabe: Sonderanfertigungen, personalisierte Artikel,
-            Hygieneartikel, reduzierte oder Musterware
+            ❌ Keine Rückgabe: bedruckte Sonderstoffe, personalisierte Artikel,
+            Ausverkaufs- oder Rabattware, Hygieneartikel (z. B. Unterwäsche) und
+            Muster.
           </li>
         </ul>
       </section>
@@ -64,9 +84,13 @@ export default function ReturnCondition() {
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">5. Rückversand</h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Kostenlose Rücksendung innerhalb Deutschlands.</li>
           <li>
-            Kunde trägt Versandkosten bei Nutzung eines eigenen Versanddienstes.
+            <strong>Kostenloser Rückversand</strong> innerhalb Deutschlands.
+          </li>
+          <li>
+            Der Kunde trägt die Rücksendekosten bei Nutzung eines eigenen
+            Versanddienstleisters (außer bei beschädigten/fehlerhaften
+            Artikeln).
           </li>
         </ul>
       </section>
@@ -76,11 +100,14 @@ export default function ReturnCondition() {
           6. Rückerstattung & Umtausch
         </h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Volle Rückerstattung oder Gutschrift/Umtausch möglich.</li>
           <li>
-            Erstattung erfolgt innerhalb von 7 Werktagen nach Rücksendung.
+            Wir erstatten den vollen Betrag auf Ihre ursprüngliche
+            Zahlungsmethode.
           </li>
-          <li>Gutschriften sind unbegrenzt gültig, aber nicht übertragbar.</li>
+          <li>
+            Rückerstattungen werden innerhalb von <strong>7 Werktagen</strong>{" "}
+            nach Erhalt und Prüfung der Rücksendung bearbeitet.
+          </li>
         </ul>
       </section>
 
@@ -89,9 +116,15 @@ export default function ReturnCondition() {
           7. Defekte oder falsche Artikel
         </h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Innerhalb von 7 Tagen melden, idealerweise mit Fotos.</li>
           <li>
-            Versandkosten werden übernommen, Ersatz oder volle Erstattung.
+            Bitte kontaktieren Sie uns innerhalb von <strong>7 Tagen</strong>{" "}
+            nach Erhalt der Ware per E-Mail – idealerweise mit{" "}
+            <strong>Fotos</strong> des Problems.
+          </li>
+          <li>
+            Wir übernehmen die Rücksendekosten und bieten einen{" "}
+            <strong>Ersatz</strong> oder eine{" "}
+            <strong>volle Rückerstattung</strong> an.
           </li>
         </ul>
       </section>
@@ -101,28 +134,30 @@ export default function ReturnCondition() {
           8. Wiederauffüllungs- & Zusatzgebühren
         </h2>
         <p>
-          Keine Gebühr, außer bei nicht einwandfreiem Zustand – ggf. Abzug bis
-          zu 20 % vom Erstattungsbetrag.
+          Es fällt keine Gebühr an, es sei denn, der Artikel ist nicht im
+          Originalzustand – in diesem Fall behalten wir uns das Recht vor, bis
+          zu 20 % vom Erstattungsbetrag abzuziehen.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">9. Verlorene Pakete</h2>
         <p>
-          Keine Haftung nach Übergabe an Versanddienstleister, außer bei
-          Versicherung oder Nutzung unseres Etiketts.
+          Nach Übergabe an den Versanddienstleister übernehmen wir keine Haftung
+          für verlorene Pakete, außer bei <strong>versichertem Versand</strong>{" "}
+          oder Nutzung unseres Rücksendeetiketts.
         </p>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-2">10. Kontakt</h2>
         <p>
-          Fragen? Schreiben Sie uns an{" "}
+          Bei Fragen oder Anliegen schreiben Sie uns an{" "}
           <a href="mailto:Info@danielsbelieve.de" className="text-blue-600">
             Info@danielsbelieve.de
           </a>{" "}
-          oder rufen Sie uns an unter +49 1522 3815822. Wir antworten in der
-          Regel innerhalb von 24 Stunden.
+          oder rufen Sie uns unter <strong>+49 1522 3815822</strong> an. Wir
+          antworten in der Regel innerhalb von <strong>24 Stunden.</strong>
         </p>
       </section>
     </div>
