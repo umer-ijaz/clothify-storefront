@@ -76,6 +76,12 @@ export interface FirestoreTimestamp {
   nanoseconds: number;
 }
 
+export interface InspectionHistoryItem {
+  timestamp: FirestoreTimestamp;
+  status: string;
+  adminNote: string;
+}
+
 export interface ReturnRequest {
   id: string;
   orderId: string;
@@ -84,11 +90,16 @@ export interface ReturnRequest {
   itemPrice: number;
   itemQuantity: number;
   reason: string;
-  status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed";
+  status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed" | "Received";
   requestedAt: FirestoreTimestamp;
-  qrCode: string;
   adminMessage?: string;
   invoiceId: string;
+  refundAmount?: number;
+  inspectionStatus?: string;
+  inspectionHistory?: InspectionHistoryItem[];
+  receivedAt?: string;
+  processedAt?: string;
+  updatedAt?: string;
 }
 
 export default function OrdersPage() {
@@ -203,9 +214,14 @@ export default function OrdersPage() {
             itemPrice: data.itemPrice,
             itemQuantity: data.itemQuantity,
             reason: data.reason,
-            qrCode: data.qrCode,
             invoiceId: data.invoiceId,
             adminMessage: data.adminMessage,
+            refundAmount: data.refundAmount,
+            inspectionStatus: data.inspectionStatus,
+            inspectionHistory: data.inspectionHistory || [],
+            receivedAt: data.receivedAt,
+            processedAt: data.processedAt,
+            updatedAt: data.updatedAt,
           };
         });
 
@@ -258,9 +274,14 @@ export default function OrdersPage() {
           itemPrice: data.itemPrice,
           itemQuantity: data.itemQuantity,
           reason: data.reason,
-          qrCode: data.qrCode,
           invoiceId: data.invoiceId,
           adminMessage: data.adminMessage,
+          refundAmount: data.refundAmount,
+          inspectionStatus: data.inspectionStatus,
+          inspectionHistory: data.inspectionHistory || [],
+          receivedAt: data.receivedAt,
+          processedAt: data.processedAt,
+          updatedAt: data.updatedAt,
         };
       });
 
@@ -367,6 +388,7 @@ export default function OrdersPage() {
       Rejected: "Rückgabe abgelehnt",
       Processing: "Rückgabe wird bearbeitet",
       Completed: "Rückgabe abgeschlossen",
+      Received: "Rückgabe erhalten",
     };
     return statusMap[status] || status;
   };

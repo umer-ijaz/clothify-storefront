@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import Image from "next/image";
-import QRCode from "qrcode";
+import React, { useState } from "react";
 import {
-  Download,
   Eye,
   Package,
   Clock,
   CheckCircle,
   XCircle,
+  Truck,
+  Search,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,12 @@ export interface FirestoreTimestamp {
   nanoseconds: number;
 }
 
+export interface InspectionHistoryItem {
+  timestamp: FirestoreTimestamp;
+  status: string;
+  adminNote: string;
+}
+
 export interface ReturnRequest {
   id: string;
   orderId: string;
@@ -34,11 +40,16 @@ export interface ReturnRequest {
   itemPrice: number;
   itemQuantity: number;
   reason: string;
-  status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed";
+  status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed" | "Received";
   requestedAt: FirestoreTimestamp;
-  qrCode: string;
   adminMessage?: string;
   invoiceId: string;
+  refundAmount?: number;
+  inspectionStatus?: string;
+  inspectionHistory?: InspectionHistoryItem[];
+  receivedAt?: string;
+  processedAt?: string;
+  updatedAt?: string;
 }
 
 interface ReturnManagementProps {
@@ -51,8 +62,6 @@ export default function ReturnManagement({
   const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(
     null
   );
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   console.log(returnRequests);
 
   const getStatusIcon = (status: string) => {
@@ -67,6 +76,8 @@ export default function ReturnManagement({
         return <Package className="w-4 h-4 text-blue-500" />;
       case "Completed":
         return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case "Received":
+        return <Truck className="w-4 h-4 text-purple-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
     }
@@ -84,49 +95,54 @@ export default function ReturnManagement({
         return "bg-blue-100 text-blue-800 border-blue-200";
       case "Completed":
         return "bg-green-100 text-green-900 border-green-300";
+      case "Received":
+        return "bg-purple-100 text-purple-800 border-purple-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-  const generateQRCode = async (qrData: string) => {
-    try {
-      const url = await QRCode.toDataURL(qrData, {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: "#000000",
-          light: "#FFFFFF",
-        },
-      });
-      setQrCodeUrl(url);
-    } catch (error) {
-      console.error("Error generating QR code:", error);
+  const getInspectionStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "inspection done":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "reviewing your product":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "pending inspection":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-  const downloadQRCode = async (qrData: string, returnId: string) => {
-    try {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      await QRCode.toCanvas(canvas, qrData, {
-        width: 300,
-        margin: 2,
-      });
-
-      const link = document.createElement("a");
-      link.download = `return-qr-${returnId}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    } catch (error) {
-      console.error("Error downloading QR code:", error);
-    }
+  const formatTimestamp = (timestamp: FirestoreTimestamp) => {
+    if (!timestamp) return "";
+    const date = new Date(
+      timestamp.seconds * 1000 + timestamp.nanoseconds / 1_000_000
+    );
+    return date.toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
-  const handleViewQR = (returnRequest: ReturnRequest) => {
+  const formatDateString = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const handleViewDetails = (returnRequest: ReturnRequest) => {
     setSelectedReturn(returnRequest);
-    generateQRCode(returnRequest.qrCode);
   };
 
   if (returnRequests.length === 0) {
@@ -147,8 +163,7 @@ export default function ReturnManagement({
           Rücksendeverwaltung 📦
         </h3>
         <p className="text-blue-800 text-sm">
-          Verfolgen Sie Ihre Rückgabeanfragen und laden Sie QR-Codes für eine
-          einfache Abwicklung herunter.
+          Verfolgen Sie Ihre Rückgabeanfragen und den Inspektionsstatus.
         </p>
       </div>
 
@@ -158,125 +173,172 @@ export default function ReturnManagement({
             key={returnRequest.id}
             className="border rounded-lg p-6 bg-white shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  {getStatusIcon(returnRequest.status)}
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                      returnRequest.status
-                    )}`}
-                  >
-                    {returnRequest.status}
-                  </span>
-                </div>
-
-                <h4 className="font-semibold text-gray-800 mb-1">
-                  {returnRequest.itemName}
-                </h4>
-
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p>
-                    <span className="font-medium">Bestellnummer:</span>{" "}
-                    {returnRequest.invoiceId &&
-                      "OID-" +
-                        removeInvPrefix(returnRequest.invoiceId) +
-                        base62ToLastFour(returnRequest.orderId)}
-                  </p>
-                  <p>
-                    <span className="font-medium">Menge:</span>{" "}
-                    {returnRequest.itemQuantity} × €
-                    {returnRequest.itemPrice.toFixed(2)}
-                  </p>
-                  <p>
-                    <span className="font-medium">Grund:</span>{" "}
-                    {returnRequest.reason}
-                  </p>
-                  <p>
-                    <span className="font-medium">Beantragt:</span>{" "}
-                    {new Date(
-                      returnRequest.requestedAt.seconds * 1000 +
-                        returnRequest.requestedAt.nanoseconds / 1_000_000
-                    ).toLocaleDateString("de-DE", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                {returnRequest.adminMessage && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-md">
-                    <p className="text-sm text-gray-700">
-                      <span className="font-medium">Admin-Nachricht:</span>{" "}
-                      {returnRequest.adminMessage}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2 ">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewQR(returnRequest)}
-                      className="flex items-center gap-2"
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    {getStatusIcon(returnRequest.status)}
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                        returnRequest.status
+                      )}`}
                     >
-                      <Eye className="w-4 h-4" />
-                      QR-Code anzeigen
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md bg-white">
-                    <DialogHeader>
-                      <DialogTitle>QR-Code für Rückgabe</DialogTitle>
-                      <DialogDescription>
-                        Scannen Sie diesen QR-Code, um den Status Ihrer Rückgabe
-                        zu verfolgen.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col items-center space-y-4">
-                      {qrCodeUrl && (
-                        <div className="p-4 bg-white border rounded-lg">
-                          <Image
-                            src={qrCodeUrl}
-                            alt="Return QR Code"
-                            width={300}
-                            height={300}
-                            className="rounded"
-                          />
-                        </div>
-                      )}
-                      <p className="text-sm text-gray-600 text-center">
-                        Rückgabe-ID: {selectedReturn?.id}
+                      {returnRequest.status}
+                    </span>
+                    {returnRequest.inspectionStatus && (
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getInspectionStatusColor(
+                          returnRequest.inspectionStatus
+                        )}`}
+                      >
+                        <Search className="w-3 h-3 inline mr-1" />
+                        {returnRequest.inspectionStatus}
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 className="font-semibold text-gray-800 mb-2">
+                    {returnRequest.itemName}
+                  </h4>
+
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>
+                      <span className="font-medium">Bestellnummer:</span>{" "}
+                      {returnRequest.invoiceId &&
+                        "OID-" +
+                          removeInvPrefix(returnRequest.invoiceId) +
+                          base62ToLastFour(returnRequest.orderId)}
+                    </p>
+                    <p>
+                      <span className="font-medium">Menge:</span>{" "}
+                      {returnRequest.itemQuantity} × €
+                      {returnRequest.itemPrice.toFixed(2)}
+                    </p>
+                    {returnRequest.refundAmount && (
+                      <p>
+                        <span className="font-medium">Rückerstattungsbetrag:</span>{" "}
+                        €{returnRequest.refundAmount.toFixed(2)}
+                      </p>
+                    )}
+                    <p>
+                      <span className="font-medium">Grund:</span>{" "}
+                      {returnRequest.reason}
+                    </p>
+                    <p>
+                      <span className="font-medium">Beantragt:</span>{" "}
+                      {formatTimestamp(returnRequest.requestedAt)}
+                    </p>
+                    {returnRequest.receivedAt && (
+                      <p>
+                        <span className="font-medium">Erhalten am:</span>{" "}
+                        {formatDateString(returnRequest.receivedAt)}
+                      </p>
+                    )}
+                    {returnRequest.processedAt && (
+                      <p>
+                        <span className="font-medium">Bearbeitet am:</span>{" "}
+                        {formatDateString(returnRequest.processedAt)}
+                      </p>
+                    )}
+                  </div>
+
+                  {returnRequest.adminMessage && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                      <p className="text-sm text-gray-700">
+                        <span className="font-medium">Admin-Nachricht:</span>{" "}
+                        {returnRequest.adminMessage}
                       </p>
                     </div>
-                  </DialogContent>
-                </Dialog>
+                  )}
+                </div>
 
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() =>
-                    downloadQRCode(returnRequest.qrCode, returnRequest.id)
-                  }
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B]"
-                >
-                  <Download className="w-4 h-4" />
-                  QR-Code herunterladen
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {returnRequest.inspectionHistory && returnRequest.inspectionHistory.length > 0 && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewDetails(returnRequest)}
+                          className="flex items-center gap-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Verlauf anzeigen
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-lg bg-white">
+                        <DialogHeader>
+                          <DialogTitle>Rückgabe-Verlauf</DialogTitle>
+                          <DialogDescription>
+                            Detaillierter Verlauf Ihrer Rückgabeanfrage
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="text-sm">
+                            <h4 className="font-semibold mb-2">{selectedReturn?.itemName}</h4>
+                            <p className="text-gray-600">
+                              Rückgabe-ID: {selectedReturn?.id}
+                            </p>
+                          </div>
+                          
+                          {selectedReturn?.inspectionHistory && (
+                            <div className="space-y-3">
+                              <h5 className="font-medium text-gray-800">Inspektionsverlauf:</h5>
+                              <div className="space-y-2">
+                                {selectedReturn.inspectionHistory
+                                  .sort((a, b) => {
+                                    const timeA = a.timestamp.seconds * 1000 + a.timestamp.nanoseconds / 1_000_000;
+                                    const timeB = b.timestamp.seconds * 1000 + b.timestamp.nanoseconds / 1_000_000;
+                                    return timeB - timeA; // Newest first
+                                  })
+                                  .map((history, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                                  >
+                                    <div className="flex-shrink-0 mt-0.5">
+                                      {history.status.toLowerCase().includes('done') ? (
+                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                      ) : history.status.toLowerCase().includes('reviewing') ? (
+                                        <Search className="w-4 h-4 text-blue-500" />
+                                      ) : (
+                                        <AlertCircle className="w-4 h-4 text-yellow-500" />
+                                      )}
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className="flex items-center justify-between mb-1">
+                                        <span className="text-sm font-medium text-gray-800">
+                                          {history.status}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                          {formatTimestamp(history.timestamp)}
+                                        </span>
+                                      </div>
+                                      {history.adminNote && (
+                                        <p className="text-xs text-gray-600">
+                                          {history.adminNote}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Hidden canvas for QR code generation */}
-      <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
   );
 }
+
 function base62ToLastFour(str: string): string {
   const charset =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
