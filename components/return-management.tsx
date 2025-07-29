@@ -20,6 +20,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import CustomButton from "../components/button";
+import generateCreditNotePDF from "@/lib/generateCreditNotes";
 
 export interface FirestoreTimestamp {
   seconds: number;
@@ -40,7 +42,13 @@ export interface ReturnRequest {
   itemPrice: number;
   itemQuantity: number;
   reason: string;
-  status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed" | "Received";
+  status:
+    | "Pending"
+    | "Approved"
+    | "Rejected"
+    | "Processing"
+    | "Completed"
+    | "Received";
   requestedAt: FirestoreTimestamp;
   adminMessage?: string;
   invoiceId: string;
@@ -216,7 +224,9 @@ export default function ReturnManagement({
                     </p>
                     {returnRequest.refundAmount && (
                       <p>
-                        <span className="font-medium">Rückerstattungsbetrag:</span>{" "}
+                        <span className="font-medium">
+                          Rückerstattungsbetrag:
+                        </span>{" "}
                         €{returnRequest.refundAmount.toFixed(2)}
                       </p>
                     )}
@@ -253,83 +263,106 @@ export default function ReturnManagement({
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
-                  {returnRequest.inspectionHistory && returnRequest.inspectionHistory.length > 0 && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewDetails(returnRequest)}
-                          className="flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Verlauf anzeigen
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-lg bg-white">
-                        <DialogHeader>
-                          <DialogTitle>Rückgabe-Verlauf</DialogTitle>
-                          <DialogDescription>
-                            Detaillierter Verlauf Ihrer Rückgabeanfrage
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="text-sm">
-                            <h4 className="font-semibold mb-2">{selectedReturn?.itemName}</h4>
-                            <p className="text-gray-600">
-                              Rückgabe-ID: {selectedReturn?.id}
-                            </p>
-                          </div>
-                          
-                          {selectedReturn?.inspectionHistory && (
-                            <div className="space-y-3">
-                              <h5 className="font-medium text-gray-800">Inspektionsverlauf:</h5>
-                              <div className="space-y-2">
-                                {selectedReturn.inspectionHistory
-                                  .sort((a, b) => {
-                                    const timeA = a.timestamp.seconds * 1000 + a.timestamp.nanoseconds / 1_000_000;
-                                    const timeB = b.timestamp.seconds * 1000 + b.timestamp.nanoseconds / 1_000_000;
-                                    return timeB - timeA; // Newest first
-                                  })
-                                  .map((history, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
-                                  >
-                                    <div className="flex-shrink-0 mt-0.5">
-                                      {history.status.toLowerCase().includes('done') ? (
-                                        <CheckCircle className="w-4 h-4 text-green-500" />
-                                      ) : history.status.toLowerCase().includes('reviewing') ? (
-                                        <Search className="w-4 h-4 text-blue-500" />
-                                      ) : (
-                                        <AlertCircle className="w-4 h-4 text-yellow-500" />
-                                      )}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-medium text-gray-800">
-                                          {history.status}
-                                        </span>
-                                        <span className="text-xs text-gray-500">
-                                          {formatTimestamp(history.timestamp)}
-                                        </span>
-                                      </div>
-                                      {history.adminNote && (
-                                        <p className="text-xs text-gray-600">
-                                          {history.adminNote}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
+                  {returnRequest.inspectionHistory &&
+                    returnRequest.inspectionHistory.length > 0 && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewDetails(returnRequest)}
+                            className="flex items-center gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Verlauf anzeigen
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-lg bg-white">
+                          <DialogHeader>
+                            <DialogTitle>Rückgabe-Verlauf</DialogTitle>
+                            <DialogDescription>
+                              Detaillierter Verlauf Ihrer Rückgabeanfrage
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="text-sm">
+                              <h4 className="font-semibold mb-2">
+                                {selectedReturn?.itemName}
+                              </h4>
+                              <p className="text-gray-600">
+                                Rückgabe-ID: {selectedReturn?.id}
+                              </p>
                             </div>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  )}
+
+                            {selectedReturn?.inspectionHistory && (
+                              <div className="space-y-3">
+                                <h5 className="font-medium text-gray-800">
+                                  Inspektionsverlauf:
+                                </h5>
+                                <div className="space-y-2">
+                                  {selectedReturn.inspectionHistory
+                                    .sort((a, b) => {
+                                      const timeA =
+                                        a.timestamp.seconds * 1000 +
+                                        a.timestamp.nanoseconds / 1_000_000;
+                                      const timeB =
+                                        b.timestamp.seconds * 1000 +
+                                        b.timestamp.nanoseconds / 1_000_000;
+                                      return timeB - timeA; // Newest first
+                                    })
+                                    .map((history, index) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                                      >
+                                        <div className="flex-shrink-0 mt-0.5">
+                                          {history.status
+                                            .toLowerCase()
+                                            .includes("done") ? (
+                                            <CheckCircle className="w-4 h-4 text-green-500" />
+                                          ) : history.status
+                                              .toLowerCase()
+                                              .includes("reviewing") ? (
+                                            <Search className="w-4 h-4 text-blue-500" />
+                                          ) : (
+                                            <AlertCircle className="w-4 h-4 text-yellow-500" />
+                                          )}
+                                        </div>
+                                        <div className="flex-1">
+                                          <div className="flex items-center justify-between mb-1">
+                                            <span className="text-sm font-medium text-gray-800">
+                                              {history.status}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                              {formatTimestamp(
+                                                history.timestamp
+                                              )}
+                                            </span>
+                                          </div>
+                                          {history.adminNote && (
+                                            <p className="text-xs text-gray-600">
+                                              {history.adminNote}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                 </div>
+              </div>
+              <div className="flex justify-end w-full">
+                {returnRequest.status == "Completed" ? (
+                  <CustomButton
+                    text={"Download Credit Notes"}
+                    onClick={() => generateCreditNotePDF(returnRequest)}
+                  />
+                ) : null}
               </div>
             </div>
           </div>
