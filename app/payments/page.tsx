@@ -27,6 +27,8 @@ import {
 } from "@stripe/react-stripe-js";
 import { getCountries } from "@/context/countries";
 import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import PayPalProviderWrapper from "@/components/paypal-provider-wrapper";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -192,6 +194,121 @@ const StripeCheckoutForm = ({
   );
 };
 
+// PayPal Checkout Component
+const PayPalCheckoutForm = ({
+  amount,
+  currency = "EUR",
+  onSuccessfulPayment,
+  customerInfo,
+}: {
+  amount: number;
+  currency?: string;
+  onSuccessfulPayment: (transactionId: string) => void;
+  customerInfo: CustomerInfo;
+}) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const createOrder = async () => {
+    try {
+      setIsProcessing(true);
+      const response = await fetch("/api/create-paypal-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: amount,
+          currency: currency,
+          customerInfo: customerInfo,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Fehler beim Erstellen der PayPal-Bestellung");
+      }
+
+      return data.orderID;
+    } catch (error) {
+      console.error("PayPal Order Creation Error:", error);
+      toast.error("Fehler beim Erstellen der PayPal-Bestellung");
+      setIsProcessing(false);
+      throw error;
+    }
+  };
+
+  const onApprove = async (data: any) => {
+    try {
+      setIsProcessing(true);
+      const response = await fetch("/api/capture-paypal-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderID: data.orderID,
+        }),
+      });
+
+      const captureData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(captureData.error || "Fehler beim Abschließen der PayPal-Zahlung");
+      }
+
+      if (captureData.status === "COMPLETED") {
+        toast.success("PayPal-Zahlung erfolgreich!");
+        onSuccessfulPayment(captureData.transactionId);
+      } else {
+        throw new Error(`PayPal-Zahlungsstatus: ${captureData.status}`);
+      }
+    } catch (error) {
+      console.error("PayPal Capture Error:", error);
+      toast.error("Fehler beim Abschließen der PayPal-Zahlung");
+      setIsProcessing(false);
+    }
+  };
+
+  const onError = (error: any) => {
+    console.error("PayPal Error:", error);
+    toast.error("PayPal-Zahlungsfehler");
+    setIsProcessing(false);
+  };
+
+  const onCancel = () => {
+    toast.info("PayPal-Zahlung abgebrochen");
+    setIsProcessing(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="min-h-[200px]">
+        <PayPalButtons
+          createOrder={createOrder}
+          onApprove={onApprove}
+          onError={onError}
+          onCancel={onCancel}
+          disabled={isProcessing}
+          style={{
+            layout: "vertical",
+            color: "gold",
+            shape: "rect",
+            label: "paypal",
+            height: 50,
+          }}
+        />
+      </div>
+      {isProcessing && (
+        <div className="flex items-center justify-center space-x-2 p-4">
+          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm text-gray-600">PayPal-Zahlung wird bearbeitet...</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Payments() {
   const { cart, clearCart } = useCartStore();
   const { user } = useUser();
@@ -207,6 +324,7 @@ export default function Payments() {
     useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [showStripeModal, setShowStripeModal] = useState(false);
+  const [showPayPalModal, setShowPayPalModal] = useState(false);
   const [uniqueId, setUniqueId] = useState<string | null>(null);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -450,6 +568,22 @@ export default function Payments() {
     await createPaymentIntent();
   };
 
+  const proceedToPayPalPayment = async () => {
+    if (!user) {
+      setModal(true);
+      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
+      return;
+    }
+    if (cart.length === 0) {
+      toast.error("Ihr Warenkorb ist leer.");
+      return;
+    }
+    if (!validateCustomerInfo()) {
+      return;
+    }
+    setShowPayPalModal(true);
+  };
+
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
     if (!user) {
       toast.error("Benutzersitzung verloren. Bitte melden Sie sich erneut an.");
@@ -467,6 +601,30 @@ export default function Payments() {
       router.push("/orders");
     } catch (error) {
       console.error("Fehler bei der Bestellung nach Stripe-Zahlung:", error);
+      toast.error(
+        "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
+      );
+    }
+  };
+
+  const handleSuccessfulPayPalPayment = async (transactionId: string) => {
+    if (!user) {
+      toast.error("Benutzersitzung verloren. Bitte melden Sie sich erneut an.");
+      return;
+    }
+    try {
+      const order = createOrder({
+        method: "PayPal",
+        transactionId: transactionId,
+        status: "Completed",
+      });
+      await addOrderToUserProfile(user.uid, order);
+      clearCart();
+      toast.success("Bestellung mit PayPal erfolgreich aufgegeben!");
+      setShowPayPalModal(false);
+      router.push("/orders");
+    } catch (error) {
+      console.error("Fehler bei der Bestellung nach PayPal-Zahlung:", error);
       toast.error(
         "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
       );
@@ -862,6 +1020,14 @@ export default function Payments() {
                     setPaymentMethod(value);
                     if (value === "card") {
                       setClientSecret(null);
+                      setShowPayPalModal(false);
+                    } else if (value === "paypal") {
+                      setShowStripeModal(false);
+                      setClientSecret(null);
+                    } else {
+                      setShowStripeModal(false);
+                      setShowPayPalModal(false);
+                      setClientSecret(null);
                     }
                   }}
                   className="space-y-2"
@@ -892,6 +1058,25 @@ export default function Payments() {
                       />
                     </div>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value="paypal"
+                        id="paypal"
+                        className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                      />
+                      <Label htmlFor="paypal">PayPal</Label>
+                    </div>
+                    <div className="flex space-x-1">
+                      <Image
+                        width={30}
+                        height={20}
+                        src="/paypal-logo.svg"
+                        alt="PayPal"
+                        className="object-contain w-12 h-6"
+                      />
+                    </div>
+                  </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
                       value="cash"
@@ -914,6 +1099,15 @@ export default function Payments() {
                   <Button
                     text="Zur sicheren Zahlung"
                     onClick={proceedToStripePayment}
+                  />
+                </div>
+              )}
+
+              {paymentMethod === "paypal" && !showPayPalModal && (
+                <div className="flex flex-row justify-center mt-4">
+                  <Button
+                    text="Mit PayPal bezahlen"
+                    onClick={proceedToPayPalPayment}
                   />
                 </div>
               )}
@@ -963,6 +1157,45 @@ export default function Payments() {
                         </p>
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === "paypal" && showPayPalModal && (
+                <div className="fixed inset-0 bg-[#1b1b1b2a] bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+                  <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-lg sm:text-xl font-semibold">
+                        PayPal-Zahlung
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setShowPayPalModal(false);
+                        }}
+                        className="text-gray-500 hover:text-gray-700 p-1"
+                      >
+                        <X size={24} />
+                      </button>
+                    </div>
+                    <div className="mb-4">
+                      <div className="text-sm text-gray-600 mb-2">
+                        Gesamtbetrag:{" "}
+                        <span className="font-semibold">
+                          €{totalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500 mb-4">
+                        Sie werden zur sicheren PayPal-Zahlung weitergeleitet
+                      </div>
+                    </div>
+                    <PayPalProviderWrapper clientId={process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!}>
+                      <PayPalCheckoutForm
+                        amount={totalPrice}
+                        currency="EUR"
+                        onSuccessfulPayment={handleSuccessfulPayPalPayment}
+                        customerInfo={customerInfo}
+                      />
+                    </PayPalProviderWrapper>
                   </div>
                 </div>
               )}

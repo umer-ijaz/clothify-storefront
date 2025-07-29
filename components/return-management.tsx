@@ -167,6 +167,22 @@ export default function ReturnManagement({
         </p>
       </div>
 
+      {/* Payment Processing Note */}
+      <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-400">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="text-amber-700 font-semibold text-sm mb-1">
+              Rückerstattungsbearbeitung 💳
+            </h4>
+            <p className="text-amber-800 text-sm">
+              Nach der Genehmigung Ihrer Rückgabe werden Rückerstattungen innerhalb von{" "}
+              <span className="font-semibold">2-3 Werktagen</span> auf Ihr ursprüngliches Zahlungsmittel zurückerstattet.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-4 bg-white">
         {returnRequests.map((returnRequest) => (
           <div
@@ -185,7 +201,7 @@ export default function ReturnManagement({
                     >
                       {returnRequest.status}
                     </span>
-                    {returnRequest.inspectionStatus && (
+                    {returnRequest.inspectionStatus && returnRequest.status !== "Rejected" && (
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium border ${getInspectionStatusColor(
                           returnRequest.inspectionStatus
@@ -282,9 +298,9 @@ export default function ReturnManagement({
                           </div>
                           
                           {selectedReturn?.inspectionHistory && (
-                            <div className="space-y-3">
-                              <h5 className="font-medium text-gray-800">Inspektionsverlauf:</h5>
-                              <div className="space-y-2">
+                            <div className="space-y-4">
+                              <h5 className="font-semibold text-gray-900 text-lg">Inspektionsverlauf:</h5>
+                              <div className="space-y-3">
                                 {selectedReturn.inspectionHistory
                                   .sort((a, b) => {
                                     const timeA = a.timestamp.seconds * 1000 + a.timestamp.nanoseconds / 1_000_000;
@@ -294,30 +310,62 @@ export default function ReturnManagement({
                                   .map((history, index) => (
                                   <div
                                     key={index}
-                                    className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                                    className={`relative flex items-start gap-4 p-4 rounded-lg border-l-4 transition-all ${
+                                      index === 0 
+                                        ? history.status.toLowerCase().includes('rejected')
+                                          ? 'bg-red-50 border-red-400 shadow-md'
+                                          : history.status.toLowerCase().includes('done')
+                                          ? 'bg-green-50 border-green-400 shadow-md'
+                                          : history.status.toLowerCase().includes('reviewing')
+                                          ? 'bg-blue-50 border-blue-400 shadow-md'
+                                          : 'bg-yellow-50 border-yellow-400 shadow-md'
+                                        : 'bg-gray-50 border-gray-300'
+                                    }`}
                                   >
-                                    <div className="flex-shrink-0 mt-0.5">
-                                      {history.status.toLowerCase().includes('done') ? (
-                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                    {index === 0 && (
+                                      <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                                        AKTUELL
+                                      </div>
+                                    )}
+                                    <div className="flex-shrink-0 mt-1">
+                                      {history.status.toLowerCase().includes('rejected') ? (
+                                        <XCircle className={`w-5 h-5 ${index === 0 ? 'text-red-600' : 'text-red-500'}`} />
+                                      ) : history.status.toLowerCase().includes('done') ? (
+                                        <CheckCircle className={`w-5 h-5 ${index === 0 ? 'text-green-600' : 'text-green-500'}`} />
                                       ) : history.status.toLowerCase().includes('reviewing') ? (
-                                        <Search className="w-4 h-4 text-blue-500" />
+                                        <Search className={`w-5 h-5 ${index === 0 ? 'text-blue-600' : 'text-blue-500'}`} />
                                       ) : (
-                                        <AlertCircle className="w-4 h-4 text-yellow-500" />
+                                        <AlertCircle className={`w-5 h-5 ${index === 0 ? 'text-yellow-600' : 'text-yellow-500'}`} />
                                       )}
                                     </div>
                                     <div className="flex-1">
-                                      <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-medium text-gray-800">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className={`font-semibold ${
+                                          index === 0 ? 'text-lg text-gray-900' : 'text-sm text-gray-800'
+                                        }`}>
                                           {history.status}
                                         </span>
-                                        <span className="text-xs text-gray-500">
+                                        <span className={`text-xs ${
+                                          index === 0 ? 'text-gray-700 font-medium' : 'text-gray-500'
+                                        }`}>
                                           {formatTimestamp(history.timestamp)}
                                         </span>
                                       </div>
                                       {history.adminNote && (
-                                        <p className="text-xs text-gray-600">
-                                          {history.adminNote}
-                                        </p>
+                                        <div className={`p-3 rounded-md ${
+                                          index === 0 
+                                            ? 'bg-white border border-gray-200 shadow-sm' 
+                                            : 'bg-white/50'
+                                        }`}>
+                                          <p className={`${
+                                            index === 0 
+                                              ? 'text-sm text-gray-800 font-medium leading-relaxed' 
+                                              : 'text-xs text-gray-600'
+                                          }`}>
+                                            <span className="font-semibold text-gray-900">Nachricht:</span>{" "}
+                                            {history.adminNote}
+                                          </p>
+                                        </div>
                                       )}
                                     </div>
                                   </div>
