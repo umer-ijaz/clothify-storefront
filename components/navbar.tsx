@@ -540,7 +540,7 @@ export default function Navbar() {
                           <h3 className="text-lg lg:text-xl font-bold mb-3 lg:mb-4 text-gray-800 border-b border-gray-300 pb-2">
                             Kategorien
                           </h3>
-                          <div className="max-h-[300px] lg:max-h-[400px] overflow-y-auto custom-scrollbar scrollbar-hide">
+                          <div className="max-h-[300px] lg:max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                             <ul className="space-y-1">
                               {item.children.map((category) => (
                                 <li
@@ -635,7 +635,7 @@ export default function Navbar() {
                                   </Button>
                                 </div>
                               </div>
-                              <div className="max-h-[300px] lg:max-h-[380px] overflow-y-auto custom-scrollbar scrollbar-hide">
+                              <div className="max-h-[300px] lg:max-h-[380px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-3">
                                   {item.children
                                     .find(
