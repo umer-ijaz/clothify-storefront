@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "SET NODE_OPTIONS=--max-old-space-size=4096 && next dev",
-    "build": "SET NODE_OPTIONS=--max-old-space-size=8192 && next build",
-    "start": "SET NODE_OPTIONS=--max-old-space-size=4096 && next start",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {

@@ -24,6 +24,7 @@ import ReturnItemModal from "@/components/return-item-modal";
 import ReturnManagement from "@/components/return-management";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { fetchOrdersById } from "@/lib/orders";
 
 interface OrderItem {
   id: string;
@@ -90,7 +91,13 @@ export interface ReturnRequest {
   itemPrice: number;
   itemQuantity: number;
   reason: string;
-  status: "Pending" | "Approved" | "Rejected" | "Processing" | "Completed" | "Received";
+  status:
+    | "Pending"
+    | "Approved"
+    | "Rejected"
+    | "Processing"
+    | "Completed"
+    | "Received";
   requestedAt: FirestoreTimestamp;
   adminMessage?: string;
   invoiceId: string;
@@ -200,51 +207,63 @@ export default function OrdersPage() {
       try {
         const returnsRef = collection(firestore, "returns");
         const q = query(returnsRef, where("userId", "==", user.uid));
-
         const snapshot = await getDocs(q);
-        let fetchedReturns: ReturnRequest[] = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            orderId: data.orderId,
-            itemId: data.itemId,
-            status: data.status || "Pending",
-            requestedAt: data.requestedAt,
-            itemName: data.itemName,
-            itemPrice: data.itemPrice,
-            itemQuantity: data.itemQuantity,
-            reason: data.reason,
-            invoiceId: data.invoiceId,
-            adminMessage: data.adminMessage,
-            refundAmount: data.refundAmount,
-            inspectionStatus: data.inspectionStatus,
-            inspectionHistory: data.inspectionHistory || [],
-            receivedAt: data.receivedAt,
-            processedAt: data.processedAt,
-            updatedAt: data.updatedAt,
-          };
-        });
 
-        // Sort in JavaScript instead of Firestore
-        fetchedReturns = fetchedReturns.sort((a, b) => {
+        // Fetch return data and order details together
+        const fetchedReturns: ReturnRequest[] = await Promise.all(
+          snapshot.docs.map(async (doc) => {
+            const data = doc.data();
+            let orderDetails = null;
+
+            try {
+              const orderData = await fetchOrdersById(user.uid, data.orderId);
+              orderDetails = orderData?.[0] || undefined;
+            } catch (err) {
+              console.error(`Order fetch failed for ${data.orderId}`, err);
+            }
+
+            return {
+              id: doc.id,
+              orderId: data.orderId,
+              itemId: data.itemId,
+              status: data.status || "Pending",
+              requestedAt: data.requestedAt,
+              itemName: data.itemName,
+              itemPrice: data.itemPrice,
+              itemQuantity: data.itemQuantity,
+              reason: data.reason,
+              invoiceId: data.invoiceId,
+              adminMessage: data.adminMessage,
+              refundAmount: data.refundAmount,
+              inspectionStatus: data.inspectionStatus,
+              inspectionHistory: data.inspectionHistory || [],
+              receivedAt: data.receivedAt,
+              processedAt: data.processedAt,
+              updatedAt: data.updatedAt,
+              orderDetails, // merged order info
+            };
+          })
+        );
+
+        // Sort in descending order by requestedAt
+        const sortedReturns = fetchedReturns.sort((a, b) => {
           const timeA =
-            a.requestedAt.seconds * 1000 +
-            a.requestedAt.nanoseconds / 1_000_000;
+            a.requestedAt?.seconds * 1000 +
+              a.requestedAt?.nanoseconds / 1_000_000 || 0;
           const timeB =
-            b.requestedAt.seconds * 1000 +
-            b.requestedAt.nanoseconds / 1_000_000;
-
-          return timeB - timeA; // descending order
+            b.requestedAt?.seconds * 1000 +
+              b.requestedAt?.nanoseconds / 1_000_000 || 0;
+          return timeB - timeA;
         });
 
-        setReturnRequests(fetchedReturns);
+        setReturnRequests(sortedReturns);
       } catch (err) {
         console.error("Fehler beim Laden der Rückgabeanfragen:", err);
         toast.error("Rückgabeanfragen konnten nicht geladen werden");
       }
     };
 
-    if (user) fetchReturnRequests();
+    fetchReturnRequests();
   }, [user]);
 
   useEffect(() => {

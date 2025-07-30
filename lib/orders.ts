@@ -2,6 +2,9 @@ import { firestore } from "@/lib/firebaseConfig";
 import {
   collection,
   addDoc,
+  doc,
+  getDoc,
+  getDocs,
 } from "firebase/firestore";
 
 export interface Order {
@@ -65,3 +68,69 @@ export async function addOrderToUserProfile(userId: string, order: Order) {
     throw error;
   }
 }
+
+export const fetchOrdersById = async (
+  userId?: string,
+  orderId?: string
+): Promise<Order[]> => {
+  try {
+    const orders: Order[] = [];
+
+    if (userId && orderId) {
+      // Fetch a specific order for a specific user
+      const orderRef = doc(firestore, `users/${userId}/orders/${orderId}`);
+      const orderSnap = await getDoc(orderRef);
+
+      if (orderSnap.exists()) {
+        orders.push({
+          id: orderSnap.id,
+          userId,
+          ...orderSnap.data(),
+        } as any);
+      } else {
+        console.warn(`Order ${orderId} not found for user ${userId}`);
+      }
+    } else if (userId) {
+      // Fetch all orders for a specific user
+      const ordersRef = collection(firestore, `users/${userId}/orders`);
+      const ordersSnap = await getDocs(ordersRef);
+
+      ordersSnap.forEach((doc) => {
+        orders.push({
+          id: doc.id,
+          userId,
+          ...doc.data(),
+        } as any);
+      });
+    } else {
+      // Fetch all orders for all users
+      const usersSnap = await getDocs(collection(firestore, "users"));
+
+      for (const userDoc of usersSnap.docs) {
+        const uid = userDoc.id;
+        console.log("Fetching orders for user:", uid);
+
+        try {
+          const ordersRef = collection(firestore, `users/${uid}/orders`);
+          const ordersSnap = await getDocs(ordersRef);
+
+          ordersSnap.forEach((orderDoc) => {
+            orders.push({
+              id: orderDoc.id,
+              userId: uid,
+              ...orderDoc.data(),
+            } as any);
+          });
+        } catch (userError) {
+          console.error(`Error fetching orders for user ${uid}:`, userError);
+        }
+      }
+    }
+
+    console.log("Total orders fetched:", orders.length);
+    return orders;
+  } catch (error) {
+    console.error("Error in fetchOrders:", error);
+    throw error;
+  }
+};
