@@ -165,8 +165,8 @@ export default function About() {
 
       {/* Our Story Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 px-2 sm:px-4 md:px-8 lg:px-12">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="text-center md:text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div className="text-center md:text-left order-2 md:order-1">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
               {aboutData?.storyTitle || "Our Story"}
             </h2>
@@ -175,23 +175,27 @@ export default function About() {
             {aboutData?.storyText?.map((paragraph, index) => (
               <div
                 key={index}
-                className="text-gray-600 mb-6 mr-5 whitespace-pre-wrap font-sans"
+                className="text-gray-600 mb-6 mr-0 md:mr-5 whitespace-pre-wrap font-sans"
               >
                 {paragraph}
               </div>
             )) || (
-              <p className="text-gray-600 mb-6 mr-5">
+              <p className="text-gray-600 mb-6 mr-0 md:mr-5">
                 Welcome to our story section. Content will be loaded shortly.
               </p>
             )}
           </div>
-          <div className="relative h-[400px] rounded-lg overflow-hidden mx-auto w-full">
-            <Image
-              src={aboutData?.storyImage || "/placeholder.svg"}
-              alt="Our Story"
-              fill
-              className="object-cover"
-            />
+          <div className="order-1 md:order-2 w-full">
+            <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] w-full rounded-lg overflow-hidden shadow-lg">
+              <Image
+                src={aboutData?.storyImage || "/placeholder.svg"}
+                alt="Our Story"
+                fill
+                className="object-cover transition-all duration-300 hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 45vw"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
