@@ -119,6 +119,12 @@ const renderIcon = (iconName: string) => {
 export default function About() {
   const [aboutData, setAboutData] = useState<AboutUsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Add mounted state to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const fetchAboutData = async () => {
@@ -138,11 +144,13 @@ export default function About() {
       }
     };
 
-    fetchAboutData();
-  }, []);
+    if (mounted) {
+      fetchAboutData();
+    }
+  }, [mounted]);
 
-  // Show the loading component while data is being fetched
-  if (loading) {
+  // Show loading until component is mounted and data is loaded
+  if (!mounted || loading) {
     return <Loading />;
   }
 
@@ -164,22 +172,22 @@ export default function About() {
             </h2>
             <div className="w-20 h-1 bg-red-600 mb-8 mx-auto md:mx-0"></div>
 
-            {aboutData?.storyText.map((paragraph, index) => (
-              <pre
+            {aboutData?.storyText?.map((paragraph, index) => (
+              <div
                 key={index}
                 className="text-gray-600 mb-6 mr-5 whitespace-pre-wrap font-sans"
               >
                 {paragraph}
-              </pre>
-            ))}
+              </div>
+            )) || (
+              <p className="text-gray-600 mb-6 mr-5">
+                Welcome to our story section. Content will be loaded shortly.
+              </p>
+            )}
           </div>
           <div className="relative h-[400px] rounded-lg overflow-hidden mx-auto w-full">
             <Image
-              src={
-                aboutData?.storyImage ||
-                "/placeholder.svg" ||
-                "/placeholder.svg"
-              }
+              src={aboutData?.storyImage || "/placeholder.svg"}
               alt="Our Story"
               fill
               className="object-cover"
@@ -196,10 +204,10 @@ export default function About() {
               {aboutData?.missionTitle || "Mission Statement"}
             </h2>
             <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
-            <pre className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+            <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
               {aboutData?.missionDescription ||
                 "These principles guide everything we do and help us deliver an exceptional experience to our customers."}
-            </pre>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -215,12 +223,13 @@ export default function About() {
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">
                     {value.title}
                   </h3>
-                  <pre className="text-gray-600 mr-5 whitespace-pre-wrap font-sans text-center mx-auto">
+                  <div className="text-gray-600 mr-5 whitespace-pre-wrap font-sans text-center mx-auto">
                     {value.description}
-                  </pre>
+                  </div>
                 </div>
               ))
             ) : (
+              // Default values as fallback
               <>
                 <div className="bg-white p-8 rounded-lg shadow-md text-center">
                   <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -286,10 +295,10 @@ export default function About() {
             {aboutData?.chooseUsTitle || "Why Choose Us"}
           </h2>
           <div className="w-20 h-1 bg-red-600 mx-auto mb-8"></div>
-          <pre className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+          <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
             {aboutData?.chooseUsDescription ||
               "We're committed to providing you with the best online shopping experience possible."}
-          </pre>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -306,12 +315,13 @@ export default function About() {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">
                   {reason.title}
                 </h3>
-                <pre className="text-gray-600 mx-auto whitespace-pre-wrap font-sans text-center">
+                <div className="text-gray-600 mx-auto whitespace-pre-wrap font-sans text-center">
                   {reason.description}
-                </pre>
+                </div>
               </div>
             ))
           ) : (
+            // Default reasons as fallback
             <>
               <div className="flex flex-col items-center text-center p-6">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
@@ -361,50 +371,48 @@ export default function About() {
         <div className="container mx-auto px-4">
           {aboutData?.teamMembers &&
           aboutData.teamMembers.length > 0 &&
-          aboutData.teamMembers[0].name ? (
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
-                {aboutData?.teamTitle || "Meet Our Team"}
-              </h2>
-              <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
-              <pre className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
-                {aboutData?.teamDescription ||
-                  "The dedicated professionals behind Daniel's E-commerce who work tirelessly to serve you better."}
-              </pre>
-            </div>
-          ) : null}
+          aboutData.teamMembers[0]?.name ? (
+            <>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                  {aboutData?.teamTitle || "Meet Our Team"}
+                </h2>
+                <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
+                <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+                  {aboutData?.teamDescription ||
+                    "The dedicated professionals behind Daniel's E-commerce who work tirelessly to serve you better."}
+                </div>
+              </div>
 
-          {aboutData?.teamMembers &&
-          aboutData.teamMembers.length > 0 &&
-          aboutData.teamMembers[0].name ? (
-            <div className="flex flex-wrap justify-center gap-8 w-full">
-              {aboutData.teamMembers
-                .filter((member) => member.name)
-                .map((member) => (
-                  <div
-                    key={member.id}
-                    className="bg-white rounded-lg overflow-hidden shadow-md w-full max-w-xs"
-                  >
-                    <div className="relative h-64">
-                      <Image
-                        src={member.image || "/placeholder.svg"}
-                        alt={member.name}
-                        fill
-                        className="object-cover"
-                      />
+              <div className="flex flex-wrap justify-center gap-8 w-full">
+                {aboutData.teamMembers
+                  .filter((member) => member.name)
+                  .map((member) => (
+                    <div
+                      key={member.id}
+                      className="bg-white rounded-lg overflow-hidden shadow-md w-full max-w-xs"
+                    >
+                      <div className="relative h-64">
+                        <Image
+                          src={member.image || "/placeholder.svg"}
+                          alt={member.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="p-6 text-center">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                          {member.name}
+                        </h3>
+                        <p className="text-orange-500 mb-4">{member.role}</p>
+                        <div className="text-gray-600 text-sm whitespace-pre-wrap font-sans">
+                          {member.bio}
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-6 text-center">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                        {member.name}
-                      </h3>
-                      <p className="text-orange-500 mb-4">{member.role}</p>
-                      <pre className="text-gray-600 text-sm whitespace-pre-wrap font-sans">
-                        {member.bio}
-                      </pre>
-                    </div>
-                  </div>
-                ))}
-            </div>
+                  ))}
+              </div>
+            </>
           ) : null}
         </div>
       </section>
@@ -415,10 +423,10 @@ export default function About() {
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             {aboutData?.ctaSection?.title || "Ready to Start Shopping?"}
           </h2>
-          <pre className="text-xl mb-8 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+          <div className="text-xl mb-8 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
             {aboutData?.ctaSection?.description ||
               "Join thousands of satisfied customers who trust Daniel's E-commerce for their shopping needs."}
-          </pre>
+          </div>
           <Link
             href={aboutData?.ctaSection?.buttonLink || "/"}
             className="inline-block bg-white text-red-600 px-8 py-3 rounded-md font-semibold text-lg hover:bg-gray-100 transition duration-300"
