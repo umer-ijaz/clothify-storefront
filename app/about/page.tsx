@@ -191,7 +191,7 @@ export default function About() {
                 src={aboutData?.storyImage || "/placeholder.svg"}
                 alt="Our Story"
                 fill
-                className="object-cover transition-all duration-300 hover:scale-105"
+                className="object-contain transition-all duration-300 hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 45vw"
                 priority
               />
