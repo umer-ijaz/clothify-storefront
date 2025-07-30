@@ -279,110 +279,6 @@ export default function ReturnManagement({
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
-<<<<<<< HEAD
-                  {returnRequest.inspectionHistory && returnRequest.inspectionHistory.length > 0 && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewDetails(returnRequest)}
-                          className="flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Verlauf anzeigen
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-lg bg-white">
-                        <DialogHeader>
-                          <DialogTitle>Rückgabe-Verlauf</DialogTitle>
-                          <DialogDescription>
-                            Detaillierter Verlauf Ihrer Rückgabeanfrage
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="text-sm">
-                            <h4 className="font-semibold mb-2">{selectedReturn?.itemName}</h4>
-                            <p className="text-gray-600">
-                              Rückgabe-ID: {selectedReturn?.id}
-                            </p>
-                          </div>
-                          
-                          {selectedReturn?.inspectionHistory && (
-                            <div className="space-y-4">
-                              <h5 className="font-semibold text-gray-900 text-lg">Inspektionsverlauf:</h5>
-                              <div className="space-y-3">
-                                {selectedReturn.inspectionHistory
-                                  .sort((a, b) => {
-                                    const timeA = a.timestamp.seconds * 1000 + a.timestamp.nanoseconds / 1_000_000;
-                                    const timeB = b.timestamp.seconds * 1000 + b.timestamp.nanoseconds / 1_000_000;
-                                    return timeB - timeA; // Newest first
-                                  })
-                                  .map((history, index) => (
-                                  <div
-                                    key={index}
-                                    className={`relative flex items-start gap-4 p-4 rounded-lg border-l-4 transition-all ${
-                                      index === 0 
-                                        ? history.status.toLowerCase().includes('rejected')
-                                          ? 'bg-red-50 border-red-400 shadow-md'
-                                          : history.status.toLowerCase().includes('done')
-                                          ? 'bg-green-50 border-green-400 shadow-md'
-                                          : history.status.toLowerCase().includes('reviewing')
-                                          ? 'bg-blue-50 border-blue-400 shadow-md'
-                                          : 'bg-yellow-50 border-yellow-400 shadow-md'
-                                        : 'bg-gray-50 border-gray-300'
-                                    }`}
-                                  >
-                                    {index === 0 && (
-                                      <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
-                                        AKTUELL
-                                      </div>
-                                    )}
-                                    <div className="flex-shrink-0 mt-1">
-                                      {history.status.toLowerCase().includes('rejected') ? (
-                                        <XCircle className={`w-5 h-5 ${index === 0 ? 'text-red-600' : 'text-red-500'}`} />
-                                      ) : history.status.toLowerCase().includes('done') ? (
-                                        <CheckCircle className={`w-5 h-5 ${index === 0 ? 'text-green-600' : 'text-green-500'}`} />
-                                      ) : history.status.toLowerCase().includes('reviewing') ? (
-                                        <Search className={`w-5 h-5 ${index === 0 ? 'text-blue-600' : 'text-blue-500'}`} />
-                                      ) : (
-                                        <AlertCircle className={`w-5 h-5 ${index === 0 ? 'text-yellow-600' : 'text-yellow-500'}`} />
-                                      )}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className={`font-semibold ${
-                                          index === 0 ? 'text-lg text-gray-900' : 'text-sm text-gray-800'
-                                        }`}>
-                                          {history.status}
-                                        </span>
-                                        <span className={`text-xs ${
-                                          index === 0 ? 'text-gray-700 font-medium' : 'text-gray-500'
-                                        }`}>
-                                          {formatTimestamp(history.timestamp)}
-                                        </span>
-                                      </div>
-                                      {history.adminNote && (
-                                        <div className={`p-3 rounded-md ${
-                                          index === 0 
-                                            ? 'bg-white border border-gray-200 shadow-sm' 
-                                            : 'bg-white/50'
-                                        }`}>
-                                          <p className={`${
-                                            index === 0 
-                                              ? 'text-sm text-gray-800 font-medium leading-relaxed' 
-                                              : 'text-xs text-gray-600'
-                                          }`}>
-                                            <span className="font-semibold text-gray-900">Nachricht:</span>{" "}
-                                            {history.adminNote}
-                                          </p>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-=======
                   {returnRequest.inspectionHistory &&
                     returnRequest.inspectionHistory.length > 0 && (
                       <Dialog>
@@ -412,7 +308,6 @@ export default function ReturnManagement({
                               <p className="text-gray-600">
                                 Rückgabe-ID: {selectedReturn?.id}
                               </p>
->>>>>>> 5c0058b66f2070aa9a1024e891c9ecf09a43ecb4
                             </div>
 
                             {selectedReturn?.inspectionHistory && (
