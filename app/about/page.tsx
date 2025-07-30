@@ -186,7 +186,7 @@ export default function About() {
             )}
           </div>
           <div className="order-1 md:order-2 w-full">
-            <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] w-full rounded-lg overflow-hidden shadow-lg">
+            <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] w-full rounded-lg overflow-hidden">
               <Image
                 src={aboutData?.storyImage || "/placeholder.svg"}
                 alt="Our Story"
