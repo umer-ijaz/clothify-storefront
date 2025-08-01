@@ -153,6 +153,7 @@ export default function About() {
   if (!mounted || loading) {
     return <Loading />;
   }
+  
 
   return (
     <div className="bg-white mt-0">
