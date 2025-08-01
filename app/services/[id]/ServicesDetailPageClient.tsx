@@ -15,6 +15,7 @@ interface Service {
   details: string;
   mainImage: string;
   subImages: string[];
+  video: string;
   createdAt: {
     seconds: number;
     nanoseconds: number;

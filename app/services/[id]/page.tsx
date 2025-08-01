@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { use } from "react";
 import Image from "next/image";
@@ -14,6 +13,8 @@ import {
   Clock,
   Calendar,
   Star,
+  Play,
+  Pause,
   ChevronLeft,
 } from "lucide-react";
 import TextField from "@/components/text-field";
@@ -24,10 +25,17 @@ interface Service {
   details: string;
   mainImage: string;
   subImages: string[];
+  video: string;
   createdAt: {
     seconds: number;
     nanoseconds: number;
   };
+}
+
+interface MediaItem {
+  type: "image" | "video";
+  src: string;
+  index: number;
 }
 
 export default function ServiceDetailPage({
@@ -41,39 +49,54 @@ export default function ServiceDetailPage({
 
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
-  // Use a ref to store the interval ID instead of state
+  // Use refs for video control and interval
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Get all images once service is loaded
+  // Get all images (excluding video)
   const allImages = service
     ? [service.mainImage, ...(service.subImages || [])]
     : [];
 
-  // Function to advance to the next image - doesn't depend on currentImageIndex
+  // Function to advance to the next image
   const goToNextImage = useCallback(() => {
     if (allImages.length <= 1) return;
-
-    setCurrentImageIndex((prevIndex) => {
+    setSelectedImageIndex((prevIndex) => {
       const newIndex = (prevIndex + 1) % allImages.length;
-      setSelectedImage(allImages[newIndex]);
       return newIndex;
     });
   }, [allImages]);
 
-  // Function to go to the previous image - doesn't depend on currentImageIndex
+  // Function to go to the previous image
   const goToPrevImage = useCallback(() => {
     if (allImages.length <= 1) return;
-
-    setCurrentImageIndex((prevIndex) => {
+    setSelectedImageIndex((prevIndex) => {
       const newIndex = prevIndex === 0 ? allImages.length - 1 : prevIndex - 1;
-      setSelectedImage(allImages[newIndex]);
       return newIndex;
     });
   }, [allImages]);
+
+  // Handle video play/pause
+  const toggleVideoPlayback = useCallback(() => {
+    if (videoRef.current) {
+      if (isVideoPlaying) {
+        videoRef.current.pause();
+        setIsVideoPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsVideoPlaying(true);
+      }
+    }
+  }, [isVideoPlaying]);
+
+  // Handle video events
+  const handleVideoPlay = () => setIsVideoPlaying(true);
+  const handleVideoPause = () => setIsVideoPlaying(false);
+  const handleVideoEnded = () => setIsVideoPlaying(false);
 
   // Fetch service data
   useEffect(() => {
@@ -82,15 +105,12 @@ export default function ServiceDetailPage({
         setLoading(true);
         const docRef = doc(firestore, "services", serviceId);
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
           const serviceData = {
             id: docSnap.id,
             ...docSnap.data(),
           } as Service;
-
           setService(serviceData);
-          setSelectedImage(serviceData.mainImage);
         } else {
           console.log("No such service!");
         }
@@ -106,7 +126,14 @@ export default function ServiceDetailPage({
     }
   }, [serviceId]);
 
-  // Set up and clean up auto slider
+  // Auto-play video when component mounts
+  useEffect(() => {
+    if (service?.video && videoRef.current) {
+      videoRef.current.play().catch(console.error);
+    }
+  }, [service]);
+
+  // Set up and clean up auto slider for images
   useEffect(() => {
     // Only start the slider if we have multiple images and we're not hovering
     if (allImages.length > 1 && !isHovering) {
@@ -114,7 +141,6 @@ export default function ServiceDetailPage({
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-
       // Set up new interval
       intervalRef.current = setInterval(goToNextImage, 3000);
     } else if (intervalRef.current) {
@@ -133,9 +159,8 @@ export default function ServiceDetailPage({
   }, [allImages.length, isHovering, goToNextImage]);
 
   // Handle manual image selection
-  const handleImageSelect = (image: string, index: number) => {
-    setSelectedImage(image);
-    setCurrentImageIndex(index);
+  const handleImageSelect = (index: number) => {
+    setSelectedImageIndex(index);
   };
 
   if (loading) {
@@ -145,12 +170,12 @@ export default function ServiceDetailPage({
           <div className="animate-pulse">
             <div className="h-6 bg-gray-200 rounded-full w-1/4 mb-6"></div>
             <div className="h-10 bg-gray-200 rounded-full w-1/2 mb-10"></div>
-
             <div className="bg-white rounded-2xl shadow-xl p-8 overflow-hidden">
+              {/* Video skeleton */}
+              <div className="aspect-video bg-gray-200 rounded-xl mb-8"></div>
               <div className="grid md:grid-cols-2 gap-10">
                 {/* Main image skeleton */}
                 <div className="aspect-square bg-gray-200 rounded-xl"></div>
-
                 {/* Content skeleton */}
                 <div className="space-y-4">
                   <div className="h-8 bg-gray-200 rounded-full w-3/4"></div>
@@ -165,7 +190,6 @@ export default function ServiceDetailPage({
                   </div>
                 </div>
               </div>
-
               {/* Thumbnails skeleton */}
               <div className="mt-8 flex space-x-4">
                 <div className="w-20 h-20 bg-gray-200 rounded-xl"></div>
@@ -214,7 +238,6 @@ export default function ServiceDetailPage({
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-red-500 rounded-full filter blur-3xl opacity-10 -mr-32 -mt-32"></div>
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-500 rounded-full filter blur-3xl opacity-10 -ml-32 -mb-32"></div>
-
       <Image
         src="/design.svg"
         alt="Design"
@@ -240,24 +263,58 @@ export default function ServiceDetailPage({
             {service.name}
           </span>
         </nav>
+
         <TextField text={service.name} />
 
         <div className="bg-white rounded-2xl shadow-sm p-8 overflow-hidden animate-fade-in-up">
+          {/* Video Section - Full Width at Top */}
+          {service.video && (
+            <div className="mb-10">
+              <div className="aspect-video relative rounded-xl overflow-hidden border border-gray-100 shadow-sm group">
+                <video
+                  ref={videoRef}
+                  src={service.video}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop={false}
+                  playsInline
+                  onPlay={handleVideoPlay}
+                  onPause={handleVideoPause}
+                  onEnded={handleVideoEnded}
+                />
+                {/* Video play/pause overlay */}
+                <div
+                  className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                  onClick={toggleVideoPlayback}
+                >
+                  <div className="bg-white/90 p-4 rounded-full shadow-lg">
+                    {isVideoPlaying ? (
+                      <Pause className="h-10 w-10 text-gray-700" />
+                    ) : (
+                      <Play className="h-10 w-10 text-gray-700 ml-1" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Content Section - Images and Text */}
           <div className="grid md:grid-cols-2 gap-10">
-            {/* Left column - Main Image with Slider */}
+            {/* Left column - Image Slider */}
             <div
               className="aspect-square relative rounded-xl overflow-hidden border border-gray-100 shadow-sm group"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
               <Image
-                src={selectedImage || service.mainImage}
+                src={allImages[selectedImageIndex] || service.mainImage}
                 alt={service.name}
                 fill
                 className="transition-all duration-500 object-cover"
                 quality={100}
               />
-
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -271,7 +328,6 @@ export default function ServiceDetailPage({
                   >
                     <ChevronLeft className="h-5 w-5 text-gray-700 hover:text-white" />
                   </button>
-
                   <button
                     onClick={goToNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-500 active:bg-red-500 cursor-pointer"
@@ -288,9 +344,9 @@ export default function ServiceDetailPage({
                   {allImages.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => handleImageSelect(allImages[index], index)}
+                      onClick={() => handleImageSelect(index)}
                       className={`w-2 h-2 rounded-full transition-all ${
-                        currentImageIndex === index
+                        selectedImageIndex === index
                           ? "bg-white w-4"
                           : "bg-white/50"
                       }`}
@@ -330,12 +386,9 @@ export default function ServiceDetailPage({
                     </span>
                   </div>
                 </div>
-
                 <Link href="/contact">
                   <div className="w-full cursor-pointer">
-                    <Button
-                      text="Kontaktieren Sie uns bezüglich dieses Dienstes"
-                    />
+                    <Button text="Kontaktieren Sie uns bezüglich dieses Dienstes" />
                   </div>
                 </Link>
               </div>
@@ -348,9 +401,9 @@ export default function ServiceDetailPage({
               {allImages.map((image, index) => (
                 <div
                   key={index}
-                  onClick={() => handleImageSelect(image, index)}
+                  onClick={() => handleImageSelect(index)}
                   className={`w-20 h-20 relative rounded-lg cursor-pointer border-2 shadow-md animate-fade-in-up transition-all duration-300 hover:scale-105 ${
-                    currentImageIndex === index
+                    selectedImageIndex === index
                       ? "border-red-500 ring-2 ring-red-500 ring-offset-2"
                       : "border-white hover:border-red-200 active:border-red-200"
                   }`}
