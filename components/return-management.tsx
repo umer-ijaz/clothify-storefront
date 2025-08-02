@@ -151,6 +151,7 @@ export default function ReturnManagement({
 
   const handleViewDetails = (returnRequest: ReturnRequest) => {
     setSelectedReturn(returnRequest);
+    console.log(selectedReturn);
   };
 
   if (returnRequests.length === 0) {
@@ -184,8 +185,9 @@ export default function ReturnManagement({
               Rückerstattungsbearbeitung 💳
             </h4>
             <p className="text-amber-800 text-sm">
-              Nach der Genehmigung Ihrer Rückgabe werden Rückerstattungen innerhalb von{" "}
-              <span className="font-semibold">2-3 Werktagen</span> auf Ihr ursprüngliches Zahlungsmittel zurückerstattet.
+              Nach der Genehmigung Ihrer Rückgabe werden Rückerstattungen
+              innerhalb von <span className="font-semibold">2-3 Werktagen</span>{" "}
+              auf Ihr ursprüngliches Zahlungsmittel zurückerstattet.
             </p>
           </div>
         </div>
@@ -209,16 +211,17 @@ export default function ReturnManagement({
                     >
                       {returnRequest.status}
                     </span>
-                    {returnRequest.inspectionStatus && returnRequest.status !== "Rejected" && (
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getInspectionStatusColor(
-                          returnRequest.inspectionStatus
-                        )}`}
-                      >
-                        <Search className="w-3 h-3 inline mr-1" />
-                        {returnRequest.inspectionStatus}
-                      </span>
-                    )}
+                    {returnRequest.inspectionStatus &&
+                      returnRequest.status !== "Rejected" && (
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium border ${getInspectionStatusColor(
+                            returnRequest.inspectionStatus
+                          )}`}
+                        >
+                          <Search className="w-3 h-3 inline mr-1" />
+                          {returnRequest.inspectionStatus}
+                        </span>
+                      )}
                   </div>
 
                   <h4 className="font-semibold text-gray-800 mb-2">
@@ -306,7 +309,11 @@ export default function ReturnManagement({
                                 {selectedReturn?.itemName}
                               </h4>
                               <p className="text-gray-600">
-                                Rückgabe-ID: {selectedReturn?.id}
+                                {selectedReturn?.invoiceId
+                                  ? "RID-" +
+                                    removeInvPrefix(selectedReturn.invoiceId) +
+                                    base62ToLastFour(selectedReturn.id)
+                                  : selectedReturn?.id}
                               </p>
                             </div>
 

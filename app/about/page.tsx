@@ -66,6 +66,14 @@ interface CTASection {
   buttonLink: string;
 }
 
+interface VideoSection {
+  description: string;
+  enabled: boolean;
+  thumbnailUrl: string;
+  title: string;
+  videoUrl: string;
+}
+
 interface AboutUsData {
   // Our Story Section
   storyTitle: string;
@@ -92,6 +100,7 @@ interface AboutUsData {
 
   // CTA Section
   ctaSection: CTASection;
+  videoSection: VideoSection;
 }
 
 // Helper function to render icon based on icon name
@@ -153,7 +162,6 @@ export default function About() {
   if (!mounted || loading) {
     return <Loading />;
   }
-  
 
   return (
     <div className="bg-white mt-0">
@@ -166,11 +174,11 @@ export default function About() {
 
       {/* Our Story Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 px-2 sm:px-4 md:px-8 lg:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+          {aboutData?.storyTitle || "Our Story"}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center justify-center">
           <div className="text-center md:text-left order-2 md:order-1">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
-              {aboutData?.storyTitle || "Our Story"}
-            </h2>
             <div className="w-20 h-1 bg-red-600 mb-8 mx-auto md:mx-0"></div>
 
             {aboutData?.storyText?.map((paragraph, index) => (
@@ -200,6 +208,39 @@ export default function About() {
           </div>
         </div>
       </section>
+      {aboutData?.videoSection.enabled == true ? (
+        <section className="py-8 pb-15">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                {aboutData?.videoSection.title}
+              </h2>
+              <p className="text-gray-600 text-lg">
+                {aboutData?.videoSection.description}
+              </p>
+            </div>
+
+            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+              <video
+                src={aboutData?.videoSection.videoUrl}
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+                poster={aboutData?.videoSection.thumbnailUrl}
+              >
+                <source
+                  src={aboutData.videoSection.videoUrl}
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Values Section - Dynamic from Firebase */}
       <section className="py-16 bg-gray-100">
