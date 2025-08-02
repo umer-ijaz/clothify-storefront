@@ -152,7 +152,7 @@ export default function About() {
         setLoading(false);
       }
     };
-
+ 
     if (mounted) {
       fetchAboutData();
     }
