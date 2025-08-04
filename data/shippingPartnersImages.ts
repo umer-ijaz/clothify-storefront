@@ -4,6 +4,6 @@ interface Image {
 }
 
 export const shippingPartnersImages: Image[] = [
-    { src: "/DHL-photo.png", alt: "DHL" },
+    // { src: "/DHL-photo.png", alt: "DHL" },
     { src: "/DPD-Photo.png", alt: "DPD" },
 ]

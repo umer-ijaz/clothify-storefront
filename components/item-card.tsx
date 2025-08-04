@@ -75,7 +75,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             height={500}
             quality={100}
             className={cn(
-              "object-cover transition-transform duration-500 p-4 shadow-sm"
+              "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
             )}
           />
         </Link>
@@ -90,10 +90,10 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           </Badge>
         )}
         {props.id.startsWith("sale") && (
-          <div className="absolute top-0 right-0 w-full h-full">
+          <div className="absolute top-0 right-0 w-full h-auto">
             {/* Sale Ribbon */}
             <div className="absolute right-[-30px] top-4 bg-green-600 text-white text-xs font-medium md:font-bold py-1 px-8 transform rotate-45 shadow-md">
-              VERKAUF
+              ANGEBOT
             </div>
           </div>
         )}

@@ -61,7 +61,7 @@ const Carousel: React.FC = () => {
   }, []);
 
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
     speed: 600,
     slidesToShow: 1,

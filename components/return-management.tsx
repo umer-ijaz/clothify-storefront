@@ -185,9 +185,10 @@ export default function ReturnManagement({
               Rückerstattungsbearbeitung 💳
             </h4>
             <p className="text-amber-800 text-sm">
-              Nach der Genehmigung Ihrer Rückgabe werden Rückerstattungen
-              innerhalb von <span className="font-semibold">2-3 Werktagen</span>{" "}
-              auf Ihr ursprüngliches Zahlungsmittel zurückerstattet.
+              Der Kunde erhält den Rückerstattungsbetrag innerhalb von{" "}
+              <span className="font-semibold">5–10</span> Tagen nach der
+              Rückerstattung auf die ursprüngliche Zahlungsmethode
+              zurückerstattet.
             </p>
           </div>
         </div>

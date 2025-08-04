@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram, Facebook } from "lucide-react";
 import { getFooterInfo } from "@/lib/footer";
+import { SiTiktok } from "react-icons/si";
 
 interface FooterInfo {
   address: string;
@@ -131,7 +132,7 @@ export default function Footer() {
           </div>
 
           {/* Right Section */}
-          <div className="Shipping_Methods flex flex-col items-center md:items-start gap-10">
+          <div className="Shipping_Methods flex flex-col items-start md:items-start gap-10">
             {/* Shipping Methods */}
             <div className="flex flex-col items-center md:items-start gap-4">
               <h3 className="font-bold text-lg mb-3">Versandarten</h3>
@@ -140,7 +141,7 @@ export default function Footer() {
                 <Image src="/DPD-Photo.png" alt="DHL" width={80} height={30} />
               </div>
             </div>
-            <div className="flex flex-col items-center md:items-start gap-2">
+            <div className="flex flex-col items-start md:items-start gap-2">
               <h3 className="font-bold text-lg mb-2">
                 Allgemeine Geschäftsbedingungen
               </h3>
@@ -170,7 +171,7 @@ export default function Footer() {
             </div>
 
             {/* Invoice Methods */}
-            <div className="flex flex-col items-center md:items-start gap-2">
+            <div className="flex flex-col items-start md:items-start gap-2">
               <h3 className="font-bold text-lg mb-2">Rechnungsarten</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link href="/invoice" className="hover:underline">
@@ -202,21 +203,31 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Social Media
-        <div className="mt-6 flex justify-center md:justify-end gap-4 pr-0 md:pr-10">
-          <a href="#" className="p-2 border rounded-full bg-white">
-            <Facebook className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
-          </a>
-          <a href="#" className="p-2 border rounded-full bg-white">
-            <Instagram className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
-          </a>
-          <a href="#" className="p-2 border rounded-full bg-white">
-            <Linkedin className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
-          </a>
-          <a href="#" className="p-2 border rounded-full bg-white">
-            <Twitter className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
-          </a>
-        </div> */}
+        {
+          <div className="mt-6 flex justify-center md:justify-end gap-4 pr-0 md:pr-10">
+            <a
+              href="https://www.facebook.com/share/1DmBGBh3Wv/"
+              className="p-2 border rounded-full bg-white"
+              target="_blank"
+            >
+              <Facebook className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
+            </a>
+            <a
+              href="https://www.instagram.com/daniels_believe?igsh=MW05M2JwOTR1MWoxaQ=="
+              className="p-2 border rounded-full bg-white"
+              target="_blank"
+            >
+              <Instagram className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
+            </a>
+            <a
+              href="https://www.tiktok.com/@daniels_believe?_t=ZS-8yZe7VBgyKA&_r=1"
+              className="p-2 border rounded-full bg-white"
+              target="_blank"
+            >
+             <SiTiktok className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
+            </a>
+          </div>
+        }
       </div>
 
       {/* Copyright */}

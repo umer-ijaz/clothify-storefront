@@ -57,14 +57,17 @@ const FlashSaleCarousel = () => {
 
   const settings = {
     mobileFirst: true,
-    infinite: false,
+    infinite: true, // autoplay requires infinite to be true
     speed: 500,
+    cssEase: "ease-in-out",
     slidesToShow: isMobile ? 2 : 4,
     slidesToScroll: 1,
     swipeToSlide: true,
     arrows: false,
     touchMove: true,
     draggable: true,
+    autoplay: true, // <--- Enable autoplay
+    autoplaySpeed: 3000, // <--- Delay between slides in milliseconds (3s)
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 3 } },
       { breakpoint: 768, settings: { slidesToShow: 2 } },
@@ -73,7 +76,7 @@ const FlashSaleCarousel = () => {
 
   return (
     <div className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10">
-      {products?.length === 0 ? null : (
+      {loading && (!products || products.length === 0) ? null : (
         <div>
           <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
             <TextBox text={"Angebote des Tages"} />
@@ -120,7 +123,7 @@ const FlashSaleCarousel = () => {
               {...settings}
               key={isMobile ? "mobile" : "desktop"}
             >
-              {loading || showSkeleton
+              {(loading || showSkeleton) && products?.length
                 ? Array(skeletonCount)
                     .fill(0)
                     .map((_, index) => (

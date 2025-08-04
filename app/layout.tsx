@@ -22,8 +22,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Daniel's Believe We Ensure - Premium E-commerce Store",
-  description: "Discover premium products at Daniel's Believe We Ensure. Shop our curated collection with fast shipping, secure checkout, and exceptional customer service. Your trusted online shopping destination.",
-  keywords: "ecommerce, online shopping, premium products, fast shipping, secure checkout, Daniel's store",
+  description:
+    "Discover premium products at Daniel's Believe We Ensure. Shop our curated collection with fast shipping, secure checkout, and exceptional customer service. Your trusted online shopping destination.",
+  keywords:
+    "ecommerce, online shopping, premium products, fast shipping, secure checkout, Daniel's store",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -31,7 +33,8 @@ export const metadata: Metadata = {
   authors: [{ name: "Daniel's Believe We Ensure" }],
   openGraph: {
     title: "Daniel's Believe We Ensure - Premium E-commerce Store",
-    description: "Discover premium products with fast shipping and secure checkout. Your trusted online shopping destination.",
+    description:
+      "Discover premium products with fast shipping and secure checkout. Your trusted online shopping destination.",
     type: "website",
     locale: "en_US",
     siteName: "Daniel's Believe We Ensure",
@@ -39,7 +42,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Daniel's Believe We Ensure - Premium E-commerce Store",
-    description: "Discover premium products with fast shipping and secure checkout.",
+    description:
+      "Discover premium products with fast shipping and secure checkout.",
   },
   robots: {
     index: true,
@@ -50,7 +54,6 @@ export const metadata: Metadata = {
     },
   },
 };
-
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -71,6 +74,17 @@ export default function RootLayout({
           <Navbar />
           <Suspense fallback={<Loading />}>{children}</Suspense>
           <Footer />
+          <a
+            href="https://wa.me/923324257764"
+            target="_blank"
+            className="whatsapp-float"
+          >
+            <img
+              src="https://img.icons8.com/color/24/000000/whatsapp--v1.png"
+              alt="WhatsApp"
+            />
+            <span>Chatten Sie mit uns</span>
+          </a>
           <Toaster />
         </UserProvider>
       </body>

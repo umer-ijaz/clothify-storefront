@@ -152,7 +152,7 @@ export default function About() {
         setLoading(false);
       }
     };
- 
+
     if (mounted) {
       fetchAboutData();
     }
@@ -184,7 +184,7 @@ export default function About() {
             {aboutData?.storyText?.map((paragraph, index) => (
               <div
                 key={index}
-                className="text-gray-600 mb-6 mr-0 md:mr-5 whitespace-pre-wrap font-sans"
+                className="text-gray-600 mb-6 mr-0 md:mr-5 whitespace-pre-wrap font-sans text-justify"
               >
                 {paragraph}
               </div>
