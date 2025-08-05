@@ -75,7 +75,7 @@ export default function AnnouncementPage() {
   return (
     <div className="">
       {/* Notification Button */}
-      <div className="fixed bottom-18 right-6 z-[1000]">
+      <div className="fixed bottom-8 left-6 z-[1000]">
         <button
           onClick={handleAnnouncementClick}
           disabled={loading}

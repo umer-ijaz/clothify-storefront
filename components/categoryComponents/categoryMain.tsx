@@ -42,41 +42,42 @@ export default function CategoryPage({
           .trim();
 
       const mappedProducts: CategoryProductsInterface[] = items
-  .filter((product) => {
-    const hasCategory = !!params.slug?.[0];
-    const hasSubcategory = !!params.slug?.[1];
+        .filter((product) => {
+          const hasCategory = !!params.slug?.[0];
+          const hasSubcategory = !!params.slug?.[1];
 
-    const categorySlug = normalize(params.slug?.[0] || "");
-    const subcategorySlug = normalize(params.slug?.[1] || "");
+          const categorySlug = normalize(params.slug?.[0] || "");
+          const subcategorySlug = normalize(params.slug?.[1] || "");
 
-    const matchesCategory = hasCategory
-      ? product.category
-        ? normalize(product.category) === categorySlug ||
-          (product.isBoth === true &&
-            ["men", "women", "herren", "damen"].includes(categorySlug))
-        : product.isBoth === true &&
-          ["men", "women", "herren", "damen"].includes(categorySlug)
-      : true;
+          const genderSlugs = ["men", "women", "herren", "damen"];
 
-    const matchesSubcategory = hasSubcategory
-      ? product.subcategory
-        ? normalize(product.subcategory).includes(subcategorySlug)
-        : false
-      : true;
+          const matchesCategory = hasCategory
+            ? product.category
+              ? normalize(product.category) === categorySlug ||
+                (product.isBoth === true && genderSlugs.includes(categorySlug))
+              : product.isBoth === true && genderSlugs.includes(categorySlug)
+            : true;
 
-    return hasCategory && hasSubcategory
-      ? matchesCategory && matchesSubcategory
-      : hasCategory
-      ? matchesCategory
-      : false;
-  })
-  .map((product) => ({
-    ...product,
-    id: String(product.id),
-    brand: product.brand || "Unbekannte Marke",
-    material: product.material || "Unbekanntes Material",
-  }));
+          const matchesSubcategory = hasSubcategory
+            ? product.subcategory
+              ? normalize(product.subcategory) === subcategorySlug ||
+                (product.isBoth === true &&
+                  genderSlugs.includes(subcategorySlug))
+              : product.isBoth === true && genderSlugs.includes(subcategorySlug)
+            : true;
 
+          return hasCategory && hasSubcategory
+            ? matchesCategory && matchesSubcategory
+            : hasCategory
+            ? matchesCategory
+            : false;
+        })
+        .map((product) => ({
+          ...product,
+          id: String(product.id),
+          brand: product.brand || "Unbekannte Marke",
+          material: product.material || "Unbekanntes Material",
+        }));
 
       const uniqueSizes: (string | number)[] = Array.from(
         new Set(

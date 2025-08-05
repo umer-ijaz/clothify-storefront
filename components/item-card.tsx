@@ -55,10 +55,11 @@ export interface Variant {
 
 export default function ItemCard(props: ProductCardEnhancedProps) {
   const [isHovered, setIsHovered] = useState(false);
-
+  const imageSrc =
+    props.image || props.variants?.[0]?.mainImage || "/placeholder.svg";
   return (
     <div
-      className="group relative bg-white rounded-md md:rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 border-[0.25px] border-gray-500"
+      className="group relative bg-white rounded-md md:rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 border-[0.01px] border-gray-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -70,41 +71,25 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           href={`/product/${props.id}`}
           className="block relative w-full h-full"
         >
-          {props.image ? (
-            <Image
-              src={props.image || "/placeholder.svg"}
-              alt={props.name}
-              width={500}
-              height={500}
-              quality={100}
-              className={cn(
-                "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
-              )}
-            />
-          ) : props.variants && props.variants.length > 0 ? (
-            <Image
-              src={props.variants[0].mainImage || "/placeholder.svg"}
-              alt={props.name}
-              width={500}
-              height={500}
-              quality={100}
-              className={cn(
-                "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
-              )}
-            />
-          ) : null}
+          <Image
+            src={imageSrc}
+            alt={props.name}
+            width={500}
+            height={500}
+            quality={75} // 75 is good balance for speed and quality
+            loading="lazy"
+            className={cn(
+              "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
+            )}
+            unoptimized={false}
+          />
         </Link>
         {props.discount > 0 && (
           <Badge className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-full text-xs md:text-sm">
-            {(
-              ((props.originalPrice - props.currentPrice) /
-                props.originalPrice) *
-              100
-            ).toFixed(0)}
-            % OFF
+            {props.discount.toFixed(0)}% OFF
           </Badge>
         )}
-        {(props.id.startsWith("sale") || props.isFlashSale === true) && (
+        {props.isFlashSale === true && (
           <div className="absolute top-0 right-0 w-full h-auto">
             {/* Sale Ribbon */}
             <div className="absolute right-[-30px] top-4 bg-green-600 text-white text-xs font-medium md:font-bold py-1 px-8 transform rotate-45 shadow-md">
