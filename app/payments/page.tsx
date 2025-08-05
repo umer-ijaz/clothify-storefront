@@ -29,6 +29,7 @@ import { getCountries } from "@/context/countries";
 import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import PayPalProviderWrapper from "@/components/paypal-provider-wrapper";
+import { updateProductInventory, validateInventoryBeforeOrder, revertInventoryUpdate } from "@/lib/inventory";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -552,6 +553,52 @@ export default function Payments() {
     return true;
   };
 
+  const validateInventoryAndCustomerInfo = async (): Promise<boolean> => {
+    console.log("🔍 VALIDATION STARTED");
+    console.log("👤 Customer info validation...");
+    
+    // First validate customer info
+    if (!validateCustomerInfo()) {
+      console.log("❌ Customer info validation failed");
+      return false;
+    }
+    
+    console.log("✅ Customer info validated");
+
+    // Then validate inventory
+    try {
+      console.log("📦 Starting inventory validation...");
+      console.log("🛒 Cart to validate:", cart);
+      
+      toast.loading("Lagerbestand wird überprüft...");
+      const inventoryResult = await validateInventoryBeforeOrder(cart);
+      toast.dismiss();
+      
+      console.log("📊 Inventory validation result:", inventoryResult);
+      
+      if (!inventoryResult.success) {
+        console.log("❌ Inventory validation failed:", inventoryResult.errors);
+        if (inventoryResult.outOfStockItems.length > 0) {
+          console.log("📋 Out of stock items:", inventoryResult.outOfStockItems);
+          toast.error(
+            `Einige Artikel sind nicht mehr auf Lager:\n${inventoryResult.outOfStockItems.join("\n")}`
+          );
+        } else {
+          toast.error("Fehler bei der Lagerbestandsprüfung. Bitte versuchen Sie es erneut.");
+        }
+        return false;
+      }
+
+      console.log("✅ Inventory validation passed");
+      return true;
+    } catch (error) {
+      toast.dismiss();
+      console.error("❌ Inventory validation error:", error);
+      toast.error("Fehler bei der Lagerbestandsprüfung. Bitte versuchen Sie es erneut.");
+      return false;
+    }
+  };
+
   const proceedToStripePayment = async () => {
     if (!user) {
       setModal(true);
@@ -562,7 +609,8 @@ export default function Payments() {
       toast.error("Ihr Warenkorb ist leer.");
       return;
     }
-    if (!validateCustomerInfo()) {
+    const isValid = await validateInventoryAndCustomerInfo();
+    if (!isValid) {
       return;
     }
     await createPaymentIntent();
@@ -578,32 +626,94 @@ export default function Payments() {
       toast.error("Ihr Warenkorb ist leer.");
       return;
     }
-    if (!validateCustomerInfo()) {
+    const isValid = await validateInventoryAndCustomerInfo();
+    if (!isValid) {
       return;
     }
     setShowPayPalModal(true);
   };
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
+    console.log("🎉 STRIPE PAYMENT SUCCESS - Starting order processing");
+    console.log("💳 Payment Intent ID:", paymentIntentId);
+    console.log("🛒 Current cart:", cart);
+    
     if (!user) {
+      console.log("❌ No user found");
       toast.error("Benutzersitzung verloren. Bitte melden Sie sich erneut an.");
       return;
     }
+    
+    console.log("👤 User authenticated:", user.uid);
+    let inventoryUpdated = false;
+    
     try {
+      // Step 1: Update inventory first
+      console.log("📦 STEP 1: Starting inventory update...");
+      toast.loading("Lagerbestand wird aktualisiert...");
+      const inventoryResult = await updateProductInventory(cart);
+      
+      console.log("📊 Inventory update result:", inventoryResult);
+      
+      if (!inventoryResult.success) {
+        toast.dismiss();
+        console.error("❌ Inventory update failed:", inventoryResult.errors);
+        toast.error(
+          `Lagerbestandsupdate fehlgeschlagen: ${inventoryResult.errors.join(", ")}`
+        );
+        return;
+      }
+      
+      console.log("✅ Inventory updated successfully!");
+      inventoryUpdated = true;
+      toast.dismiss();
+      
+      // Step 2: Create and save order
+      console.log("📋 STEP 2: Creating order...");
+      toast.loading("Bestellung wird verarbeitet...");
       const order = createOrder({
         method: "Stripe",
         transactionId: paymentIntentId,
         status: "Completed",
       });
+      
+      console.log("📄 Order created:", order);
+      
       await addOrderToUserProfile(user.uid, order);
+      console.log("✅ Order saved to user profile");
+      
+      // Step 3: Clear cart and redirect
+      console.log("🧹 STEP 3: Clearing cart and redirecting...");
       clearCart();
+      toast.dismiss();
       toast.success("Bestellung mit Stripe erfolgreich aufgegeben!");
       router.push("/orders");
+      
     } catch (error) {
-      console.error("Fehler bei der Bestellung nach Stripe-Zahlung:", error);
-      toast.error(
-        "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
-      );
+      console.error("❌ ERROR in handleSuccessfulStripePayment:", error);
+      toast.dismiss();
+      
+      // Revert inventory if it was updated but order failed
+      if (inventoryUpdated) {
+        try {
+          toast.loading("Lagerbestand wird wiederhergestellt...");
+          await revertInventoryUpdate(cart);
+          toast.dismiss();
+          toast.error(
+            "Bestellung fehlgeschlagen. Lagerbestand wurde wiederhergestellt. Bitte kontaktieren Sie den Support."
+          );
+        } catch (revertError) {
+          console.error("Failed to revert inventory:", revertError);
+          toast.dismiss();
+          toast.error(
+            "Kritischer Fehler: Bestellung fehlgeschlagen und Lagerbestand konnte nicht wiederhergestellt werden. Bitte kontaktieren Sie sofort den Support."
+          );
+        }
+      } else {
+        toast.error(
+          "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
+        );
+      }
     }
   };
 
@@ -612,22 +722,68 @@ export default function Payments() {
       toast.error("Benutzersitzung verloren. Bitte melden Sie sich erneut an.");
       return;
     }
+    
+    let inventoryUpdated = false;
+    
     try {
+      // Step 1: Update inventory first
+      toast.loading("Lagerbestand wird aktualisiert...");
+      const inventoryResult = await updateProductInventory(cart);
+      
+      if (!inventoryResult.success) {
+        toast.dismiss();
+        console.error("Inventory update failed:", inventoryResult.errors);
+        toast.error(
+          `Lagerbestandsupdate fehlgeschlagen: ${inventoryResult.errors.join(", ")}`
+        );
+        return;
+      }
+      
+      inventoryUpdated = true;
+      toast.dismiss();
+      
+      // Step 2: Create and save order
+      toast.loading("Bestellung wird verarbeitet...");
       const order = createOrder({
         method: "PayPal",
         transactionId: transactionId,
         status: "Completed",
       });
+      
       await addOrderToUserProfile(user.uid, order);
+      
+      // Step 3: Clear cart and redirect
       clearCart();
+      toast.dismiss();
       toast.success("Bestellung mit PayPal erfolgreich aufgegeben!");
       setShowPayPalModal(false);
       router.push("/orders");
+      
     } catch (error) {
       console.error("Fehler bei der Bestellung nach PayPal-Zahlung:", error);
-      toast.error(
-        "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
-      );
+      toast.dismiss();
+      
+      // Revert inventory if it was updated but order failed
+      if (inventoryUpdated) {
+        try {
+          toast.loading("Lagerbestand wird wiederhergestellt...");
+          await revertInventoryUpdate(cart);
+          toast.dismiss();
+          toast.error(
+            "Bestellung fehlgeschlagen. Lagerbestand wurde wiederhergestellt. Bitte kontaktieren Sie den Support."
+          );
+        } catch (revertError) {
+          console.error("Failed to revert inventory:", revertError);
+          toast.dismiss();
+          toast.error(
+            "Kritischer Fehler: Bestellung fehlgeschlagen und Lagerbestand konnte nicht wiederhergestellt werden. Bitte kontaktieren Sie sofort den Support."
+          );
+        }
+      } else {
+        toast.error(
+          "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
+        );
+      }
     }
   };
 
@@ -641,28 +797,74 @@ export default function Payments() {
       toast.error("Ihr Warenkorb ist leer.");
       return;
     }
-    if (!validateCustomerInfo()) {
+    const isValid = await validateInventoryAndCustomerInfo();
+    if (!isValid) {
       return;
     }
 
+    let inventoryUpdated = false;
+
     try {
+      // Step 1: Update inventory first
+      toast.loading("Lagerbestand wird aktualisiert...");
+      const inventoryResult = await updateProductInventory(cart);
+      
+      if (!inventoryResult.success) {
+        toast.dismiss();
+        console.error("Inventory update failed:", inventoryResult.errors);
+        toast.error(
+          `Lagerbestandsupdate fehlgeschlagen: ${inventoryResult.errors.join(", ")}`
+        );
+        return;
+      }
+      
+      inventoryUpdated = true;
+      toast.dismiss();
+      
+      // Step 2: Create and save order
+      toast.loading("Bestellung wird verarbeitet...");
       const order = createOrder({
         method: "Cash upon delivery",
         transactionId:
           "COD-" + generateCustomDoc(uniqueId) + Math.floor(Math.random() * 100),
         status: "Pending",
       });
+      
       await addOrderToUserProfile(user.uid, order);
+      
+      // Step 3: Clear cart and redirect
       clearCart();
+      toast.dismiss();
       toast.success(
         "Bestellung erfolgreich aufgegeben! (Barzahlung bei Lieferung)"
       );
       router.push("/orders");
+      
     } catch (error) {
       console.error("Fehler bei der Barzahlungsbestellung:", error);
-      toast.error(
-        "Fehler bei der Barzahlungsbestellung. Bitte versuchen Sie es erneut."
-      );
+      toast.dismiss();
+      
+      // Revert inventory if it was updated but order failed
+      if (inventoryUpdated) {
+        try {
+          toast.loading("Lagerbestand wird wiederhergestellt...");
+          await revertInventoryUpdate(cart);
+          toast.dismiss();
+          toast.error(
+            "Bestellung fehlgeschlagen. Lagerbestand wurde wiederhergestellt. Bitte kontaktieren Sie den Support."
+          );
+        } catch (revertError) {
+          console.error("Failed to revert inventory:", revertError);
+          toast.dismiss();
+          toast.error(
+            "Kritischer Fehler: Bestellung fehlgeschlagen und Lagerbestand konnte nicht wiederhergestellt werden. Bitte kontaktieren Sie sofort den Support."
+          );
+        }
+      } else {
+        toast.error(
+          "Fehler bei der Barzahlungsbestellung. Bitte versuchen Sie es erneut."
+        );
+      }
     }
   };
 

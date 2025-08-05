@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getFlashProducts, getProducts } from "@/lib/products";
+import { getFlashProducts, getProducts, Product, Variant } from "@/lib/products";
 import { useRouter } from "next/navigation";
 import { Pagination } from "../pagination";
 import HomeLink from "../home-link";
@@ -11,49 +11,6 @@ import Image from "next/image";
 import { Filter } from "lucide-react";
 import SideBar from "../categoryComponents/SideBar";
 import CategoryProducts from "../categoryComponents/categoryProducts";
-
-interface Product {
-  id: string;
-  productId: string;
-  name: string;
-  brand: string;
-  category: string;
-  subcategory: string;
-
-  image: string; // main display image
-  images: string[]; // all additional images
-
-  currentPrice: number;
-  originalPrice: number;
-  discount: number;
-
-  stock: number;
-  rating: number;
-  reviewsCount: number;
-  reviews: any[]; // If reviews have a structure, define an interface
-
-  sku: string;
-
-  description: string;
-  material: string;
-  features: string[];
-
-  createdAt: string;
-  updatedAt: string;
-
-  variants: Variant[];
-}
-
-export interface Variant {
-  color: {
-    name: string;
-    hex: string;
-  };
-  mainImage: string;
-  subImages: string[];
-  sizes: (string | number)[];
-  outOfStockSizes?: (string | number)[];
-}
 
 export function SearchResults({
   query,
