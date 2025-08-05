@@ -5,7 +5,8 @@ export interface CategoryProductsInterface {
   brand: string;
   category: string;
   subcategory: string;
-
+  isFlashSale: boolean;
+  isBoth: boolean;
   image: string;
   images: string[];
 

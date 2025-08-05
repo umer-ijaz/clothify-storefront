@@ -23,6 +23,8 @@ interface ProductCardEnhancedProps {
   currentPrice: number;
   originalPrice: number;
   discount: number;
+  isFlashSale: boolean;
+  isBoth: boolean;
 
   stock: number;
   rating: number;
@@ -68,16 +70,29 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           href={`/product/${props.id}`}
           className="block relative w-full h-full"
         >
-          <Image
-            src={props.image || "/placeholder.svg"}
-            alt={props.name}
-            width={500}
-            height={500}
-            quality={100}
-            className={cn(
-              "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
-            )}
-          />
+          {props.image ? (
+            <Image
+              src={props.image || "/placeholder.svg"}
+              alt={props.name}
+              width={500}
+              height={500}
+              quality={100}
+              className={cn(
+                "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
+              )}
+            />
+          ) : props.variants && props.variants.length > 0 ? (
+            <Image
+              src={props.variants[0].mainImage || "/placeholder.svg"}
+              alt={props.name}
+              width={500}
+              height={500}
+              quality={100}
+              className={cn(
+                "object-cover transition-transform duration-500 p-4 shadow-sm cursor-pointer"
+              )}
+            />
+          ) : null}
         </Link>
         {props.discount > 0 && (
           <Badge className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-full text-xs md:text-sm">
@@ -89,7 +104,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             % OFF
           </Badge>
         )}
-        {props.id.startsWith("sale") && (
+        {(props.id.startsWith("sale") || props.isFlashSale === true) && (
           <div className="absolute top-0 right-0 w-full h-auto">
             {/* Sale Ribbon */}
             <div className="absolute right-[-30px] top-4 bg-green-600 text-white text-xs font-medium md:font-bold py-1 px-8 transform rotate-45 shadow-md">

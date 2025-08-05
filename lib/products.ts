@@ -15,7 +15,8 @@ export interface Product {
   currentPrice: number;
   originalPrice: number;
   discount: number;
-
+  isFlashSale:boolean;
+  isBoth: boolean;
   stock: number;
   rating: number;
   reviewsCount: number;

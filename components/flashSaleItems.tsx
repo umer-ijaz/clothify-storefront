@@ -12,6 +12,7 @@ import ItemCardSkeleton from "./item-card-skeleton";
 import { getFlashSaleItems, FlashSaleItem } from "@/lib/flashSaleItems";
 import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
+import { getProducts } from "@/lib/products";
 
 const FlashSaleCarousel = () => {
   const sliderRef = useRef<Slider | null>(null);
@@ -44,7 +45,10 @@ const FlashSaleCarousel = () => {
   useEffect(() => {
     async function fetchFlashSaleItems() {
       setLoading(true);
-      const items = await getFlashSaleItems();
+      let items = await getFlashSaleItems();
+      const items2 = await getProducts();
+      items = items.concat(items2).filter((item) => item.isFlashSale === true);
+
       setProducts(items);
       setLoading(false);
 

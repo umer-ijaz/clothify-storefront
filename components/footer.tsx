@@ -204,7 +204,7 @@ export default function Footer() {
         </div>
 
         {
-          <div className="mt-6 flex justify-center md:justify-end gap-4 pr-0 md:pr-10">
+          <div className="mt-6 flex justify-center gap-4">
             <a
               href="https://www.facebook.com/share/1DmBGBh3Wv/"
               className="p-2 border rounded-full bg-white"

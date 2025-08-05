@@ -9,6 +9,7 @@ import CategoryProductsInterface from "@/interfaces/categoriesInterface";
 import TextBox from "../text-box";
 import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
+import { getFlashSaleItems } from "@/lib/flashSaleItems";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<CategoryProductsInterface[]>([]);
@@ -24,7 +25,9 @@ export default function ProductsPage() {
   useEffect(() => {
     async function fetchProducts() {
       setIsLoading(true);
-      const items = await getProducts();
+      let items = await getFlashSaleItems();
+      const items2 = await getProducts();
+      items = items.concat(items2).filter((item) => !item.isFlashSale);
 
       // Map Firestore products to match ItemCardInterface
       const mappedProducts: CategoryProductsInterface[] = items.map(

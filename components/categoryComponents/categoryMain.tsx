@@ -42,39 +42,41 @@ export default function CategoryPage({
           .trim();
 
       const mappedProducts: CategoryProductsInterface[] = items
-        .filter((product) => {
-          const hasCategory = !!params.slug?.[0];
-          const hasSubcategory = !!params.slug?.[1];
+  .filter((product) => {
+    const hasCategory = !!params.slug?.[0];
+    const hasSubcategory = !!params.slug?.[1];
 
-          const matchesCategory = hasCategory
-            ? product.category
-              ? normalize(product.category) === normalize(params.slug[0])
-              : false
-            : true;
+    const categorySlug = normalize(params.slug?.[0] || "");
+    const subcategorySlug = normalize(params.slug?.[1] || "");
 
-          const matchesSubcategory = hasSubcategory
-            ? product.subcategory
-              ? normalize(product.subcategory).includes(
-                  normalize(params.slug[1])
-                )
-              : false
-            : true;
+    const matchesCategory = hasCategory
+      ? product.category
+        ? normalize(product.category) === categorySlug ||
+          (product.isBoth === true &&
+            ["men", "women", "herren", "damen"].includes(categorySlug))
+        : product.isBoth === true &&
+          ["men", "women", "herren", "damen"].includes(categorySlug)
+      : true;
 
-          // If only category is present, use only category filter
-          // If both are present, apply both
-          // If neither is present, return false (optional, based on use case)
-          return hasCategory && hasSubcategory
-            ? matchesCategory && matchesSubcategory
-            : hasCategory
-            ? matchesCategory
-            : false;
-        })
-        .map((product) => ({
-          ...product,
-          id: String(product.id),
-          brand: product.brand || "Unbekannte Marke",
-          material: product.material || "Unbekanntes Material",
-        }));
+    const matchesSubcategory = hasSubcategory
+      ? product.subcategory
+        ? normalize(product.subcategory).includes(subcategorySlug)
+        : false
+      : true;
+
+    return hasCategory && hasSubcategory
+      ? matchesCategory && matchesSubcategory
+      : hasCategory
+      ? matchesCategory
+      : false;
+  })
+  .map((product) => ({
+    ...product,
+    id: String(product.id),
+    brand: product.brand || "Unbekannte Marke",
+    material: product.material || "Unbekanntes Material",
+  }));
+
 
       const uniqueSizes: (string | number)[] = Array.from(
         new Set(

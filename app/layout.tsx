@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import Loading from "./loading"; // Import global loading UI
 import { UserProvider } from "@/context/userContext";
 import ClearCategoriesClient from "@/components/clearCategory";
+import AnnouncementPage from "./pop-up/page";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,7 @@ export default function RootLayout({
           <ClearCategoriesClient />
           <TopBar />
           <Navbar />
+          <AnnouncementPage/>
           <Suspense fallback={<Loading />}>{children}</Suspense>
           <Footer />
           <a
