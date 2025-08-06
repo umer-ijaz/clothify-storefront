@@ -2,13 +2,14 @@
 import { Filter } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getFlashProducts } from "@/lib/products";
+import { getFlashProducts, getProducts } from "@/lib/products";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
 import Loading from "@/components/categoryComponents/loading";
 import HomeLink from "@/components/home-link";
 import TextField from "@/components/text-field";
 import SideBar from "@/components/categoryComponents/SideBar";
 import CategoryProducts from "@/components/categoryComponents/categoryProducts";
+import { getFlashSaleItems } from "@/lib/flashSaleItems";
 
 export default function FlashSalePage() {
   const [products, setProducts] = useState<CategoryProductsInterface[]>([]);
@@ -20,7 +21,9 @@ export default function FlashSalePage() {
   useEffect(() => {
     async function fetchProducts() {
       setIsLoading(true);
-      const items = await getFlashProducts();
+      let items = await getFlashSaleItems();
+      const items2 = await getProducts();
+      items = items.concat(items2).filter((item) => item.isFlashSale === true);
 
       const mappedProducts: CategoryProductsInterface[] = items.map(
         (product: any) => ({
