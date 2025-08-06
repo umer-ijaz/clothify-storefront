@@ -249,7 +249,7 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
 
   return (
     <div className="w-full max-w-full mx-auto py-8">
-      <h2 className="text-2xl font-semibold mb-6">Kunden bewertungen</h2>
+      <h2 className="text-3xl font-semibold mb-6">Kunden bewertungen</h2>
 
       <div className="grid md:grid-cols-[1fr,2fr] gap-8 mb-8">
         {/* Left side - Overall rating */}
