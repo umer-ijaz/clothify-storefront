@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import SimpleImage from "@/components/ui/simple-image";
 import { Star } from "lucide-react";
 import {
   Dialog,
@@ -17,13 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  collection,
-  addDoc,
   doc,
-  getDocs,
   updateDoc,
   getDoc,
-  serverTimestamp,
   type Timestamp,
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
@@ -51,7 +47,7 @@ interface Review {
   name: string;
   rating: number;
   comment: string;
-  createdAt: Timestamp;
+  createdAt: Timestamp | Date;
 }
 
 export default function ProductReviewModal({
@@ -130,18 +126,8 @@ export default function ProductReviewModal({
         setReviewsCount(itemData.reviewsCount);
       }
 
-      // Fetch all reviews
-      const reviewsCollectionRef = collection(
-        firestore,
-        `${collectionName}/${product.id}/reviews`
-      );
-
-      const reviewsSnapshot = await getDocs(reviewsCollectionRef);
-      const fetchedReviews = reviewsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Review[];
-
+      // Get reviews from the product document's reviews array
+      const fetchedReviews = itemData?.reviews || [];
       setReviews(fetchedReviews);
 
       // If rating or reviewsCount wasn't in the document, calculate them from reviews
@@ -153,7 +139,7 @@ export default function ProductReviewModal({
 
         if (fetchedReviews.length > 0) {
           const totalRating = fetchedReviews.reduce(
-            (sum, review) => sum + (review.rating || 0),
+            (sum: number, review: any) => sum + (review.rating || 0),
             0
           );
           const avgRating = totalRating / fetchedReviews.length;
@@ -203,28 +189,23 @@ export default function ProductReviewModal({
         );
       }
 
-      // Add review to subcollection
-      const reviewData: Omit<Review, "id"> = {
+      // Get current product data to append the new review
+      const currentProductData = itemDoc.data();
+      const currentReviews = currentProductData?.reviews || [];
+      
+      // Create new review with unique ID
+      const reviewData = {
+        id: `review_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: review.name,
         rating: review.rating,
         comment: review.comment,
-        createdAt: serverTimestamp() as Timestamp,
+        createdAt: new Date(), // Use regular Date instead of serverTimestamp for arrays
       };
 
-      const reviewsCollectionRef = collection(
-        firestore,
-        `${collectionName}/${product.id}/reviews`
-      );
-
-      await addDoc(reviewsCollectionRef, reviewData);
-
-      // Recalculate average rating for local state only (don't update Firestore)
-      const reviewsSnapshot = await getDocs(reviewsCollectionRef);
-      const updatedReviews = reviewsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Review[];
-
+      // Add the new review to the existing reviews array
+      const updatedReviews = [...currentReviews, reviewData];
+      
+      // Calculate new average rating and reviews count
       const totalRating = updatedReviews.reduce(
         (sum, r) => sum + (r.rating || 0),
         0
@@ -233,7 +214,14 @@ export default function ProductReviewModal({
         updatedReviews.length > 0 ? totalRating / updatedReviews.length : 0;
       const newReviewsCount = updatedReviews.length;
 
-      // Only update local state, not Firestore
+      // Update the product document with the new review, rating, and count
+      await updateDoc(docRef, {
+        reviews: updatedReviews,
+        rating: newAverageRating,
+        reviewsCount: newReviewsCount,
+      });
+
+      // Update local state
       setReviews(updatedReviews);
       setProductRating(newAverageRating);
       setReviewsCount(newReviewsCount);
@@ -302,12 +290,13 @@ export default function ProductReviewModal({
           <form onSubmit={handleSubmit} className="space-y-6 py-4">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 overflow-hidden rounded-md border border-gray-400">
-                <Image
-                  src={product.image || "/platzhalter.svg?height=64&width=64"}
+                <SimpleImage
+                  src={product.image || ""}
                   alt={product.name}
                   width={64}
                   height={64}
                   className="h-full w-full object-cover"
+                  quality={75}
                 />
               </div>
               <div>

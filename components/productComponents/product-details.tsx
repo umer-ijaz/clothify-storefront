@@ -75,6 +75,7 @@ export default function ProductDetailPage({
     selectedSize: "",
   });
 
+
   const {
     product,
     isLoading,
@@ -262,6 +263,9 @@ export default function ProductDetailPage({
     );
   }
 
+
+  console.log("ProductDetailPage product:", product);
+  
   const currentImages = getCurrentImages();
   const currentSizes = getCurrentSizes();
   const currentOutOfStockSizes = getCurrentOutOfStockSizes();

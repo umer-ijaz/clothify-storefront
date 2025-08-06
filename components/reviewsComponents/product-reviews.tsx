@@ -19,6 +19,7 @@ interface Review {
   name: string;
   rating: number;
   comment: string;
+  createdAt?: Date | any; // Optional since existing reviews might not have this field
   // Add any other fields from Firestore
 }
 
@@ -92,28 +93,17 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
         setReviewsCount(itemData.reviewsCount);
       }
 
-      // Fetch all reviews
-      const reviewsCollectionRef = collection(
-        firestore,
-        `${collectionName}/${product.id}/reviews`
-      );
-
-      const reviewsSnapshot = await getDocs(reviewsCollectionRef);
-      const fetchedReviews = reviewsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Review[];
-
+      // Get reviews from the product document's reviews array
+      const fetchedReviews = itemData?.reviews || [];
       setReviews(fetchedReviews);
 
-      // If rating or reviewsCount wasn't in the document, calculate them from reviews
       // If rating or reviewsCount wasn't in the document, calculate and update them
       if (
         itemData?.rating === undefined ||
         itemData?.reviewsCount === undefined
       ) {
         const totalRating = fetchedReviews.reduce(
-          (sum, review) => sum + (review.rating || 0),
+          (sum: number, review: any) => sum + (review.rating || 0),
           0
         );
         const newAvgRating =
@@ -122,7 +112,7 @@ export default function ProductReviews({ product }: ProductReviewsProps) {
         setProductRating(newAvgRating);
         setReviewsCount(fetchedReviews.length);
 
-        // Update the product document in Firestore
+        // Update the product document in Firestore with calculated values
         const docRef = doc(firestore, collectionName, product.id);
         await updateDoc(docRef, {
           rating: newAvgRating,
