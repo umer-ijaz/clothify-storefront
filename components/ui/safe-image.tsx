@@ -14,7 +14,7 @@ interface SafeImageProps {
   maxFileSize?: number; // in KB
   onError?: () => void;
 }
-
+ 
 /**
  * Ultra-safe image component that prevents browser crashes from large images
  * Uses aggressive compression and progressive loading
