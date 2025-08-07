@@ -396,6 +396,7 @@ export default function OrdersPage() {
       Shipped: "Versandt",
       Cancelled: "Storniert",
       "Ready to Pick Up": "Bereit zur Abholung",
+      "Picked up": "Abgeholt",
     };
     return statusMap[status] || status;
   };
@@ -516,6 +517,8 @@ export default function OrdersPage() {
                                 ? "bg-blue-100 text-blue-800"
                                 : order.status === "Ready to Pick Up"
                                 ? "bg-orange-100 text-orange-500"
+                                : order.status === "Picked up"
+                                ? "bg-green-100 text-green-800"
                                 : "bg-gray-100 text-gray-800"
                             }`}
                           >
@@ -592,7 +595,9 @@ export default function OrdersPage() {
                           {order.items.map((item, idx) => {
                             const canReturn =
                               (order.status === "Delivered" ||
-                                order.status === "Shipped") &&
+                                order.status === "Shipped" ||
+                                order.status === "Ready to Pick Up" ||
+                                order.status === "Picked up") &&
                               isWithinReturnPeriod(order.createdAt) &&
                               !getReturnStatus(order.id, item.id);
 
@@ -658,7 +663,9 @@ export default function OrdersPage() {
 
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {(order.status === "Delivered" ||
-                                    order.status === "Shipped") && (
+                                    order.status === "Shipped" ||
+                                    order.status === "Ready to Pick Up" ||
+                                    order.status === "Picked up") && (
                                     <ProductReviewModal
                                       onAddReview={handleAddReview}
                                       product={{
