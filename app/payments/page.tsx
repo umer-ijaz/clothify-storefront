@@ -30,6 +30,8 @@ import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceCont
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import PayPalProviderWrapper from "@/components/paypal-provider-wrapper";
 import { updateProductInventory, validateInventoryBeforeOrder, revertInventoryUpdate } from "@/lib/inventory";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "@/lib/firebaseConfig";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -327,6 +329,11 @@ export default function Payments() {
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [showPayPalModal, setShowPayPalModal] = useState(false);
   const [uniqueId, setUniqueId] = useState<string | null>(null);
+  
+  // Free delivery threshold state
+  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number>(0);
+  const [freeDeliveryDescription, setFreeDeliveryDescription] = useState<string>("");
+  const [isLoadingFreeDelivery, setIsLoadingFreeDelivery] = useState(true);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     country: "Deutschland",
@@ -377,6 +384,40 @@ export default function Payments() {
     setMounted(true);
   }, [user]);
 
+  // Fetch free delivery threshold from Firebase
+  useEffect(() => {
+    const fetchFreeDeliveryData = async () => {
+      setIsLoadingFreeDelivery(true);
+      try {
+        const docRef = doc(firestore, "settings", "deliveryWarranty");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          console.log("Firebase deliveryWarranty data:", data);
+          
+          const freeDeliveryData = data.freeDelivery;
+          console.log("Free delivery data:", freeDeliveryData);
+          
+          if (freeDeliveryData && freeDeliveryData.threshold) {
+            setFreeDeliveryThreshold(freeDeliveryData.threshold || 0);
+            setFreeDeliveryDescription(freeDeliveryData.description || "Kostenlose Lieferung");
+            console.log("Free delivery threshold set to:", freeDeliveryData.threshold);
+            console.log("Free delivery description set to:", freeDeliveryData.description);
+          }
+        } else {
+          console.log("deliveryWarranty document does not exist");
+        }
+      } catch (error) {
+        console.error("Error fetching free delivery data:", error);
+      } finally {
+        setIsLoadingFreeDelivery(false);
+      }
+    };
+
+    fetchFreeDeliveryData();
+  }, []);
+
   if (!mounted) {
     return null;
   }
@@ -385,12 +426,18 @@ export default function Payments() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const deliveryFee =
-    deliveryMethod === "standard"
-      ? deliveryPrice
-      : deliveryMethod == "express"
-      ? expressPrice
-      : 0;
+
+  // Check if cart qualifies for free delivery (only for standard delivery)
+  const isEligibleForFreeDelivery = subtotal >= freeDeliveryThreshold && freeDeliveryThreshold > 0;
+
+  const deliveryFee = deliveryMethod === "standard" && isEligibleForFreeDelivery
+    ? 0 
+    : deliveryMethod === "standard"
+    ? deliveryPrice
+    : deliveryMethod === "express"
+    ? expressPrice
+    : 0;
+
   const tax = subtotal * (taxRate / 100);
   const totalPrice = subtotal + tax + deliveryFee;
 
@@ -1174,6 +1221,35 @@ export default function Payments() {
               </div>
               <div className="space-y-2 border-t pt-2">
                 <span className="font-medium block mb-2">Lieferoptionen</span>
+                
+                {/* Free delivery message */}
+                {!isLoadingFreeDelivery && freeDeliveryThreshold > 0 && (
+                  <div className={`p-3 rounded-lg mb-3 ${
+                    isEligibleForFreeDelivery 
+                      ? 'bg-green-50 border border-green-200' 
+                      : 'bg-blue-50 border border-blue-200'
+                  }`}>
+                    {isEligibleForFreeDelivery ? (
+                      <div className="text-green-700">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span className="font-medium">Kostenlose Lieferung qualifiziert!</span>
+                        </div>
+                        <p className="text-sm mt-1">Nur Standard-Lieferung ist kostenlos ab {freeDeliveryDescription}€{freeDeliveryThreshold}</p>
+                      </div>
+                    ) : (
+                      <div className="text-blue-700">
+                        <p className="text-sm">
+                          Noch <strong>€{(freeDeliveryThreshold - subtotal).toFixed(2)}</strong> für kostenlose Standard-Lieferung hinzufügen
+                        </p>
+                        <p className="text-xs mt-1">Nur Standard-Lieferung ist kostenlos ab {freeDeliveryDescription}€{freeDeliveryThreshold}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <RadioGroup
                   value={deliveryMethod}
                   onValueChange={setDeliveryMethod}
@@ -1188,7 +1264,9 @@ export default function Payments() {
                       />
                       <Label htmlFor="standard">Standard-Lieferung</Label>
                     </div>
-                    <span className="text-emerald-500"> €{deliveryPrice}</span>
+                    <span className="text-emerald-500">
+                      {deliveryMethod === "standard" && isEligibleForFreeDelivery ? "Kostenlos" : `€${deliveryPrice}`}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -1199,7 +1277,9 @@ export default function Payments() {
                       />
                       <Label htmlFor="express">Express-Lieferung</Label>
                     </div>
-                    <span className="text-emerald-500"> €{expressPrice}</span>
+                    <span className="text-emerald-500">
+                      €{expressPrice}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
