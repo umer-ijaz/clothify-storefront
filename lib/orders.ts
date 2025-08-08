@@ -19,6 +19,8 @@ export interface Order {
   }>;
   total: number;
   subtotal: number;
+  promoCode: string | null;
+  promoDiscount: number | 0;
   tax: number;
   deliveryFee: number;
   customerInfo: {

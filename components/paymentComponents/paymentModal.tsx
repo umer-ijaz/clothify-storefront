@@ -32,6 +32,7 @@ import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceCont
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
+import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -147,7 +148,9 @@ const PayPalCheckoutForm = ({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Fehler beim Erstellen der PayPal-Bestellung");
+        throw new Error(
+          data.error || "Fehler beim Erstellen der PayPal-Bestellung"
+        );
       }
 
       return data.orderID;
@@ -175,7 +178,9 @@ const PayPalCheckoutForm = ({
       const captureData = await response.json();
 
       if (!response.ok) {
-        throw new Error(captureData.error || "Fehler beim Abschließen der PayPal-Zahlung");
+        throw new Error(
+          captureData.error || "Fehler beim Abschließen der PayPal-Zahlung"
+        );
       }
 
       if (captureData.status === "COMPLETED") {
@@ -221,7 +226,9 @@ const PayPalCheckoutForm = ({
       {isProcessing && (
         <div className="flex items-center justify-center p-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-sm text-gray-600">PayPal-Zahlung wird verarbeitet...</span>
+          <span className="ml-2 text-sm text-gray-600">
+            PayPal-Zahlung wird verarbeitet...
+          </span>
         </div>
       )}
     </div>
@@ -273,8 +280,15 @@ export default function PaymentModal({
 
   // Free delivery threshold state
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number>(0);
-  const [freeDeliveryDescription, setFreeDeliveryDescription] = useState<string>("");
+  const [freeDeliveryDescription, setFreeDeliveryDescription] =
+    useState<string>("");
   const [isLoadingFreeDelivery, setIsLoadingFreeDelivery] = useState(true);
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const [inputCode, setInputCode] = useState("");
+  const [discount, setDiscount] = useState<number | 0>(0);
+  const [message, setMessage] = useState("");
+  const [validUntil, setValidUntil] = useState<string | null>(null);
+  const [selectedCode, setSelectedCode] = useState<string | null>(null);
 
   const [customerInfo, setCustomerInfo] = useState({
     country: "Germany",
@@ -312,6 +326,49 @@ export default function PaymentModal({
     }
   }, [uniqueId]);
 
+  const normalizeDate = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const handleVerify = async () => {
+    setMessage("");
+    setDiscount(0);
+    setValidUntil(null);
+
+    const enteredCode = inputCode.trim().toLowerCase();
+
+    const promoCodes = await getPromoCodes();
+    setPromoCodes(promoCodes);
+    const matchedPromo = promoCodes.find(
+      (promo) => promo.code.toLowerCase() === enteredCode
+    );
+
+    if (matchedPromo) {
+      setSelectedCode(enteredCode);
+    }
+
+    if (!matchedPromo) {
+      setMessage(
+        "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
+      );
+      return;
+    }
+
+    const today = normalizeDate(new Date());
+    const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
+
+    if (expiry >= today) {
+      setDiscount(matchedPromo.discount);
+      setMessage(
+        `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount} % Rabatt.`
+      );
+      setValidUntil(
+        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
+      );
+    } else {
+      setMessage("⚠️ Der Aktionscode ist abgelaufen.");
+    }
+  };
+
   // Fetch free delivery threshold from Firebase
   useEffect(() => {
     const fetchFreeDeliveryData = async () => {
@@ -323,15 +380,23 @@ export default function PaymentModal({
         if (docSnap.exists()) {
           const data = docSnap.data();
           console.log("Firebase deliveryWarranty data:", data);
-          
+
           const freeDeliveryData = data.freeDelivery;
           console.log("Free delivery data:", freeDeliveryData);
-          
+
           if (freeDeliveryData && freeDeliveryData.threshold) {
             setFreeDeliveryThreshold(freeDeliveryData.threshold || 0);
-            setFreeDeliveryDescription(freeDeliveryData.description || "Kostenlose Lieferung");
-            console.log("Free delivery threshold set to:", freeDeliveryData.threshold);
-            console.log("Free delivery description set to:", freeDeliveryData.description);
+            setFreeDeliveryDescription(
+              freeDeliveryData.description || "Kostenlose Lieferung"
+            );
+            console.log(
+              "Free delivery threshold set to:",
+              freeDeliveryData.threshold
+            );
+            console.log(
+              "Free delivery description set to:",
+              freeDeliveryData.description
+            );
           }
         } else {
           console.log("deliveryWarranty document does not exist");
@@ -354,18 +419,20 @@ export default function PaymentModal({
   );
 
   // Check if cart qualifies for free delivery (only for standard delivery)
-  const isEligibleForFreeDelivery = subtotal >= freeDeliveryThreshold && freeDeliveryThreshold > 0;
+  const isEligibleForFreeDelivery =
+    subtotal >= freeDeliveryThreshold && freeDeliveryThreshold > 0;
 
-  const deliveryFee = deliveryMethod === "standard" && isEligibleForFreeDelivery
-    ? 0 
-    : deliveryMethod === "standard"
-    ? deliveryPrice
-    : deliveryMethod === "express"
-    ? expressPrice
-    : 0;
+  const deliveryFee =
+    deliveryMethod === "standard" && isEligibleForFreeDelivery
+      ? 0
+      : deliveryMethod === "standard"
+      ? deliveryPrice
+      : deliveryMethod === "express"
+      ? expressPrice
+      : 0;
 
   const tax = subtotal * (taxRate / 100);
-  const totalPrice = subtotal + tax + deliveryFee;
+  const totalPrice = subtotal + tax + deliveryFee - (discount / 100) * subtotal;
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -507,6 +574,8 @@ export default function PaymentModal({
       })),
       total: totalPrice,
       subtotal: subtotal,
+      promoCode: selectedCode,
+      promoDiscount: discount,
       tax: tax,
       deliveryFee: deliveryFee,
       customerInfo: {
@@ -880,224 +949,301 @@ export default function PaymentModal({
             </div>
 
             {/* Order Summary - 2/5 width */}
-            <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">Bestellübersicht</h2>
-              <div className="space-y-4 w-full">
-                {products.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-center"
-                  >
-                    <div className="flex items-center gap-2">
-                      {item.image && (
-                        <div className="w-10 h-10 rounded overflow-hidden">
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            width={40}
-                            height={40}
-                            className="object-cover w-full h-full"
-                          />
-                        </div>
-                      )}
-                      <span>{item.name}</span>
-                    </div>
-                    <div>
-                      <span className="text-emerald-500">
-                        {" "}
-                        €{item.price.toFixed(2)}
-                      </span>{" "}
-                      x{" "}
-                      <span className="text-emerald-500">{item.quantity}</span>
-                    </div>
+            <div className="md:col-span-2 flex flex-col gap-5">
+              {promoCodes && (
+                <div className="p-6 rounded-lg border border-gray-200 bg-white shadow-md gap-2">
+                  <h2 className="text-xl font-semibold">
+                    Geben Sie den Promo-Code ein
+                  </h2>
+
+                  <div className="flex flex-col gap-3 justify-end items-end mt-2">
+                    <Input
+                      type="text"
+                      value={inputCode}
+                      onChange={(e) => setInputCode(e.target.value)}
+                      placeholder="Enter code here"
+                      className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
+                    />
+                    <Button text={"Verify"} onClick={handleVerify} />
                   </div>
-                ))}
 
-                <div className="flex justify-between items-center border-t pt-2">
-                  <span className="font-medium">Zwischensumme</span>
-                  <span className="font-medium"> €{subtotal.toFixed(2)}</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Steuer ({taxRate}%)</span>
-                  <span className="font-medium"> €{tax.toFixed(2)}</span>
-                </div>
-
-                <div className="space-y-2 border-t pt-2">
-                  <span className="font-medium block mb-2">Lieferoptionen</span>
-                  
-                  {/* Free delivery message */}
-                  {!isLoadingFreeDelivery && freeDeliveryThreshold > 0 && (
-                    <div className={`p-3 rounded-lg mb-3 ${
-                      isEligibleForFreeDelivery 
-                        ? 'bg-green-50 border border-green-200' 
-                        : 'bg-blue-50 border border-blue-200'
-                    }`}>
-                      {isEligibleForFreeDelivery ? (
-                        <div className="text-green-700">
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                            <span className="font-medium">Kostenlose Lieferung qualifiziert!</span>
-                          </div>
-                          <p className="text-sm mt-1">Nur Standard-Lieferung ist kostenlos ab {freeDeliveryDescription}€{freeDeliveryThreshold}</p>
-                        </div>
-                      ) : (
-                        <div className="text-blue-700">
-                          <p className="text-sm">
-                            Noch <strong>€{(freeDeliveryThreshold - subtotal).toFixed(2)}</strong> für kostenlose Standard-Lieferung hinzufügen
-                          </p>
-                          <p className="text-xs mt-1">Nur Standard-Lieferung ist kostenlos ab {freeDeliveryDescription}€{freeDeliveryThreshold}</p>
-                        </div>
-                      )}
+                  {message && (
+                    <div className="mt-4 text-sm font-medium text-green-700">
+                      {message}
                     </div>
                   )}
 
-                  <RadioGroup
-                    value={deliveryMethod}
-                    onValueChange={setDeliveryMethod}
-                    className="space-y-2 "
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="standard"
-                          id="standard"
-                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
-                        />
-                        <Label htmlFor="standard">Standard-Lieferung</Label>
-                      </div>
-                      <span className="text-emerald-500">
-                        {deliveryMethod === "standard" && isEligibleForFreeDelivery ? "Kostenlos" : `€${deliveryPrice}`}
-                      </span>
+                  {validUntil && (
+                    <div className="text-xs text-gray-600 mt-1 italic">
+                      {validUntil}
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="express"
-                          id="express"
-                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
-                        />
-                        <Label htmlFor="express">Express-Lieferung</Label>
-                      </div>
-                      <span className="text-emerald-500">
-                        €{expressPrice}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="pickup"
-                          id="pickup"
-                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
-                        />
-                        <Label htmlFor="pickup">Selbstabholung</Label>
-                      </div>
-                      <span className="text-emerald-500">Kostenlos</span>
-                    </div>
-                  </RadioGroup>
-                </div>
+                  )}
 
-                <span className="font-medium">Zahlungsmethoden</span>
-                <div className="space-y-2">
-                  <RadioGroup
-                    value={paymentMethod}
-                    onValueChange={setPaymentMethod}
-                    className="space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="card"
-                          id="card"
-                          className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
-                        />
-                        <Label htmlFor="card">Karte (Stripe)</Label>
+                  {discount !== null && (
+                    <div className="text-sm text-blue-800 mt-1">
+                      🎉 Angewendeter Rabatt: <strong>{discount}%</strong>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+                <h2 className="text-xl font-semibold mb-4">Bestellübersicht</h2>
+                <div className="space-y-4 w-full">
+                  {products.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center"
+                    >
+                      <div className="flex items-center gap-2">
+                        {item.image && (
+                          <div className="w-10 h-10 rounded overflow-hidden">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              width={40}
+                              height={40}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        )}
+                        <span>{item.name}</span>
                       </div>
-                      <div className="flex space-x-1">
-                        <Image
-                          width={30}
-                          height={30}
-                          src="/visa.svg"
-                          alt="Visa"
-                          className="object-contain w-8 h-8"
-                        />
-                        <Image
-                          width={30}
-                          height={30}
-                          src="/master.svg"
-                          alt="Mastercard"
-                          className="object-contain w-8 h-8"
-                        />
+                      <div>
+                        <span className="text-emerald-500">
+                          {" "}
+                          €{item.price.toFixed(2)}
+                        </span>{" "}
+                        x{" "}
+                        <span className="text-emerald-500">
+                          {item.quantity}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
+                  ))}
+
+                  <div className="flex justify-between items-center border-t pt-2">
+                    <span className="font-medium">Zwischensumme</span>
+                    <span className="font-medium"> €{subtotal.toFixed(2)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Steuer ({taxRate}%)</span>
+                    <span className="font-medium"> €{tax.toFixed(2)}</span>
+                  </div>
+                  {promoCodes && (
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">
+                        PromoDiscount ({discount}%)
+                      </span>
+                      <span className="font-medium">
+                        {" "}
+                        €{((discount / 100) * subtotal).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="space-y-2 border-t pt-2">
+                    <span className="font-medium block mb-2">
+                      Lieferoptionen
+                    </span>
+
+                    {/* Free delivery message */}
+                    {!isLoadingFreeDelivery && freeDeliveryThreshold > 0 && (
+                      <div
+                        className={`p-3 rounded-lg mb-3 ${
+                          isEligibleForFreeDelivery
+                            ? "bg-green-50 border border-green-200"
+                            : "bg-blue-50 border border-blue-200"
+                        }`}
+                      >
+                        {isEligibleForFreeDelivery ? (
+                          <div className="text-green-700">
+                            <div className="flex items-center gap-2">
+                              <svg
+                                className="w-4 h-4"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              <span className="font-medium">
+                                Kostenlose Lieferung qualifiziert!
+                              </span>
+                            </div>
+                            <p className="text-sm mt-1">
+                              Nur Standard-Lieferung ist kostenlos ab{" "}
+                              {freeDeliveryDescription}€{freeDeliveryThreshold}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="text-blue-700">
+                            <p className="text-sm">
+                              Noch{" "}
+                              <strong>
+                                €{(freeDeliveryThreshold - subtotal).toFixed(2)}
+                              </strong>{" "}
+                              für kostenlose Standard-Lieferung hinzufügen
+                            </p>
+                            <p className="text-xs mt-1">
+                              Nur Standard-Lieferung ist kostenlos ab{" "}
+                              {freeDeliveryDescription}€{freeDeliveryThreshold}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <RadioGroup
+                      value={deliveryMethod}
+                      onValueChange={setDeliveryMethod}
+                      className="space-y-2 "
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value="standard"
+                            id="standard"
+                            className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                          />
+                          <Label htmlFor="standard">Standard-Lieferung</Label>
+                        </div>
+                        <span className="text-emerald-500">
+                          {deliveryMethod === "standard" &&
+                          isEligibleForFreeDelivery
+                            ? "Kostenlos"
+                            : `€${deliveryPrice}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value="express"
+                            id="express"
+                            className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                          />
+                          <Label htmlFor="express">Express-Lieferung</Label>
+                        </div>
+                        <span className="text-emerald-500">
+                          €{expressPrice}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value="pickup"
+                            id="pickup"
+                            className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                          />
+                          <Label htmlFor="pickup">Selbstabholung</Label>
+                        </div>
+                        <span className="text-emerald-500">Kostenlos</span>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <span className="font-medium">Zahlungsmethoden</span>
+                  <div className="space-y-2">
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={setPaymentMethod}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value="card"
+                            id="card"
+                            className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                          />
+                          <Label htmlFor="card">Karte (Stripe)</Label>
+                        </div>
+                        <div className="flex space-x-1">
+                          <Image
+                            width={30}
+                            height={30}
+                            src="/visa.svg"
+                            alt="Visa"
+                            className="object-contain w-8 h-8"
+                          />
+                          <Image
+                            width={30}
+                            height={30}
+                            src="/master.svg"
+                            alt="Mastercard"
+                            className="object-contain w-8 h-8"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value="paypal"
+                            id="paypal"
+                            className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                          />
+                          <Label htmlFor="paypal">PayPal</Label>
+                        </div>
+                        <div className="flex space-x-1">
+                          <Image
+                            width={30}
+                            height={30}
+                            src="/paypal-logo.svg"
+                            alt="PayPal"
+                            className="object-contain w-8 h-8"
+                          />
+                        </div>
+                      </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem
-                          value="paypal"
-                          id="paypal"
+                          value="cash"
+                          id="cash"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
-                        <Label htmlFor="paypal">PayPal</Label>
+                        <Label htmlFor="cash">Nachnahme</Label>
                       </div>
-                      <div className="flex space-x-1">
-                        <Image
-                          width={30}
-                          height={30}
-                          src="/paypal-logo.svg"
-                          alt="PayPal"
-                          className="object-contain w-8 h-8"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="cash"
-                        id="cash"
-                        className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+                    </RadioGroup>
+                  </div>
+
+                  <div className="flex justify-between items-center border-t pt-2">
+                    <span className="font-bold">Gesamtbetrag</span>
+                    <span className="font-bold">€{totalPrice.toFixed(2)}</span>
+                  </div>
+
+                  {paymentMethod === "card" && !showStripeModal && (
+                    <div className="flex flex-row justify-center mt-4">
+                      <Button
+                        text="Zur sicheren Zahlung fortfahren"
+                        onClick={proceedToStripePayment}
                       />
-                      <Label htmlFor="cash">Nachnahme</Label>
                     </div>
-                  </RadioGroup>
+                  )}
+
+                  {paymentMethod === "paypal" && !showPayPalModal && (
+                    <div className="flex flex-row justify-center mt-4">
+                      <Button
+                        text="Mit PayPal bezahlen"
+                        onClick={proceedToPayPalPayment}
+                      />
+                    </div>
+                  )}
+
+                  {paymentMethod === "cash" && (
+                    <div className="flex flex-row justify-center mt-4">
+                      <Button
+                        text={
+                          isProcessing
+                            ? "Wird verarbeitet..."
+                            : "Kauf abschließen (Nachnahme)"
+                        }
+                        onClick={handleCashCheckout}
+                        disabled={isProcessing}
+                      />
+                    </div>
+                  )}
                 </div>
-
-                <div className="flex justify-between items-center border-t pt-2">
-                  <span className="font-bold">Gesamtbetrag</span>
-                  <span className="font-bold">€{totalPrice.toFixed(2)}</span>
-                </div>
-
-                {paymentMethod === "card" && !showStripeModal && (
-                  <div className="flex flex-row justify-center mt-4">
-                    <Button
-                      text="Zur sicheren Zahlung fortfahren"
-                      onClick={proceedToStripePayment}
-                    />
-                  </div>
-                )}
-
-                {paymentMethod === "paypal" && !showPayPalModal && (
-                  <div className="flex flex-row justify-center mt-4">
-                    <Button
-                      text="Mit PayPal bezahlen"
-                      onClick={proceedToPayPalPayment}
-                    />
-                  </div>
-                )}
-
-                {paymentMethod === "cash" && (
-                  <div className="flex flex-row justify-center mt-4">
-                    <Button
-                      text={
-                        isProcessing
-                          ? "Wird verarbeitet..."
-                          : "Kauf abschließen (Nachnahme)"
-                      }
-                      onClick={handleCashCheckout}
-                      disabled={isProcessing}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
