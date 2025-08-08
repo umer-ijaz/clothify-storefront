@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import {
   Elements,
-  PaymentElement,
+  PaymentElement, 
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
