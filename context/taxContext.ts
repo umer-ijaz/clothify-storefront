@@ -33,7 +33,6 @@ export const useTaxStore = create<TaxState>()(
       initializeTax: async () => {
         try {
           const globalTax = await fetchGlobalTax();
-          console.log("Global tax fetched:", globalTax);
           set({ taxRate: globalTax || 0.1 });
         } catch (error) {
           console.error("Failed to fetch global tax:", error);

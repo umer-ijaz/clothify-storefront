@@ -33,7 +33,6 @@ export const useDeliveryPriceStore = create<DeliveryPriceState>()(
       initializeDeliveryPrice: async () => {
         try {
           const deliveryPrice = await fetchDeliveryPrice();
-          console.log("Delivery price fetched:", deliveryPrice);
           set({ deliveryPrice: deliveryPrice || 10 });
         } catch (error) {
           console.error("Failed to fetch delivery price:", error);

@@ -18,7 +18,6 @@ async function fetchSettingPrice(
       const data = docSnap.data();
       const price = data?.price;
 
-      console.log(`${documentId} fetched price:`, price);
 
       return typeof price === "number" ? price : defaultPrice;
     } else {

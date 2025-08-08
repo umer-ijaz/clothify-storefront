@@ -22,7 +22,6 @@ export default function CategoryPage({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    console.log(params.slug);
     if (params.slug[1]) {
       params.slug[1] = decodeURIComponent(params.slug[1]);
     }

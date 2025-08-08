@@ -196,7 +196,6 @@ export default function OrdersPage() {
 
   useEffect(() => {
     // Force clear cache and refetch on mount (for testing only)
-    console.log("OrdersPage: Cache wird geleert und neu geladen...");
     clearCache();
   }, [clearCache]);
 
@@ -268,7 +267,6 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (!returnPolicy && !isPolicyLoading) {
-      console.log("OrdersPage: Rückgaberichtlinien werden geladen...");
       fetchReturnPolicy();
     }
   }, [returnPolicy, isPolicyLoading, fetchReturnPolicy]);
@@ -329,7 +327,6 @@ export default function OrdersPage() {
     rating: number;
     comment: string;
   }) => {
-    console.log("Neue Bewertung:", review);
     toast.success("Bewertung wurde erfolgreich hinzugefügt");
   };
 

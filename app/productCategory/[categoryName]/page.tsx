@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 
 function Page() {
   const { categoryName } = useParams();
-  console.log(categoryName);
 
   setTimeout(() => {}, 2000);
   if (!categoryName) {

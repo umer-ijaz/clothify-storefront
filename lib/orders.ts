@@ -64,7 +64,6 @@ export async function addOrderToUserProfile(userId: string, order: Order) {
       `users/${userId}/orders`
     );
     await addDoc(userOrdersCollection, order);
-    console.log("Order added successfully!");
   } catch (error) {
     console.error("Error adding order to user profile:", error);
     throw error;
@@ -110,7 +109,6 @@ export const fetchOrdersById = async (
 
       for (const userDoc of usersSnap.docs) {
         const uid = userDoc.id;
-        console.log("Fetching orders for user:", uid);
 
         try {
           const ordersRef = collection(firestore, `users/${uid}/orders`);
@@ -129,7 +127,6 @@ export const fetchOrdersById = async (
       }
     }
 
-    console.log("Total orders fetched:", orders.length);
     return orders;
   } catch (error) {
     console.error("Error in fetchOrders:", error);

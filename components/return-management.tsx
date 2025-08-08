@@ -70,7 +70,6 @@ export default function ReturnManagement({
   const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(
     null
   );
-  console.log(returnRequests);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -151,7 +150,6 @@ export default function ReturnManagement({
 
   const handleViewDetails = (returnRequest: ReturnRequest) => {
     setSelectedReturn(returnRequest);
-    console.log(selectedReturn);
   };
 
   if (returnRequests.length === 0) {

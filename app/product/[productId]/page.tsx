@@ -17,22 +17,11 @@ export default function ProductPage({
         // Extract productId from params
         const { productId: id } = await params;
         setProductId(id);
-        console.log("Product ID:", id);
 
         // Fetch the complete product data
         const productData = await getProductById(id);
         setProduct(productData);
         
-        // Console log the whole product
-        console.log("Complete Product Data:", productData);
-        console.log("Product Name:", productData?.name);
-        console.log("Product Category:", productData?.category);
-        console.log("Product Price:", productData?.currentPrice);
-        console.log("Product Stock:", productData?.stock);
-        console.log("Product Variants:", productData?.variants);
-        console.log("Product Reviews:", productData?.reviews);
-        console.log("Product Reviews Count:", productData?.reviewsCount);
-        console.log("Product Rating:", productData?.rating);
       } catch (error) {
         console.error("Error fetching product:", error);
       }

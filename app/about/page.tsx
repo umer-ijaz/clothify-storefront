@@ -143,8 +143,6 @@ export default function About() {
 
         if (docSnap.exists()) {
           setAboutData(docSnap.data() as AboutUsData);
-        } else {
-          console.log("No about us data found!");
         }
       } catch (error) {
         console.error("Error fetching about us data:", error);
