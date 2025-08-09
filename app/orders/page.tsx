@@ -51,6 +51,8 @@ interface Order {
     accessCodes?: string;
   };
   subtotal: number;
+  promoCode: string | null;
+  promoDiscount: number | 0;
   tax: number;
   deliveryFee: number;
   total: number;
@@ -168,6 +170,8 @@ export default function OrdersPage() {
               accessCodes: "",
             },
             subtotal: data.subtotal || 0,
+            promoCode: data.promoCode,
+            promoDiscount: data.promoDiscount || 0,
             tax: data.tax || 0,
             deliveryFee: data.deliveryFee || 0,
             paymentMethod:

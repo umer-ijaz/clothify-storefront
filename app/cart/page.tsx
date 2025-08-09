@@ -112,7 +112,7 @@ export default function CartClient() {
                             <div className="flex flex-col justify-center items-center gap-0">
                               <button
                                 onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
+                                  updateQuantity(item.id, item.isFlashSale,item.quantity + 1,)
                                 }
                                 className="w-5 h-5 flex items-center justify-center rounded-full"
                               >
@@ -135,6 +135,7 @@ export default function CartClient() {
                                 onClick={() =>
                                   updateQuantity(
                                     item.id,
+                                    item.isFlashSale,
                                     Math.max(1, item.quantity - 1)
                                   )
                                 }
@@ -159,7 +160,7 @@ export default function CartClient() {
                         </div>
                         <div className="flex justify-end">
                           <button
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.id, item.isFlashSale)}
                             className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500"
                             aria-label="Remove item"
                           >
@@ -202,7 +203,7 @@ export default function CartClient() {
                             </div>
                           </div>
                           <button
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.id, item.isFlashSale)}
                             className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500"
                             aria-label="Remove item"
                           >
@@ -224,7 +225,7 @@ export default function CartClient() {
                             <div className="flex flex-col justify-center items-center gap-0">
                               <button
                                 onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
+                                  updateQuantity(item.id, item.isFlashSale,item.quantity + 1)
                                 }
                                 className="w-5 h-5 flex items-center justify-center rounded-full"
                               >
@@ -246,6 +247,7 @@ export default function CartClient() {
                                 onClick={() =>
                                   updateQuantity(
                                     item.id,
+                                    item.isFlashSale,
                                     Math.max(1, item.quantity - 1)
                                   )
                                 }

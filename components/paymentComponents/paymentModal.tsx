@@ -30,7 +30,14 @@ import { getCountries } from "@/context/countries";
 import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
 import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
 
@@ -255,6 +262,7 @@ interface PaymentModalProps {
 }
 
 const countries = getCountries();
+type PromoUsage = Record<string, number>;
 
 export default function PaymentModal({
   isOpen,
@@ -290,6 +298,8 @@ export default function PaymentModal({
   const [message, setMessage] = useState("");
   const [validUntil, setValidUntil] = useState<string | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [promoCodeUsage, setPromoCodeUsage] = useState<PromoUsage>({});
 
   const [customerInfo, setCustomerInfo] = useState({
     country: "Germany",
@@ -305,6 +315,39 @@ export default function PaymentModal({
     deliveryNotes: "",
     accessCodes: "",
   });
+
+  useEffect(() => {
+    const fetchPromoUsage = async () => {
+      if (!user) return;
+      setFetching(true);
+      try {
+        const ordersRef = collection(firestore, `users/${user.uid}/orders`);
+        const q = query(ordersRef, orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+
+        // Dictionary for counting promoCode usage
+        const promoUsage: Record<string, number> = {};
+
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const code = data.promoCode?.trim().toLowerCase();
+          if (code) {
+            promoUsage[code] = (promoUsage[code] || 0) + 1;
+          }
+        });
+
+        console.log("Promo code usage counts:", promoUsage);
+        setPromoCodeUsage(promoUsage); // store in state if needed
+      } catch (err) {
+        console.error("Fehler beim Laden der PromoCodes:", err);
+        toast.error("PromoCode-Daten konnten nicht geladen werden");
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    if (user) fetchPromoUsage();
+  }, [user]);
 
   useEffect(() => {
     const fetchId = async () => {
@@ -343,15 +386,14 @@ export default function PaymentModal({
       return;
     }
 
+    // 1. Get promo codes from DB
     const promoCodes = await getPromoCodes();
     setPromoCodes(promoCodes);
+
+    // 2. Find the matched promo code
     const matchedPromo = promoCodes.find(
       (promo) => promo.code.toLowerCase() === enteredCode
     );
-
-    if (matchedPromo) {
-      setSelectedCode(enteredCode);
-    }
 
     if (!matchedPromo) {
       setMessage(
@@ -360,13 +402,45 @@ export default function PaymentModal({
       return;
     }
 
+    // 3. Normalize noOfTimes
+    let allowedCount: number;
+    if (
+      matchedPromo.noOfTimes === null ||
+      matchedPromo.noOfTimes === undefined ||
+      matchedPromo.noOfTimes === "" ||
+      matchedPromo.noOfTimes === "Infinity" ||
+      matchedPromo.noOfTimes === 0
+    ) {
+      allowedCount = Infinity;
+    } else {
+      allowedCount = Number(matchedPromo.noOfTimes);
+      if (isNaN(allowedCount) || allowedCount < 0) {
+        allowedCount = Infinity; // fallback if invalid
+      }
+    }
+
+    // 4. Check usage limit
+    const usedCount = promoCodeUsage?.[enteredCode] || 0; // times already used
+
+    if (usedCount >= allowedCount) {
+      setMessage(
+        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
+          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
+        }x erlaubt)`
+      );
+      setDiscount(0);
+      return;
+    }
+
+    setSelectedCode(enteredCode);
+
+    // 5. Check expiry date
     const today = normalizeDate(new Date());
     const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
 
     if (expiry >= today) {
       setDiscount(matchedPromo.discount);
 
-      // Adjust message depending on cart items
       if (hasNonFlashSale) {
         setMessage(
           `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
@@ -441,7 +515,7 @@ export default function PaymentModal({
 
   const tax = subtotal * (taxRate / 100);
   const totalPrice =
-    subtotal + tax + deliveryFee - ((discount / 100) * allnoflashtotal);
+    subtotal + tax + deliveryFee - (discount / 100) * allnoflashtotal;
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {

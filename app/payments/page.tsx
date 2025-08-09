@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import {
   Elements,
-  PaymentElement, 
+  PaymentElement,
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
@@ -34,7 +34,14 @@ import {
   validateInventoryBeforeOrder,
   revertInventoryUpdate,
 } from "@/lib/inventory";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
 
@@ -323,6 +330,8 @@ const PayPalCheckoutForm = ({
   );
 };
 
+type PromoUsage = Record<string, number>;
+
 export default function Payments() {
   const { cart, clearCart } = useCartStore();
   const { user } = useUser();
@@ -346,6 +355,8 @@ export default function Payments() {
   const [message, setMessage] = useState("");
   const [validUntil, setValidUntil] = useState<string | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [promoCodeUsage, setPromoCodeUsage] = useState<PromoUsage>({});
 
   // Free delivery threshold state
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number>(0);
@@ -369,6 +380,39 @@ export default function Payments() {
   });
 
   const countries = getCountries();
+
+  useEffect(() => {
+    const fetchPromoUsage = async () => {
+      if (!user) return;
+      setFetching(true);
+      try {
+        const ordersRef = collection(firestore, `users/${user.uid}/orders`);
+        const q = query(ordersRef, orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+
+        // Dictionary for counting promoCode usage
+        const promoUsage: Record<string, number> = {};
+
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const code = data.promoCode?.trim().toLowerCase();
+          if (code) {
+            promoUsage[code] = (promoUsage[code] || 0) + 1;
+          }
+        });
+
+        console.log("Promo code usage counts:", promoUsage);
+        setPromoCodeUsage(promoUsage); // store in state if needed
+      } catch (err) {
+        console.error("Fehler beim Laden der PromoCodes:", err);
+        toast.error("PromoCode-Daten konnten nicht geladen werden");
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    if (user) fetchPromoUsage();
+  }, [user]);
 
   useEffect(() => {
     const fetchId = async () => {
@@ -402,15 +446,14 @@ export default function Payments() {
       return;
     }
 
+    // 1. Get promo codes from DB
     const promoCodes = await getPromoCodes();
     setPromoCodes(promoCodes);
+
+    // 2. Find the matched promo code
     const matchedPromo = promoCodes.find(
       (promo) => promo.code.toLowerCase() === enteredCode
     );
-
-    if (matchedPromo) {
-      setSelectedCode(enteredCode);
-    }
 
     if (!matchedPromo) {
       setMessage(
@@ -419,13 +462,45 @@ export default function Payments() {
       return;
     }
 
+    // 3. Normalize noOfTimes
+    let allowedCount: number;
+    if (
+      matchedPromo.noOfTimes === null ||
+      matchedPromo.noOfTimes === undefined ||
+      matchedPromo.noOfTimes === "" ||
+      matchedPromo.noOfTimes === "Infinity" ||
+      matchedPromo.noOfTimes === 0
+    ) {
+      allowedCount = Infinity;
+    } else {
+      allowedCount = Number(matchedPromo.noOfTimes);
+      if (isNaN(allowedCount) || allowedCount < 0) {
+        allowedCount = Infinity; // fallback if invalid
+      }
+    }
+
+    // 4. Check usage limit
+    const usedCount = promoCodeUsage?.[enteredCode] || 0; // times already used
+
+    if (usedCount >= allowedCount) {
+      setMessage(
+        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
+          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
+        }x erlaubt)`
+      );
+      setDiscount(0)
+      return;
+    }
+
+    setSelectedCode(enteredCode);
+
+    // 5. Check expiry date
     const today = normalizeDate(new Date());
     const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
 
     if (expiry >= today) {
       setDiscount(matchedPromo.discount);
 
-      // Adjust message depending on cart items
       if (hasNonFlashSale) {
         setMessage(
           `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`

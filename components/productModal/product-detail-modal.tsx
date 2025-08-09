@@ -27,6 +27,7 @@ export interface Product {
   productId: string;
   name: string;
   brand: string;
+  isFlashSale: boolean;
   category: string;
   subcategory: string;
   image: string;

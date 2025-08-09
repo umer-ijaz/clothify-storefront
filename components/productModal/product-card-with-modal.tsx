@@ -25,6 +25,7 @@ export interface Product {
   productId: string;
   name: string;
   brand: string;
+  isFlashSale: boolean;
   category: string;
   subcategory: string;
   image: string;
@@ -116,6 +117,7 @@ export default function ProductCardWithModal({ product }: ProductCardProps) {
       price: product.currentPrice,
       image: defaults.image,
       quantity: 1,
+      isFlashSale: product.isFlashSale,
       color: defaults.color,
       size: defaults.size,
     });

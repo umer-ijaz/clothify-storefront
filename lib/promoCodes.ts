@@ -10,6 +10,7 @@ export interface PromoCode {
   storeId: string;
   storeName: string;
   updatedAt?: any;
+  noOfTimes: number | string | null;
 }
 
 export async function getPromoCodes(): Promise<PromoCode[]> {
@@ -29,6 +30,7 @@ export async function getPromoCodes(): Promise<PromoCode[]> {
         storeId: data.storeId,
         storeName: data.storeName,
         updatedAt: data.updatedAt,
+        noOfTimes:data.noOfTimes,
       });
     });
 
