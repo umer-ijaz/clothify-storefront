@@ -1,6 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { use } from "react";
+import { useState, useEffect, useCallback, useRef, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
@@ -111,8 +110,6 @@ export default function ServiceDetailPage({
             ...docSnap.data(),
           } as Service;
           setService(serviceData);
-        } else {
-          console.log("No such service!");
         }
       } catch (error) {
         console.error("Error fetching service details:", error);

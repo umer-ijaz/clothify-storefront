@@ -40,7 +40,6 @@ async function fetchAndUpdateCategories(): Promise<Category[]> {
   }));
 
   saveToLocalStorage(categories);
-  console.log("Fetched from Firebase and updated localStorage:", categories);
   return categories;
 }
 

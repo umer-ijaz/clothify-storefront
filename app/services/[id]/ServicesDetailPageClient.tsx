@@ -46,8 +46,6 @@ export default function ServiceDetailPageClient({
 
           setService(serviceData);
           setSelectedImage(serviceData.mainImage);
-        } else {
-          console.log("No such service!");
         }
       } catch (error) {
         console.error("Error fetching service details:", error);

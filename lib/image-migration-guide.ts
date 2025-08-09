@@ -24,7 +24,7 @@
 //   width={800} 
 //   height={600}
 //   maxFileSize={300}  // Max 300KB to prevent crashes
-//   onError={() => console.log('Image failed to load')}
+//   onError={() => {}}
 // />
 
 export const ImageMigrationGuide = {

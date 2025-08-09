@@ -88,7 +88,6 @@ export async function getProductById(productId: string): Promise<Product> {
 
     // Check if product exists in products collection
     if (productSnapshot.exists()) {
-      console.log("Product found in 'products' collection");
       // Make sure we're returning a valid Product by using proper type assertion
       const productData = productSnapshot.data();
       return {
@@ -99,7 +98,6 @@ export async function getProductById(productId: string): Promise<Product> {
 
     // Check if product exists in flashSaleItems collection
     if (flashSaleSnapshot.exists()) {
-      console.log("Product found in 'flashSaleItems' collection");
       // Make sure we're returning a valid Product by using proper type assertion
       const flashSaleData = flashSaleSnapshot.data();
       return {

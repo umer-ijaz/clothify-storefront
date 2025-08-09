@@ -309,10 +309,8 @@ export default function PaymentModal({
   useEffect(() => {
     const fetchId = async () => {
       try {
-        console.log(user?.uid);
         const id = base62ToDecimal(user!.uid);
         setUniqueId(id);
-        console.log(id);
       } catch (error) {
         console.error("Failed to Convert Id:", error);
       }
@@ -323,7 +321,6 @@ export default function PaymentModal({
 
   useEffect(() => {
     if (uniqueId !== null) {
-      console.log("Updated uniqueId:", uniqueId);
     }
   }, [uniqueId]);
 
@@ -398,27 +395,15 @@ export default function PaymentModal({
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          console.log("Firebase deliveryWarranty data:", data);
 
           const freeDeliveryData = data.freeDelivery;
-          console.log("Free delivery data:", freeDeliveryData);
 
           if (freeDeliveryData && freeDeliveryData.threshold) {
             setFreeDeliveryThreshold(freeDeliveryData.threshold || 0);
             setFreeDeliveryDescription(
               freeDeliveryData.description || "Kostenlose Lieferung"
             );
-            console.log(
-              "Free delivery threshold set to:",
-              freeDeliveryData.threshold
-            );
-            console.log(
-              "Free delivery description set to:",
-              freeDeliveryData.description
-            );
           }
-        } else {
-          console.log("deliveryWarranty document does not exist");
         }
       } catch (error) {
         console.error("Error fetching free delivery data:", error);

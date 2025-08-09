@@ -61,7 +61,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         // Also store userData in cookies for persistence
         Cookies.set("userData", JSON.stringify(firestoreData), { expires: 7 });
       } else {
-        console.log("No user document found for this user");
         setUserData(null);
         Cookies.remove("userData");
       }

@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import {
   Elements,
-  PaymentElement,
+  PaymentElement, 
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
@@ -373,10 +373,8 @@ export default function Payments() {
   useEffect(() => {
     const fetchId = async () => {
       try {
-        console.log(user?.uid);
         const id = base62ToDecimal(user!.uid);
         setUniqueId(id);
-        console.log(id);
       } catch (error) {
         console.error("Failed to Convert Id:", error);
       }
@@ -447,12 +445,6 @@ export default function Payments() {
   };
 
   useEffect(() => {
-    if (uniqueId !== null) {
-      console.log("Updated uniqueId:", uniqueId);
-    }
-  }, [uniqueId]);
-
-  useEffect(() => {
     if (user && customerInfo.email === "") {
       setCustomerInfo((prev) => ({ ...prev, email: user.email || "" }));
     }
@@ -473,27 +465,16 @@ export default function Payments() {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          console.log("Firebase deliveryWarranty data:", data);
 
           const freeDeliveryData = data.freeDelivery;
-          console.log("Free delivery data:", freeDeliveryData);
 
           if (freeDeliveryData && freeDeliveryData.threshold) {
             setFreeDeliveryThreshold(freeDeliveryData.threshold || 0);
             setFreeDeliveryDescription(
               freeDeliveryData.description || "Kostenlose Lieferung"
             );
-            console.log(
-              "Free delivery threshold set to:",
-              freeDeliveryData.threshold
-            );
-            console.log(
-              "Free delivery description set to:",
-              freeDeliveryData.description
-            );
           }
         } else {
-          console.log("deliveryWarranty document does not exist");
         }
       } catch (error) {
         console.error("Error fetching free delivery data:", error);
@@ -697,35 +678,19 @@ export default function Payments() {
   };
 
   const validateInventoryAndCustomerInfo = async (): Promise<boolean> => {
-    console.log("🔍 VALIDATION STARTED");
-    console.log("👤 Customer info validation...");
-
     // First validate customer info
     if (!validateCustomerInfo()) {
-      console.log("❌ Customer info validation failed");
       return false;
     }
 
-    console.log("✅ Customer info validated");
-
     // Then validate inventory
     try {
-      console.log("📦 Starting inventory validation...");
-      console.log("🛒 Cart to validate:", cart);
-
       toast.loading("Lagerbestand wird überprüft...");
       const inventoryResult = await validateInventoryBeforeOrder(cart);
       toast.dismiss();
 
-      console.log("📊 Inventory validation result:", inventoryResult);
-
       if (!inventoryResult.success) {
-        console.log("❌ Inventory validation failed:", inventoryResult.errors);
         if (inventoryResult.outOfStockItems.length > 0) {
-          console.log(
-            "📋 Out of stock items:",
-            inventoryResult.outOfStockItems
-          );
           toast.error(
             `Einige Artikel sind nicht mehr auf Lager:\n${inventoryResult.outOfStockItems.join(
               "\n"
@@ -739,7 +704,6 @@ export default function Payments() {
         return false;
       }
 
-      console.log("✅ Inventory validation passed");
       return true;
     } catch (error) {
       toast.dismiss();
@@ -786,26 +750,17 @@ export default function Payments() {
   };
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
-    console.log("🎉 STRIPE PAYMENT SUCCESS - Starting order processing");
-    console.log("💳 Payment Intent ID:", paymentIntentId);
-    console.log("🛒 Current cart:", cart);
-
     if (!user) {
-      console.log("❌ No user found");
       toast.error("Benutzersitzung verloren. Bitte melden Sie sich erneut an.");
       return;
     }
 
-    console.log("👤 User authenticated:", user.uid);
     let inventoryUpdated = false;
 
     try {
       // Step 1: Update inventory first
-      console.log("📦 STEP 1: Starting inventory update...");
       toast.loading("Lagerbestand wird aktualisiert...");
       const inventoryResult = await updateProductInventory(cart);
-
-      console.log("📊 Inventory update result:", inventoryResult);
 
       if (!inventoryResult.success) {
         toast.dismiss();
@@ -818,12 +773,10 @@ export default function Payments() {
         return;
       }
 
-      console.log("✅ Inventory updated successfully!");
       inventoryUpdated = true;
       toast.dismiss();
 
       // Step 2: Create and save order
-      console.log("📋 STEP 2: Creating order...");
       toast.loading("Bestellung wird verarbeitet...");
       const order = createOrder({
         method: "Stripe",
@@ -831,13 +784,9 @@ export default function Payments() {
         status: "Completed",
       });
 
-      console.log("📄 Order created:", order);
-
       await addOrderToUserProfile(user.uid, order);
-      console.log("✅ Order saved to user profile");
 
       // Step 3: Clear cart and redirect
-      console.log("🧹 STEP 3: Clearing cart and redirecting...");
       clearCart();
       toast.dismiss();
       toast.success("Bestellung mit Stripe erfolgreich aufgegeben!");
@@ -859,12 +808,12 @@ export default function Payments() {
           console.error("Failed to revert inventory:", revertError);
           toast.dismiss();
           toast.error(
-            "Kritischer Fehler: Bestellung fehlgeschlagen und Lagerbestand konnte nicht wiederhergestellt werden. Bitte kontaktieren Sie sofort den Support."
+            "KRITISCHER FEHLER: Bestellung fehlgeschlagen UND Lagerbestand konnte nicht wiederhergestellt werden. Bitte kontaktieren Sie den Support."
           );
         }
       } else {
         toast.error(
-          "Fehler beim Abschließen der Bestellung nach der Zahlung. Bitte kontaktieren Sie den Support."
+          "Bestellung fehlgeschlagen. Bitte versuchen Sie es erneut."
         );
       }
     }
