@@ -24,6 +24,7 @@ interface ProductInfoProps {
     discount: number;
     stock: number;
     rating: number;
+    isFlashSale: boolean;
     reviewsCount: number;
     reviews: any[];
     sku: string;
@@ -130,6 +131,7 @@ export default function ProductInfo({
       color: selectedColor || "",
       size: selectedSize || "",
       stock: product.stock,
+      isFlashSale: product.isFlashSale,
     });
     toast.success("Produkt wurde zum Warenkorb hinzugefügt.");
   };
@@ -297,7 +299,9 @@ export default function ProductInfo({
         {/* Colors - Only show if variants exist */}
         {availableColors.length > 0 && (
           <div>
-            <p className="text-sm text-red-500 mb-2">Wählen Sie Farben aus, um relevante Fotos anzuzeigen</p>
+            <p className="text-sm text-red-500 mb-2">
+              Wählen Sie Farben aus, um relevante Fotos anzuzeigen
+            </p>
             <h3 className="text-xl font-semibold text-gray-800 mb-3">
               Farben{" "}
               {!selectedColor && (
@@ -424,6 +428,7 @@ export default function ProductInfo({
             quantity,
             name: product.name,
             price: product.currentPrice,
+            isFlashSale: product.isFlashSale,
             image: getProductImage(),
           },
         ]}

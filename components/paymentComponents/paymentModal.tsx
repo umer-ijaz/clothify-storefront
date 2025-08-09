@@ -243,6 +243,7 @@ interface ProductItem {
   image?: string;
   size?: string;
   color?: string;
+  isFlashSale: boolean;
 }
 
 interface PaymentModalProps {
@@ -336,6 +337,15 @@ export default function PaymentModal({
 
     const enteredCode = inputCode.trim().toLowerCase();
 
+    // Check flash sale condition
+    const allFlashSale = products.every((item) => item.isFlashSale === true);
+    const hasNonFlashSale = products.some((item) => item.isFlashSale === false);
+
+    if (allFlashSale) {
+      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
+      return;
+    }
+
     const promoCodes = await getPromoCodes();
     setPromoCodes(promoCodes);
     const matchedPromo = promoCodes.find(
@@ -358,9 +368,18 @@ export default function PaymentModal({
 
     if (expiry >= today) {
       setDiscount(matchedPromo.discount);
-      setMessage(
-        `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount} % Rabatt.`
-      );
+
+      // Adjust message depending on cart items
+      if (hasNonFlashSale) {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
+        );
+      } else {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
+        );
+      }
+
       setValidUntil(
         `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
       );
@@ -418,6 +437,10 @@ export default function PaymentModal({
     0
   );
 
+  const allnoflashtotal = products
+    .filter((item) => item.isFlashSale === false)
+    .reduce((acc, item) => acc + item.price * item.quantity, 0);
+
   // Check if cart qualifies for free delivery (only for standard delivery)
   const isEligibleForFreeDelivery =
     subtotal >= freeDeliveryThreshold && freeDeliveryThreshold > 0;
@@ -432,7 +455,8 @@ export default function PaymentModal({
       : 0;
 
   const tax = subtotal * (taxRate / 100);
-  const totalPrice = subtotal + tax + deliveryFee - (discount / 100) * subtotal;
+  const totalPrice =
+    subtotal + tax + deliveryFee - ((discount / 100) * allnoflashtotal);
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -994,19 +1018,26 @@ export default function PaymentModal({
                       key={item.id}
                       className="flex justify-between items-center"
                     >
-                      <div className="flex items-center gap-2">
-                        {item.image && (
-                          <div className="w-10 h-10 rounded overflow-hidden">
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              width={40}
-                              height={40}
-                              className="object-cover w-full h-full"
-                            />
-                          </div>
-                        )}
-                        <span>{item.name}</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          {item.image && (
+                            <div className="w-10 h-10 rounded overflow-hidden">
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                width={40}
+                                height={40}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                          )}
+                          <span>{item.name}</span>
+                        </div>
+                        <div className="text-xs text-red-500">
+                          {item.isFlashSale === true
+                            ? "Artikel gehört zu FlashSale."
+                            : null}
+                        </div>
                       </div>
                       <div>
                         <span className="text-emerald-500">
@@ -1031,13 +1062,16 @@ export default function PaymentModal({
                     <span className="font-medium"> €{tax.toFixed(2)}</span>
                   </div>
                   {promoCodes && (
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">
-                        PromoDiscount ({discount}%)
+                    <div className="flex justify-between">
+                      <span className="font-medium flex flex-col gap-1">
+                        <div>PromoDiscount ({discount}%)</div>
+                        <div className="bg-red-100 text-red-500 rounded-md w-full text-xs px-1 py-1">
+                          Aktionscodes sind nicht auf Flash-Produkte anwendbar.
+                        </div>
                       </span>
                       <span className="font-medium">
                         {" "}
-                        €{((discount / 100) * subtotal).toFixed(2)}
+                        €{((discount / 100) * allnoflashtotal).toFixed(2)}
                       </span>
                     </div>
                   )}

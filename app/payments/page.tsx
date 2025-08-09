@@ -395,6 +395,15 @@ export default function Payments() {
 
     const enteredCode = inputCode.trim().toLowerCase();
 
+    // Check flash sale condition
+    const allFlashSale = cart.every((item) => item.isFlashSale === true);
+    const hasNonFlashSale = cart.some((item) => item.isFlashSale === false);
+
+    if (allFlashSale) {
+      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
+      return;
+    }
+
     const promoCodes = await getPromoCodes();
     setPromoCodes(promoCodes);
     const matchedPromo = promoCodes.find(
@@ -417,10 +426,21 @@ export default function Payments() {
 
     if (expiry >= today) {
       setDiscount(matchedPromo.discount);
-      setMessage(
-        `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount} % Rabatt.`
+
+      // Adjust message depending on cart items
+      if (hasNonFlashSale) {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
+        );
+      } else {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
+        );
+      }
+
+      setValidUntil(
+        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
       );
-      setValidUntil(`📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`);
     } else {
       setMessage("⚠️ Der Aktionscode ist abgelaufen.");
     }
@@ -489,6 +509,10 @@ export default function Payments() {
     return null;
   }
 
+  const allnoflashtotal = cart
+    .filter((item) => item.isFlashSale === false)
+    .reduce((acc, item) => acc + item.price * item.quantity, 0);
+
   const subtotal = cart.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -508,7 +532,8 @@ export default function Payments() {
       : 0;
 
   const tax = subtotal * (taxRate / 100);
-  const totalPrice = subtotal + tax + deliveryFee - ((discount / 100) * subtotal);
+  const totalPrice =
+    subtotal + tax + deliveryFee - (discount / 100) * allnoflashtotal;
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -1327,7 +1352,27 @@ export default function Payments() {
                     key={item.id}
                     className="flex justify-between items-center"
                   >
-                    <span>{item.name}</span>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        {item.image && (
+                          <div className="w-10 h-10 rounded overflow-hidden">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              width={40}
+                              height={40}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        )}
+                        <span>{item.name}</span>
+                      </div>
+                      <div className="text-xs text-red-500">
+                        {item.isFlashSale === true
+                          ? "Artikel gehört zu FlashSale."
+                          : null}
+                      </div>
+                    </div>
                     <div>
                       <span className="text-emerald-500"> €{item.price}</span> x{" "}
                       <span className="text-emerald-500">{item.quantity}</span>
@@ -1343,13 +1388,16 @@ export default function Payments() {
                   <span className="font-medium"> €{tax.toFixed(2)}</span>
                 </div>
                 {promoCodes && (
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">
-                      PromoDiscount ({discount}%)
+                  <div className="flex justify-between">
+                    <span className="font-medium flex flex-col gap-1">
+                      <div>PromoDiscount ({discount}%)</div>
+                      <div className="bg-red-100 text-red-500 rounded-md w-full text-xs px-1 py-1">
+                        Aktionscodes sind nicht auf Flash-Produkte anwendbar.
+                      </div>
                     </span>
                     <span className="font-medium">
                       {" "}
-                      €{((discount / 100) * subtotal).toFixed(2)}
+                      €{((discount / 100) * allnoflashtotal).toFixed(2)}
                     </span>
                   </div>
                 )}

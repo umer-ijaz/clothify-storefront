@@ -7,13 +7,14 @@ interface CartItem {
   color?: string;
   size?: string;
   stock?: number;
+  isFlashSale: boolean;
 }
 
 interface CartState {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeFromCart: (id: string, isFlashSale: boolean) => void; // updated
+  updateQuantity: (id: string, isFlashSale: boolean, quantity: number) => void; // updated
   getCartCount: () => number;
   clearCart: () => void;
 }

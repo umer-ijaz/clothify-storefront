@@ -17,7 +17,8 @@ export const useCartStore = create<CartState>()(
             (cartItem) =>
               cartItem.id === item.id &&
               cartItem.color === item.color &&
-              cartItem.size === item.size
+              cartItem.size === item.size &&
+              cartItem.isFlashSale === item.isFlashSale // also check flash sale status
           );
 
           if (existingItem) {
@@ -28,7 +29,8 @@ export const useCartStore = create<CartState>()(
               cart: state.cart.map((cartItem) =>
                 cartItem.id === item.id &&
                 cartItem.color === item.color &&
-                cartItem.size === item.size
+                cartItem.size === item.size &&
+                cartItem.isFlashSale === item.isFlashSale
                   ? {
                       ...cartItem,
                       quantity:
@@ -48,23 +50,26 @@ export const useCartStore = create<CartState>()(
                   item.stock !== undefined && item.quantity > item.stock
                     ? item.stock
                     : item.quantity,
+                isFlashSale: !!item.isFlashSale, // ensure we store boolean
               },
             ],
           };
         });
       },
 
-      removeFromCart: (id) => {
+      removeFromCart: (id, isFlashSale) => {
         set((state) => ({
-          cart: state.cart.filter((item) => item.id !== id),
+          cart: state.cart.filter(
+            (item) => !(item.id === id && item.isFlashSale === isFlashSale)
+          ),
         }));
       },
 
-      updateQuantity: (id, quantity) => {
+      updateQuantity: (id, isFlashSale, quantity) => {
         set((state) => ({
           cart: state.cart.map((item) => {
             const maxStock = item.stock ?? Infinity;
-            return item.id === id
+            return item.id === id && item.isFlashSale === isFlashSale
               ? {
                   ...item,
                   quantity: quantity > maxStock ? maxStock : quantity,
@@ -104,7 +109,6 @@ const checkCartExpiration = () => {
   }
 };
 
-// Set cart expiration when the cart is modified
 const setCartExpiry = () => {
   if (typeof window !== "undefined") {
     sessionStorage.setItem(
@@ -114,7 +118,6 @@ const setCartExpiry = () => {
   }
 };
 
-// Subscribe to cart changes to update expiration
 if (typeof window !== "undefined") {
   checkCartExpiration();
   useCartStore.subscribe((state) => {
