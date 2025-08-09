@@ -32,6 +32,7 @@ interface OrderItem {
   quantity: number;
   price: number;
   image?: string;
+  isFlashSale: boolean;
 }
 
 interface Order {
@@ -53,6 +54,7 @@ interface Order {
   subtotal: number;
   promoCode: string | null;
   promoDiscount: number | 0;
+  promoCost: number | 0;
   tax: number;
   deliveryFee: number;
   total: number;
@@ -172,6 +174,7 @@ export default function OrdersPage() {
             subtotal: data.subtotal || 0,
             promoCode: data.promoCode,
             promoDiscount: data.promoDiscount || 0,
+            promoCost: data.promoCost || 0,
             tax: data.tax || 0,
             deliveryFee: data.deliveryFee || 0,
             paymentMethod:
@@ -662,7 +665,7 @@ export default function OrdersPage() {
                                   </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 mt-2">
+                                <div className="flex flex-wrap gap-2 mt-2 justify-end">
                                   {(order.status === "Delivered" ||
                                     order.status === "Shipped" ||
                                     order.status === "Ready to Pick Up" ||
@@ -712,6 +715,17 @@ export default function OrdersPage() {
                           <div className="flex justify-between">
                             <span>Steuern:</span>
                             <span>€{order.tax.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="flex flex-col gap-1">
+                              <div>PromoDiscount ({order.promoDiscount}%):</div>
+                              <div className="text-xs text-red-500 bg-red-100 px-1 py-1 rounded-md">
+                                PromoDiscount gilt nur für normale Produkte.
+                              </div>
+                            </span>
+                            <span className="text-red-500 font-bold">
+                              -{order.promoCost}
+                            </span>
                           </div>
                           <div className="flex justify-between font-semibold text-lg border-t pt-2">
                             <span>Gesamt:</span>
@@ -797,6 +811,9 @@ export default function OrdersPage() {
             createdAt: selectedOrder.createdAt,
             status: selectedOrder.status,
             invoice: selectedOrder.invoice,
+            promoCode: selectedOrder.promoCode,
+            promoCost: selectedOrder.promoCost,
+            promoDiscount: selectedOrder.promoDiscount,
           }}
         />
       )}

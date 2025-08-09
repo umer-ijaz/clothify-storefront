@@ -89,7 +89,7 @@ const Hero = () => {
           {heroData.loading ? (
             <div className="animate-pulse h-6 md:h-10 w-3/5 bg-gray-200 rounded mb-8 mt-5"></div>
           ) : (
-            <p className="text-md md:text-lg text-gray-700 transition-all duration-300 hover:text-gray-900 mb-10">
+            <p className="text-md md:text-lg text-red-600 transition-all duration-300 mb-10">
               {heroData.subtitle}
             </p>
           )}

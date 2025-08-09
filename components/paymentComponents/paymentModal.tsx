@@ -516,6 +516,7 @@ export default function PaymentModal({
   const tax = subtotal * (taxRate / 100);
   const totalPrice =
     subtotal + tax + deliveryFee - (discount / 100) * allnoflashtotal;
+  const discountCost = (discount / 100) * allnoflashtotal;
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -654,11 +655,13 @@ export default function PaymentModal({
         image: item.image || "",
         size: item.size,
         color: item.color,
+        isFlashSale: item.isFlashSale,
       })),
       total: totalPrice,
       subtotal: subtotal,
       promoCode: selectedCode,
       promoDiscount: discount,
+      promoCost: discountCost,
       tax: tax,
       deliveryFee: deliveryFee,
       customerInfo: {

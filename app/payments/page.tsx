@@ -488,7 +488,7 @@ export default function Payments() {
           allowedCount === Infinity ? "Unbegrenzt" : allowedCount
         }x erlaubt)`
       );
-      setDiscount(0)
+      setDiscount(0);
       return;
     }
 
@@ -590,6 +590,7 @@ export default function Payments() {
   const tax = subtotal * (taxRate / 100);
   const totalPrice =
     subtotal + tax + deliveryFee - (discount / 100) * allnoflashtotal;
+  const discountCost = (discount / 100) * allnoflashtotal;
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -623,10 +624,12 @@ export default function Payments() {
         image: item.image || "",
         size: item.size,
         color: item.color,
+        isFlashSale: item.isFlashSale,
       })),
       total: totalPrice,
       promoCode: selectedCode,
       promoDiscount: discount,
+      promoCost: discountCost,
       subtotal: subtotal,
       tax: tax,
       deliveryFee: deliveryFee,

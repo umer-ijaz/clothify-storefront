@@ -1,11 +1,5 @@
 import { firestore } from "@/lib/firebaseConfig";
-import {
-  collection,
-  addDoc,
-  doc,
-  getDoc,
-  getDocs,
-} from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, getDocs } from "firebase/firestore";
 
 export interface Order {
   items: Array<{
@@ -16,11 +10,13 @@ export interface Order {
     image: string;
     size?: string;
     color?: string;
+    isFlashSale: boolean;
   }>;
   total: number;
   subtotal: number;
   promoCode: string | null;
   promoDiscount: number | 0;
+  promoCost: number | 0;
   tax: number;
   deliveryFee: number;
   customerInfo: {

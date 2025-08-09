@@ -26,6 +26,9 @@ interface InvoiceModalProps {
       accessCodes?: string;
     };
     subtotal: number;
+    promoCode: string | null;
+    promoDiscount: number | 0;
+    promoCost: number | 0;
     tax: number;
     deliveryFee: number;
     total: number;
@@ -315,7 +318,14 @@ export default function InvoiceModal({
         align: "right",
       });
       doc.text("Versand:", labelX, (lineY += 6), { align: "right" });
-
+      doc.text(
+        `promoDiscount (${orderData.promoDiscount})%:`,
+        labelX,
+        (lineY += 6),
+        {
+          align: "right",
+        }
+      );
       doc.setFont("helvetica", "bold");
       doc.setTextColor(60, 60, 60);
       lineY = currentY + 10;
@@ -328,7 +338,9 @@ export default function InvoiceModal({
       doc.text(`€${orderData.deliveryFee.toFixed(2)}`, valueX, (lineY += 6), {
         align: "right",
       });
-
+      doc.text(`-€${orderData.promoCost}`, valueX, (lineY += 6), {
+        align: "right",
+      });
       doc.setDrawColor(220, 38, 38);
       doc.line(summaryX, currentY + 40, summaryX + summaryWidth, currentY + 40);
 
