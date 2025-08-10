@@ -90,7 +90,7 @@ export default function ProductsPage() {
   }, [category, searchTerm, sortFilter, products]);
 
   return (
-    <div>
+    <section className="h-auto w-full">
       {isLoading && (!products || products.length === 0) ? null : (
         <div className="mt-5">
           <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
@@ -123,6 +123,6 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

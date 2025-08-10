@@ -46,7 +46,7 @@ export default function HomeServices() {
   );
 
   return (
-    <section className="py-12">
+    <section className="py-12 w-full h-auto">
       <TextBox text="Dienstleistungen" />
       <ShippingPartners images={shippingPartnersImages} />
 
@@ -85,6 +85,7 @@ export default function HomeServices() {
                           sizes="(max-width: 768px) 50px, 56px"
                           alt={service.name}
                           className="object-contain"
+                          loading="lazy"
                         />
                       </div>
                       <span className="text-gray-300 text-4xl md:text-5xl font-extrabold">
@@ -92,7 +93,8 @@ export default function HomeServices() {
                       </span>
                     </div>
                     <h3 className="text-lg md:text-xl font-semibold mt-3 heading">
-                      {formatName(service.name)}
+                      {service.name.charAt(0).toUpperCase() +
+                        service.name.slice(1).toLowerCase()}
                     </h3>
                     <p className="text-gray-600 text-sm md:text-base mt-2 body">
                       {service.content}

@@ -92,7 +92,7 @@ export default function MobileSearch() {
   }, []);
 
   return (
-    <div className="block md:hidden py-4 px-4 bg-white shadow-sm">
+    <section className="block md:hidden py-4 px-4 bg-white shadow-sm">
       <form className="w-full" onSubmit={handleSearchSubmit}>
         <div className="relative w-full" ref={searchRef}>
           <div className="flex items-center rounded-full">
@@ -166,6 +166,6 @@ export default function MobileSearch() {
           )}
         </div>
       </form>
-    </div>
+    </section>
   );
 }

@@ -73,7 +73,7 @@ export default function AnnouncementPage() {
   };
 
   return (
-    <div className="">
+    <section>
       {/* Notification Button */}
       <div className="fixed top-60 right-6 z-[1000]">
         <button
@@ -111,6 +111,6 @@ export default function AnnouncementPage() {
         announcement={announcement}
         loading={loading}
       />
-    </div>
+    </section>
   );
 }

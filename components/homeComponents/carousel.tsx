@@ -33,7 +33,7 @@ const Carousel: React.FC = () => {
 
         // Step 3: Format data
         const formattedData = data.map(
-          (item: { id: string; url?: string ; title?: string}) => ({
+          (item: { id: string; url?: string; title?: string }) => ({
             id: item.id,
             url: item.url || "",
             title: item.title || "", // fallback if URL is missing
@@ -97,9 +97,9 @@ const Carousel: React.FC = () => {
                 alt={"Carousel Image"}
                 width={800}
                 height={600}
+                loading="lazy"
                 className="w-full h-full object-contain cursor-pointer"
                 onClick={() => router.push(`/product/${item.title}`)}
-                priority
               />
             </div>
           </div>

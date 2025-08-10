@@ -75,7 +75,7 @@ export default function RootLayout({
           <ClearCategoriesClient />
           <TopBar />
           <Navbar />
-          <MobileSearch/>
+          <MobileSearch />
           <AnnouncementPage />
           <Suspense fallback={<Loading />}>{children}</Suspense>
           <Footer />

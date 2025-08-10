@@ -236,7 +236,7 @@ input[type="search"]::-webkit-search-results-decoration {
 /* Body text */
 .body {
   font-family: var(--font-sans);
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* Luxury headings (serif) */

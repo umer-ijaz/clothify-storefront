@@ -152,7 +152,7 @@ export default function Navbar() {
     setInputValue(suggestion);
     setIsOpen(false);
     router.push(`/search?query=${encodeURIComponent(suggestion)}`);
-    setInputValue("")
+    setInputValue("");
   };
 
   // Mobile category toggle
@@ -305,9 +305,9 @@ export default function Navbar() {
   };
 
   return (
-    <div
+    <section
       className={cn(
-        "flex items-center py-4 gap-3 md:gap-3 w-full px-4 md:px-6 lg:px-8 transition-all duration-300 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] sticky top-0 left-0 right-0 z-50",
+        "flex items-center py-4 gap-3 md:gap-3 w-full px-4 md:px-6 lg:px-8 transition-all duration-300 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] sticky top-0 left-0 right-0 z-50 h-auto",
         !isNavbarVisible ? "-translate-y-full" : "translate-y-0"
       )}
     >
@@ -337,11 +337,11 @@ export default function Navbar() {
                 <Link href="/" className="flex justify-center">
                   <div className="h-[60px] w-[60px] relative">
                     <Image
-                      src="/logo.png?height=150&width=150"
+                      src="/logo.webp?height=150&width=150"
                       alt="logo"
                       fill
                       className="cursor-pointer object-contain"
-                      priority
+                      loading="lazy"
                     />
                   </div>
                 </Link>
@@ -514,11 +514,11 @@ export default function Navbar() {
       >
         <div className="h-[50px] w-[50px] md:h-[70px] md:w-[70px] relative">
           <Image
-            src="/logo.png?height=110&width=110"
+            src="/logo.webp?height=110&width=110"
             alt="logo"
             fill
             className="cursor-pointer object-contain"
-            priority
+            loading="lazy"
           />
         </div>
       </Link>
@@ -846,7 +846,9 @@ export default function Navbar() {
                 align="end"
                 className="w-48 md:w-56 bg-white"
               >
-                <DropdownMenuLabel className="subheading">Mein Konto</DropdownMenuLabel>
+                <DropdownMenuLabel className="subheading">
+                  Mein Konto
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link
@@ -892,6 +894,6 @@ export default function Navbar() {
         </Link>
       </div>
       <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </div>
+    </section>
   );
 }

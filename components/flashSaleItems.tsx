@@ -79,7 +79,7 @@ const FlashSaleCarousel = () => {
   };
 
   return (
-    <div className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10">
+    <section className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10 h-auto">
       {loading && (!products || products.length === 0) ? null : (
         <div>
           <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
@@ -159,7 +159,7 @@ const FlashSaleCarousel = () => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

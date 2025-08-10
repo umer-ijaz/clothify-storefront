@@ -32,7 +32,7 @@ const Hero = () => {
   }
 
   return (
-    <div className="w-full h-1/2 md:h-auto flex">
+    <section className="w-full h-1/2 md:h-auto flex">
       <div className="w-full h-full flex flex-col md:flex-row justify-center items-center">
         <div className="w-full md:w-1/2 h-full flex flex-col justify-center items-center md:items-start text-center md:text-left px-8 py-8">
           <h1 className="heading-luxury-title text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold bg-clip-text leading-tight bg-gradient-to-r text-transparent from-[#EB1E24] via-[#F05021] to-[#F8A51B] transition-all duration-300 hover:text-opacity-80 mb-6">
@@ -49,7 +49,7 @@ const Hero = () => {
           <Carousel />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -5,9 +5,8 @@ import ProductsPage from "@/components/homeComponents/homePage-products";
 import Hero from "@/components/homeComponents/mainHero";
 
 export default function Home() {
-  
   return (
-    <main className="width-full overflow-hidden">
+    <main className="width-full overflow-hidden h-full">
       <Hero />
       <FlashSaleItems />
       <ProductsPage />
@@ -15,4 +14,3 @@ export default function Home() {
     </main>
   );
 }
-

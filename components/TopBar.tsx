@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,44 +12,74 @@ const TopBar: React.FC = () => {
 
   useEffect(() => {
     const getServices = async () => {
-      const data = await fetchServices(2); // limit to 2
-      setServices(data);
+      try {
+        const data = await fetchServices(2); // Limit to 2
+        setServices(data || []);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
     };
-
     getServices();
   }, []);
 
+  if (!services.length) return null;
+
   return (
-    <div className="py-3 px-6 flex flex-col md:flex-row justify-between items-center shadow-xl gap-4">
-      {services.map((service) => (
-        <div
+    <section
+      className="py-3 px-6 flex flex-col md:flex-row justify-between items-center shadow-xl gap-4 h-auto"
+      aria-label="Top services"
+    >
+      {services.map((service, index) => (
+        <article
           key={service.id}
           className="flex items-center space-x-4 w-full md:w-1/2"
         >
           <Image
             src={service.mainImage}
-            alt={service.name}
+            alt={`Bild von ${service.name}`}
             width={50}
             height={50}
+            priority={index === 0} // first one is above fold
+            loading={index === 0 ? "eager" : "lazy"}
             className="rounded-md object-cover"
           />
           <div>
-            <h4 className="font-semibold text-gray-800 heading-luxury">
+            <h2 className="font-semibold text-gray-800 heading-luxury text-base">
               {formatName(service.name)}
-            </h4>
-            <p className="hidden md:block md:h-[40px] line-clamp-0 text-sm text-gray-600 overflow-hidden body">
+            </h2>
+            <p className="hidden md:block md:h-[40px] text-sm text-gray-600 overflow-hidden body">
               {service.details}
             </p>
             <Link
               href={`/services/${service.id}`}
               className="text-blue-600 text-sm hover:underline body"
+              aria-label={`Mehr Informationen über ${service.name}`}
             >
-              Mehr lesen
+              Mehr über {service.name} lesen
             </Link>
           </div>
-        </div>
+        </article>
       ))}
-    </div>
+
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            itemListElement: services.map((service, i) => ({
+              "@type": "Service",
+              name: service.name,
+              description: service.details,
+              image: service.mainImage,
+              position: i + 1,
+              url: `${process.env.NEXT_PUBLIC_SITE_URL}/services/${service.id}`,
+            })),
+          }),
+        }}
+      />
+    </section>
   );
 };
 

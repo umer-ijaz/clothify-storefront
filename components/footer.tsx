@@ -45,17 +45,18 @@ export default function Footer() {
   );
 
   return (
-    <footer className="bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white py-12">
+    <footer className="bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white py-12 w-full h-auto">
       <div className="max-w-full border-b-white border-b-[1px] pb-5">
         {/* Left Section - Brand */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-10 relative pl-6 md:pl-0">
           {/* Logo and Description */}
           <div className="max-w-full md:max-w-xs text-center md:text-left pl-6 pr-6 md:pr-0">
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="Brand Logo"
               width={100}
               height={100}
+              loading="lazy"
               className="w-30 h-25 mx-auto md:mx-0 border p-2"
             />
             <p className="mt-4 text-sm heading-luxury">
@@ -104,7 +105,9 @@ export default function Footer() {
             {/* Contact Info */}
             <div className="flex flex-col space-y-4">
               <div>
-                <h3 className="font-bold text-lg mb-3 heading">Informationen</h3>
+                <h3 className="font-bold text-lg mb-3 heading">
+                  Informationen
+                </h3>
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
                     <Mail className="w-5 h-5" />
@@ -153,7 +156,9 @@ export default function Footer() {
             </div>
             {/* Payment Methods */}
             <div className="flex flex-col items-center md:items-start gap-2">
-              <h3 className="font-bold text-lg mb-2 heaidng">Zahlungsmethoden</h3>
+              <h3 className="font-bold text-lg mb-2 heaidng">
+                Zahlungsmethoden
+              </h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link
                   href="/payment-methods-details/paypal"
@@ -224,7 +229,7 @@ export default function Footer() {
               className="p-2 border rounded-full bg-white"
               target="_blank"
             >
-             <SiTiktok className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
+              <SiTiktok className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
             </a>
           </div>
         }
