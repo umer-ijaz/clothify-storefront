@@ -491,8 +491,13 @@ export default function PaymentModal({
 
   const tax = subtotal * (taxRate / 100);
   const totalPrice =
-    subtotal + tax + deliveryFee - (discount / 100) * allnoflashtotal;
-  const discountCost = (discount / 100) * allnoflashtotal;
+    subtotal +
+    tax +
+    deliveryFee -
+    parseFloat(((discount / 100) * allnoflashtotal).toFixed(2));
+  const discountCost = parseFloat(
+    ((discount / 100) * allnoflashtotal).toFixed(2)
+  );
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -1109,7 +1114,10 @@ export default function PaymentModal({
                       </span>
                       <span className="font-medium">
                         {" "}
-                        €{((discount / 100) * allnoflashtotal).toFixed(2)}
+                        €
+                        {parseFloat(
+                          ((discount / 100) * allnoflashtotal).toFixed(2)
+                        )}
                       </span>
                     </div>
                   )}
