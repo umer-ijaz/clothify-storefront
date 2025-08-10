@@ -58,7 +58,7 @@ export default function Footer() {
               height={100}
               className="w-30 h-25 mx-auto md:mx-0 border p-2"
             />
-            <p className="mt-4 text-sm">
+            <p className="mt-4 text-sm heading-luxury">
               „Trage Selbstvertrauen, beherrsche den Moment. Mode, die spricht,
               bevor du es tust!“
               <br />
@@ -71,7 +71,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row gap-10">
             {/* Quick Links */}
             <div>
-              <h3 className="font-bold text-lg mb-3">Direktlinks</h3>
+              <h3 className="font-bold text-lg mb-3 heading">Direktlinks</h3>
               <ul className="space-y-2">
                 <li>
                   <Link href="/" className="hover:underline">
@@ -104,7 +104,7 @@ export default function Footer() {
             {/* Contact Info */}
             <div className="flex flex-col space-y-4">
               <div>
-                <h3 className="font-bold text-lg mb-3">Informationen</h3>
+                <h3 className="font-bold text-lg mb-3 heading">Informationen</h3>
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
                     <Mail className="w-5 h-5" />
@@ -121,7 +121,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-3">Impressum</h3>
+                <h3 className="font-bold text-lg mb-3 heading">Impressum</h3>
                 <ul className="space-y-2">
                   <Link href="/impression" className="hover:underline">
                     Impressum
@@ -135,14 +135,14 @@ export default function Footer() {
           <div className="Shipping_Methods flex flex-col items-start md:items-start gap-10">
             {/* Shipping Methods */}
             <div className="flex flex-col items-center md:items-start gap-4">
-              <h3 className="font-bold text-lg mb-3">Versandarten</h3>
+              <h3 className="font-bold text-lg mb-3 heading">Versandarten</h3>
               <div className="flex flex-col-reverse justify-start gap-4">
                 <Image src="/DHL-photo.png" alt="DPD" width={100} height={50} />
                 <Image src="/DPD-Photo.png" alt="DHL" width={80} height={30} />
               </div>
             </div>
             <div className="flex flex-col items-start md:items-start gap-2">
-              <h3 className="font-bold text-lg mb-2">
+              <h3 className="font-bold text-lg mb-2 heading">
                 Allgemeine Geschäftsbedingungen
               </h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
@@ -153,7 +153,7 @@ export default function Footer() {
             </div>
             {/* Payment Methods */}
             <div className="flex flex-col items-center md:items-start gap-2">
-              <h3 className="font-bold text-lg mb-2">Zahlungsmethoden</h3>
+              <h3 className="font-bold text-lg mb-2 heaidng">Zahlungsmethoden</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link
                   href="/payment-methods-details/paypal"
@@ -172,7 +172,7 @@ export default function Footer() {
 
             {/* Invoice Methods */}
             <div className="flex flex-col items-start md:items-start gap-2">
-              <h3 className="font-bold text-lg mb-2">Rechnungsarten</h3>
+              <h3 className="font-bold text-lg mb-2 heading">Rechnungsarten</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
                 <Link href="/invoice" className="hover:underline">
                   Rechnungskauf

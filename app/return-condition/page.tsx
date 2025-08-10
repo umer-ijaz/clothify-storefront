@@ -2,51 +2,41 @@
 
 import { useState, useEffect } from "react";
 import TextField from "@/components/text-field";
-import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "@/lib/firebaseConfig";
+import { fetchReturnPolicyPeriod } from "@/lib/returnCondition";
 
 export default function ReturnCondition() {
   const [returnPeriod, setReturnPeriod] = useState<number>(14); // Default value
   const [lastUpdated, setLastUpdated] = useState<string>("");
 
   useEffect(() => {
-    const fetchReturnPolicy = async () => {
+    const loadReturnPolicy = async () => {
       try {
-        const docRef = doc(firestore, "settings", "deliveryWarranty");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.returnPolicy && data.returnPolicy.period) {
-            setReturnPeriod(data.returnPolicy.period);
-          }
+        const period = await fetchReturnPolicyPeriod();
+        if (period) {
+          setReturnPeriod(period);
         }
       } catch (error) {
-        console.error("Error fetching return policy:", error);
+        console.error(error);
       }
     };
 
-    fetchReturnPolicy();
-    // Set last updated date to today
+    loadReturnPolicy();
     const today = new Date();
-    const day = String(today.getDate()).padStart(2, "0");
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const year = today.getFullYear();
-    setLastUpdated(`${day}-${month}-${year}`);
+    const formattedDate = today.toLocaleDateString("en-GB").replace(/\//g, "-");
+    setLastUpdated(formattedDate);
   }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 text-gray-800 mt-5 mb-5 shadow-md rounded-md pl-10">
       <TextField text={"Return & Exchange"} />
-      <p className="text-sm text-gray-500 mb-8">
-        Last updated: {lastUpdated}
-      </p>
+      <p className="text-sm text-gray-500 mb-8">Last updated: {lastUpdated}</p>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">1. Returns & Exchanges</h2>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            You may return or exchange any Artikel sold by Daniel’s Believe within{" "}
-            <strong>{returnPeriod} days</strong> of delivery.
+            You may return or exchange any Artikel sold by Daniel’s Believe
+            within <strong>{returnPeriod} days</strong> of delivery.
           </li>
           <li>
             Items must be in new, unused, and unwashed condition, in their
@@ -119,8 +109,8 @@ export default function ReturnCondition() {
         <ul className="list-disc pl-5 space-y-1">
           <li>We offer full refunds to your original payment method.</li>
           <li>
-            Refunds are processed within <strong>3 business days</strong> once we’ve received and
-            inspect the return.
+            Refunds are processed within <strong>3 business days</strong> once
+            we’ve received and inspect the return.
           </li>
           <li>
             Customer will have the refund amount into original payment method
@@ -135,8 +125,8 @@ export default function ReturnCondition() {
         </h2>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            Contact us via email within <strong>7 days</strong> of delivery to report damage or
-            errors, preferably with photos.
+            Contact us via email within <strong>7 days</strong> of delivery to
+            report damage or errors, preferably with photos.
           </li>
           <li>
             We will cover return shipping and offer a replacement or full
@@ -172,7 +162,8 @@ export default function ReturnCondition() {
           <a href="mailto:Info@danielsbelieve.de" className="text-blue-600">
             Info@danielsbelieve.de
           </a>{" "}
-          or call <strong>+49 1522 3815822</strong>. We aim to respond within <strong>24 hours</strong>.
+          or call <strong>+49 1522 3815822</strong>. We aim to respond within{" "}
+          <strong>24 hours</strong>.
         </p>
       </section>
     </div>

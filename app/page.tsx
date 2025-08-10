@@ -12,7 +12,6 @@ export default function Home() {
       <FlashSaleItems />
       <ProductsPage />
       <HomeServices />
-      {/* <CustomerReviews reviews={reviews} /> */}
     </main>
   );
 }

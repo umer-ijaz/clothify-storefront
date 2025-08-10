@@ -44,25 +44,12 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
+import { CustomerInfo } from "@/interfaces/customerInfo";
+import { fetchPromoUsage } from "@/lib/promoDataforUser";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
-
-interface CustomerInfo {
-  country: string;
-  fullName: string;
-  companyName: string;
-  phone: string;
-  streetAddress: string;
-  additionalAddress: string;
-  postcode: string;
-  townCity: string;
-  email: string;
-  deliveryPreferences: string;
-  deliveryNotes: string;
-  accessCodes: string;
-}
 
 const StripeCheckoutForm = ({
   clientSecret,
@@ -382,27 +369,12 @@ export default function Payments() {
   const countries = getCountries();
 
   useEffect(() => {
-    const fetchPromoUsage = async () => {
+    const loadPromoUsage = async () => {
       if (!user) return;
       setFetching(true);
       try {
-        const ordersRef = collection(firestore, `users/${user.uid}/orders`);
-        const q = query(ordersRef, orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-
-        // Dictionary for counting promoCode usage
-        const promoUsage: Record<string, number> = {};
-
-        snapshot.docs.forEach((doc) => {
-          const data = doc.data();
-          const code = data.promoCode?.trim().toLowerCase();
-          if (code) {
-            promoUsage[code] = (promoUsage[code] || 0) + 1;
-          }
-        });
-
-        console.log("Promo code usage counts:", promoUsage);
-        setPromoCodeUsage(promoUsage); // store in state if needed
+        const usage = await fetchPromoUsage(user.uid);
+        setPromoCodeUsage(usage);
       } catch (err) {
         console.error("Fehler beim Laden der PromoCodes:", err);
         toast.error("PromoCode-Daten konnten nicht geladen werden");
@@ -411,7 +383,7 @@ export default function Payments() {
       }
     };
 
-    if (user) fetchPromoUsage();
+    loadPromoUsage();
   }, [user]);
 
   useEffect(() => {
@@ -1097,11 +1069,14 @@ export default function Payments() {
         <nav className="py-8 flex items-center mb-4 text-md md:text-xl font-small capitalize gap-1 md:gap-1 px-4 sm:px-6 md:px-8 lg:px-12">
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
-          <Link href={"/cart"} className="text-gray-400 hover:text-gray-700">
+          <Link
+            href={"/cart"}
+            className="text-gray-400 hover:text-gray-700 subheading"
+          >
             Warenkorb
           </Link>
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500">Zahlung</span>
+          <span className="text-red-500 subheading">Zahlung</span>
         </nav>
         <TextField text={"Zahlung"} />
         <div className="grid md:grid-cols-5 gap-8 px-2 sm:px-4 md:px-8 lg:px-12">

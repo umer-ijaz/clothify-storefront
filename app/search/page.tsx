@@ -14,7 +14,7 @@ export default function SearchPage({
   searchParams: Promise<SearchParams>;
 }) {
   const resolvedParams = use(searchParams);
-  
+
   const query = resolvedParams.query || "";
   const page = Number.parseInt(resolvedParams.page || "1", 10);
 

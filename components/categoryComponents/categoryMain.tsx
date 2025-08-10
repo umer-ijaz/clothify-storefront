@@ -8,7 +8,8 @@ import TextField from "../text-field";
 import { useEffect, useState } from "react";
 import { getFlashProducts, getProducts } from "@/lib/products";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
-import Loading from "./loading";
+import formatName from "@/lib/formatNames";
+import Loading from "@/app/loading";
 
 export default function CategoryPage({
   params,
@@ -116,19 +117,21 @@ export default function CategoryPage({
         <div className="px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="text-gray-400">/</span>
-          <span className="text-gray-400">Kategorie</span>
+          <span className="text-gray-400 subheading">Kategorie</span>
           <span className="text-gray-400">/</span>
-          <span className="text-red-500">
+          <span className="text-red-500 subheading">
             {params.slug[0] == "men"
               ? "Herren"
               : params.slug[0] == "women"
               ? "Damen"
-              : params.slug[0]}
+              : formatName(params.slug[0])}
           </span>
           {params.slug[1] ? (
             <div className="flex gap-2">
               <span className="text-gray-400">/</span>
-              <span className="text-red-500">{params.slug[1]}</span>
+              <span className="text-red-500 subheading">
+                {formatName(params.slug[1])}
+              </span>
             </div>
           ) : null}
         </div>
@@ -146,8 +149,10 @@ export default function CategoryPage({
                   params.slug[0].slice(1) ==
                 "Women"
               ? "Damen"
-              : params.slug[0][0].charAt(0).toUpperCase() +
-                params.slug[0].slice(1)
+              : formatName(
+                  params.slug[0][0].charAt(0).toUpperCase() +
+                    params.slug[0].slice(1)
+                )
           }
         />
 
@@ -172,7 +177,7 @@ export default function CategoryPage({
                 <summary className="list-none flex items-center justify-between p-4 cursor-pointer">
                   <div className="flex items-center">
                     <Filter className="h-5 w-5 mr-2" />
-                    <span className="font-medium">Filters</span>
+                    <span className="font-medium subheading">Filters</span>
                   </div>
                   <span className="text-sm text-red-500">
                     {(() => {

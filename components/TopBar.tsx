@@ -2,46 +2,20 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { collection, getDocs } from "firebase/firestore";
-import { firestore } from "@/lib/firebaseConfig";
-interface Service {
-  id: string;
-  name: string;
-  mainImage: string;
-  details: string;
-}
+import formatName from "@/lib/formatNames";
+import { fetchServices } from "@/lib/services";
+import { Service } from "@/interfaces/services";
 
 const TopBar: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(firestore, "services"));
-        const fetchedServices: Service[] = [];
-
-        querySnapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          fetchedServices.push({
-            id: docSnap.id,
-            name: data.name,
-            mainImage: data.mainImage,
-            details: data.details,
-          });
-        });
-
-        // Shuffle and limit to max 2 services
-        const limitedServices = fetchedServices
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 2);
-
-        setServices(limitedServices);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
+    const getServices = async () => {
+      const data = await fetchServices(2); // limit to 2
+      setServices(data);
     };
 
-    fetchServices();
+    getServices();
   }, []);
 
   return (
@@ -59,13 +33,15 @@ const TopBar: React.FC = () => {
             className="rounded-md object-cover"
           />
           <div>
-            <h4 className="font-semibold text-gray-800">{service.name}</h4>
-            <p className="hidden md:block md:h-[40px] line-clamp-0 text-sm text-gray-600 overflow-hidden">
+            <h4 className="font-semibold text-gray-800 heading-luxury">
+              {formatName(service.name)}
+            </h4>
+            <p className="hidden md:block md:h-[40px] line-clamp-0 text-sm text-gray-600 overflow-hidden body">
               {service.details}
             </p>
             <Link
               href={`/services/${service.id}`}
-              className="text-blue-600 text-sm hover:underline"
+              className="text-blue-600 text-sm hover:underline body"
             >
               Mehr lesen
             </Link>

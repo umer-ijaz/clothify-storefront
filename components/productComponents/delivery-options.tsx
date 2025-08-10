@@ -4,37 +4,7 @@ import { useState, useEffect, JSX } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig"; // Assuming this is your firebase config path
 import { DeliveryOptionsSkeleton } from "./delivery-option-skeleton-loader"; // Import the skeleton
-
-// Define the structure of your Firestore data
-interface DeliveryWarrantyData {
-  freeDelivery?: {
-    description: string;
-    enabled: boolean;
-    threshold?: number; // Optional threshold
-  };
-  personalPickup?: {
-    description: string;
-    enabled: boolean;
-  };
-  standardDelivery?: {
-    description?: string; // Make description optional if guarantee is used
-    enabled: boolean;
-    guarantee?: string; // Use guarantee field
-  };
-  warranty?: {
-    description?: string; // Make description optional if period is used
-    enabled: boolean;
-    period?: string; // Use period field
-  };
-}
-
-// Define the structure for the displayed options
-interface DisplayOption {
-  id: string;
-  title: string;
-  description: string;
-  icon: JSX.Element;
-}
+import { DeliveryWarrantyData, DisplayOption } from "@/interfaces/deliveryinterface";
 
 // Map Firestore keys to titles and icons
 const optionDetailsMap: {

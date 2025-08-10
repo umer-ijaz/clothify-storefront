@@ -25,93 +25,12 @@ import ReturnManagement from "@/components/return-management";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchOrdersById } from "@/lib/orders";
-
-interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-  image?: string;
-  isFlashSale: boolean;
-}
-
-interface Order {
-  id: string;
-  items: OrderItem[];
-  customerInfo: {
-    name: string;
-    email: string;
-    address: string;
-    city: string;
-    phone: string;
-    country?: string;
-    postcode?: string;
-    companyName?: string;
-    deliveryPreferences?: string;
-    deliveryNotes?: string;
-    accessCodes?: string;
-  };
-  subtotal: number;
-  promoCode: string | null;
-  promoDiscount: number | 0;
-  promoCost: number | 0;
-  tax: number;
-  deliveryFee: number;
-  total: number;
-  invoice: {
-    invoiceId: string;
-    details: string;
-    date: string;
-  };
-  paymentMethod: string;
-  paymentDetails: {
-    transactionId: string;
-    date: string;
-    time?: string;
-    status: string;
-    expectedDelivery?: string;
-  };
-  deliveryMethod: string;
-  createdAt: string;
-  status: string;
-}
-
-export interface FirestoreTimestamp {
-  seconds: number;
-  nanoseconds: number;
-}
-
-export interface InspectionHistoryItem {
-  timestamp: FirestoreTimestamp;
-  status: string;
-  adminNote: string;
-}
-
-export interface ReturnRequest {
-  id: string;
-  orderId: string;
-  itemId: string;
-  itemName: string;
-  itemPrice: number;
-  itemQuantity: number;
-  reason: string;
-  status:
-    | "Pending"
-    | "Approved"
-    | "Rejected"
-    | "Processing"
-    | "Completed"
-    | "Received";
-  requestedAt: FirestoreTimestamp;
-  adminMessage?: string;
-  invoiceId: string;
-  refundAmount?: number;
-  inspectionStatus?: string;
-  inspectionHistory?: InspectionHistoryItem[];
-  receivedAt?: string;
-  processedAt?: string;
-  updatedAt?: string;
-}
+import {
+  Order,
+  OrderItem,
+  ReturnRequest,
+} from "@/interfaces/orderandreturninterface";
+import { base62ToLastFour, removeInvPrefix } from "@/lib/idConversion";
 
 export default function OrdersPage() {
   const { user, loading } = useUser();
@@ -437,7 +356,7 @@ export default function OrdersPage() {
       <div className="py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-2 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-red-500">Bestellungen</span>
+        <span className="text-red-500 subheading">Bestellungen</span>
       </div>
       <TextField text={"Bestellungen & Retouren"} />
 
@@ -839,25 +758,4 @@ export default function OrdersPage() {
         )}
     </div>
   );
-}
-function base62ToLastFour(str: string): string {
-  const charset =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  let result = 0n;
-
-  for (let i = 0; i < str.length; i++) {
-    const power = BigInt(str.length - i - 1);
-    const value = BigInt(charset.indexOf(str[i]));
-    result += value * 62n ** power;
-  }
-
-  const decimalStr = result.toString();
-  return decimalStr.slice(-4);
-}
-
-function removeInvPrefix(id: string): string {
-  if (id.startsWith("INV-")) {
-    return id.slice(4); // remove first 4 characters
-  }
-  return id; // return unchanged if prefix not present
 }

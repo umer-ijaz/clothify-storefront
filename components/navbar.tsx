@@ -44,6 +44,7 @@ import {
 import { AuthModal } from "./auth-modal";
 import { fetchCategories, type Category } from "@/lib/categories";
 import { getProducts } from "@/lib/products";
+import formatName from "@/lib/formatNames";
 
 const popularSearches = [
   "Herrenschuhe", // man shoes
@@ -352,7 +353,7 @@ export default function Navbar() {
                   return (
                     <div key={`mobile-${item.title}`} className="border-b">
                       <div
-                        className="flex items-center justify-between px-4 py-3 text-base font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="subheading flex items-center justify-between px-4 py-3 text-base font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                         onClick={() => toggleMobileCategory(item.title)}
                       >
                         <span>{item.title}</span>
@@ -375,7 +376,7 @@ export default function Navbar() {
                             : "max-h-0 opacity-0"
                         )}
                       >
-                        <div className="bg-gray-50 max-h-[60vh] overflow-y-auto scrollbar-hide">
+                        <div className="bg-gray-50 max-h-[60vh] overflow-y-auto scrollbar-hide subheading">
                           {item.children.map((category) => (
                             <div
                               key={`mobile-category-${
@@ -437,7 +438,7 @@ export default function Navbar() {
                                         : "max-h-0 opacity-0"
                                     )}
                                   >
-                                    <div className="bg-white max-h-[40vh] overflow-y-auto scrollbar-hide">
+                                    <div className="bg-white max-h-[40vh] overflow-y-auto scrollbar-hide subcategory">
                                       {category.subcategories.map(
                                         (subcategory, subIndex) => (
                                           <SheetClose
@@ -523,14 +524,14 @@ export default function Navbar() {
       </Link>
 
       {/* Desktop Navigation */}
-      <div className="hidden md:flex gap-0 lg:gap-1">
+      <div className="hidden md:flex gap-0 lg:gap-1 heading">
         <NavigationMenu>
           <NavigationMenuList>
             {mainNavItems.map((item) =>
               item.children ? (
                 <NavigationMenuItem key={`desktop-${item.title}`}>
-                  <NavigationMenuTrigger className="text-white hover:bg-white/20 hover:text-white transition-colors duration-300">
-                    {item.title}
+                  <NavigationMenuTrigger className="text-white hover:bg-white/20 hover:text-white transition-colors duration-300 heading-luxury">
+                    {formatName(item.title)}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="bg-white shadow-2xl border-0">
                     <div className="w-[90vw] lg:w-[1000px] min-h-[400px] md:min-h-[500px] flex flex-col lg:flex-row">
@@ -713,10 +714,10 @@ export default function Navbar() {
                       href={item.href}
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        "text-white hover:bg-white/20 hover:text-white transition-colors duration-300"
+                        "text-white hover:bg-white/20 hover:text-white transition-colors duration-300 heading-luxury"
                       )}
                     >
-                      {item.title}
+                      {formatName(item.title)}
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -728,7 +729,7 @@ export default function Navbar() {
         {!loading &&
           (!user ? (
             <button onClick={() => setIsModalOpen(true)}>
-              <div className="text-sm font-medium leading-none text-white hover:bg-white/20 hover:text-white transition-colors duration-300 block select-none space-y-1 rounded-md p-3 no-underline outline-none hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 focus:bg-accent focus:text-accent-foreground">
+              <div className="heading-luxury text-sm font-medium leading-none text-white hover:bg-white/20 hover:text-white transition-colors duration-300 block select-none space-y-1 rounded-md p-3 no-underline outline-none hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 focus:bg-accent focus:text-accent-foreground">
                 Anmelden
               </div>
             </button>
@@ -751,7 +752,7 @@ export default function Navbar() {
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
-                className="search bg-white pl-4 md:pl-8 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400 text-sm md:text-base"
+                className="search bg-white pl-4 md:pl-8 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400 text-sm"
               />
               <div className="flex items-center pr-1">
                 <Button
@@ -821,21 +822,6 @@ export default function Navbar() {
         </form>
       </div>
 
-      {/* Mobile Search Toggle Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="md:hidden text-white w-auto h-auto p-2"
-        onClick={() => setIsSearchOpen(!isSearchOpen)}
-      >
-        {isSearchOpen ? (
-          <X className="h-5 w-5" />
-        ) : (
-          <Search className="h-5 w-5" />
-        )}
-        <span className="sr-only">Suche öffnen</span>
-      </Button>
-
       {/* User and Cart Icons */}
       <div className="flex items-center gap-2">
         {!loading &&
@@ -860,12 +846,12 @@ export default function Navbar() {
                 align="end"
                 className="w-48 md:w-56 bg-white"
               >
-                <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
+                <DropdownMenuLabel className="subheading">Mein Konto</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link
                     href="/orders"
-                    className="cursor-pointer text-sm md:text-base"
+                    className="cursor-pointer text-sm md:text-base subheading"
                   >
                     Bestellungen
                   </Link>
@@ -873,7 +859,7 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="text-red-600 cursor-pointer text-sm md:text-base"
+                  className="text-red-600 cursor-pointer text-sm md:text-base subheading"
                 >
                   Abmelden
                 </DropdownMenuItem>

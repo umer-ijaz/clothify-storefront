@@ -24,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-3 
+      className={`body flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-3 
       bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] bg-[length:200%_200%] bg-left
       text-sm md:text-md text-white font-semibold rounded-full shadow-lg 
       transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center

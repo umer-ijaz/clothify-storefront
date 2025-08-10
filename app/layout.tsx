@@ -10,7 +10,8 @@ import Loading from "./loading"; // Import global loading UI
 import { UserProvider } from "@/context/userContext";
 import ClearCategoriesClient from "@/components/clearCategory";
 import AnnouncementPage from "./pop-up/page";
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import MobileSearch from "./mobilesearch/page";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,20 +75,23 @@ export default function RootLayout({
           <ClearCategoriesClient />
           <TopBar />
           <Navbar />
+          <MobileSearch/>
           <AnnouncementPage />
           <Suspense fallback={<Loading />}>{children}</Suspense>
           <Footer />
-          <a
-            href="https://wa.me/923324257764"
-            target="_blank"
-            className="whatsapp-float"
-          >
-            <img
-              src="https://img.icons8.com/color/24/000000/whatsapp--v1.png"
-              alt="WhatsApp"
-            />
-            <span>Chatten Sie mit uns</span>
-          </a>
+          <div>
+            <a
+              href="https://wa.me/923324257764"
+              target="_blank"
+              className="whatsapp-float"
+            >
+              <img
+                src="https://img.icons8.com/color/24/000000/whatsapp--v1.png"
+                alt="WhatsApp"
+              />
+              <span className="body">Chatten Sie mit uns</span>
+            </a>
+          </div>
           <Toaster />
         </UserProvider>
         <SpeedInsights />

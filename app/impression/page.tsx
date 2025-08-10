@@ -1,53 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "../../lib/firebaseConfig"; // adjust if needed
 import TextField from "@/components/text-field";
-
-// TypeScript interface
-export interface CompanyInfo {
-  brandName: string;
-  companyType: string;
-  address: string;
-  phone: string;
-  email: string;
-  vatId: string;
-  liabilityContent: string;
-}
+import { CompanyInfo } from "@/interfaces/companyInfo";
+import Loading from "../loading";
+import { fetchCompanyImpression } from "@/lib/Impression";
 
 export default function ImpressionPage() {
   const [companyData, setCompanyData] = useState<CompanyInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const companyDocRef = doc(firestore, "company_info", "impression");
-
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        const docSnap = await getDoc(companyDocRef);
-        if (docSnap.exists()) {
-          setCompanyData(docSnap.data() as CompanyInfo);
+        const data = await fetchCompanyImpression();
+        if (data) {
+          setCompanyData(data);
         } else {
           setError("Impression data not found.");
         }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error("Error fetching impression data:", message);
         setError("Failed to load impression data. Please try again later.");
+        console.error(message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
   if (loading) {
     return (
       <div className="p-10 text-center text-gray-600 text-lg">
-        Loading impression data...
+        <Loading />
       </div>
     );
   }
@@ -68,23 +56,23 @@ export default function ImpressionPage() {
         <TextField text={"Impressum"} />
 
         <div className="space-y-3 text-gray-800 leading-relaxed">
-          <h1 className="text-bold text-red-500 sm:text-sm md:text-lg">
+          <h1 className="text-bold text-red-500 sm:text-sm md:text-lg heading">
             Khurram Rehmat
           </h1>
           <div className="space-y-1">
             <p>
-              <span className="font-semibold">Markenname:</span>{" "}
+              <span className="font-semibold heading">Markenname:</span>{" "}
               {companyData.brandName}
             </p>
             <p>
               <span className="font-semibold"></span> {companyData.companyType}
             </p>
             <p>
-              <span className="font-semibold">Adresse:</span>{" "}
+              <span className="font-semibold heading">Adresse:</span>{" "}
               {companyData.address}
             </p>
             <p>
-              <span className="font-semibold">Telefon:</span>{" "}
+              <span className="font-semibold heading">Telefon:</span>{" "}
               <a
                 href={`tel:${companyData.phone}`}
                 className="text-blue-600 underline"
@@ -93,7 +81,7 @@ export default function ImpressionPage() {
               </a>
             </p>
             <p>
-              <span className="font-semibold">Email:</span>{" "}
+              <span className="font-semibold heading">Email:</span>{" "}
               <a
                 href={`mailto:${companyData.email}`}
                 className="text-blue-600 underline"
@@ -102,7 +90,7 @@ export default function ImpressionPage() {
               </a>
             </p>
             <p>
-              <span className="font-semibold">Ust.Nr.:</span>{" "}
+              <span className="font-semibold heading">Ust.Nr.:</span>{" "}
               {companyData.vatId}
             </p>
           </div>

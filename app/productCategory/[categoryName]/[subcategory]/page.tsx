@@ -3,6 +3,7 @@
 import React, { Suspense } from "react";
 import { useParams } from "next/navigation";
 import CategoryPage from "@/components/categoryComponents/categoryMain";
+import Loading from "@/app/loading";
 
 function Page() {
   const params = useParams();
@@ -10,7 +11,11 @@ function Page() {
   const subcategory = params?.subcategory as string;
 
   if (!categoryName || !subcategory) {
-    return <div>Laden...</div>;
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
   }
 
   const slug = [categoryName, subcategory];

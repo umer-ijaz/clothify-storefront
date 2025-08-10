@@ -5,40 +5,22 @@ import Image from "next/image";
 import TextBox from "../text-box";
 import ShippingPartners from "./home-shipping-partners";
 import { shippingPartnersImages } from "@/data/shippingPartnersImages";
-import { collection, getDocs } from "firebase/firestore";
-import { firestore } from "@/lib/firebaseConfig";
-
-interface HomeService {
-  content: string;
-  createdAt: string;
-  imageUrl: string;
-  name: string;
-  number: string;
-}
+import { fetchHomeServices } from "@/lib/homeServices";
+import { HomeService } from "@/interfaces/homeserviceinterface";
+import formatName from "@/lib/formatNames";
 
 export default function HomeServices() {
   const [homeServices, setHomeServices] = useState<HomeService[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchHomeServices = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          collection(firestore, "homeservice")
-        );
-        const services: HomeService[] = querySnapshot.docs.map((doc) => ({
-          ...(doc.data() as Omit<HomeService, "createdAt">),
-          createdAt: doc.data().createdAt?.toDate?.().toString() || "",
-        }));
-        setHomeServices(services);
-      } catch (error) {
-        console.error("Error fetching home services:", error);
-      } finally {
-        setIsLoading(false);
-      }
+    const loadServices = async () => {
+      const services = await fetchHomeServices();
+      setHomeServices(services);
+      setIsLoading(false);
     };
 
-    fetchHomeServices();
+    loadServices();
   }, []);
 
   const chunkArray = (array: HomeService[], size: number) => {
@@ -68,7 +50,7 @@ export default function HomeServices() {
       <TextBox text="Dienstleistungen" />
       <ShippingPartners images={shippingPartnersImages} />
 
-      <h2 className="text-2xl md:text-3xl font-bold px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
+      <h2 className="text-2xl md:text-3xl font-bold px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6 heading-luxury">
         Wir bieten Ihnen das Beste
         <span className="text-red-500">,</span>
       </h2>
@@ -109,10 +91,10 @@ export default function HomeServices() {
                         {service.number}
                       </span>
                     </div>
-                    <h3 className="text-lg md:text-xl font-semibold mt-3">
-                      {service.name}
+                    <h3 className="text-lg md:text-xl font-semibold mt-3 heading">
+                      {formatName(service.name)}
                     </h3>
-                    <p className="text-gray-600 text-sm md:text-base mt-2">
+                    <p className="text-gray-600 text-sm md:text-base mt-2 body">
                       {service.content}
                     </p>
                   </div>

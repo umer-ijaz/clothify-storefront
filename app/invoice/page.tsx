@@ -10,9 +10,9 @@ export default function InvoiceInfoPage() {
       <div className="px-2 sm:px-4 md:px-8 lg:px-12 flex flex-row gap-2 text-sm md:text-xl font-small mb-4 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-gray-400">Rechnungsmethode</span>
+        <span className="text-gray-400 subheading">Rechnungsmethode</span>
         <span className="text-gray-400">/</span>
-        <span className="text-red-500">Rechnungskauf</span>
+        <span className="text-red-500 subheading">Rechnungskauf</span>
       </div>
 
       {/* Page Heading */}

@@ -53,7 +53,7 @@ const FlashSaleCarousel = () => {
       setLoading(false);
 
       setShowSkeleton(true);
-      setTimeout(() => setShowSkeleton(false), 2000); // Show skeleton for 2 seconds
+      setTimeout(() => setShowSkeleton(false), 2000);
     }
 
     fetchFlashSaleItems();
@@ -61,7 +61,7 @@ const FlashSaleCarousel = () => {
 
   const settings = {
     mobileFirst: true,
-    infinite: true, // autoplay requires infinite to be true
+    infinite: true,
     speed: 500,
     cssEase: "ease-in-out",
     slidesToShow: isMobile ? 2 : 4,
@@ -86,7 +86,7 @@ const FlashSaleCarousel = () => {
             <TextBox text={"Angebote des Tages"} />
             <Link
               href={"/flashsaleproducts"}
-              className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
+              className="body text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
             >
               Alle anzeigen
               <IoIosArrowForward size={20} />
@@ -94,7 +94,7 @@ const FlashSaleCarousel = () => {
           </div>
 
           <div className="flex justify-between items-center mb-4 px-3 sm:px-4 lg:px-8 xl:px-12 mt-4">
-            <h2 className="text-2xl font-bold">Blitzangebote</h2>
+            <h2 className="text-2xl font-bold heading-luxury">Blitzangebote</h2>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -119,7 +119,6 @@ const FlashSaleCarousel = () => {
             </div>
           </div>
 
-          {/* Slider */}
           <div className="relative">
             <Slider
               className="px-2 sm:px-4 lg:px-6 xl:px-8"

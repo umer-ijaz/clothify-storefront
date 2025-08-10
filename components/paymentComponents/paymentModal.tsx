@@ -40,6 +40,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
+import { ProductItem } from "@/interfaces/paymentModalCartinterface";
+import { fetchPromoUsage } from "@/lib/promoDataforUser";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -242,17 +244,6 @@ const PayPalCheckoutForm = ({
   );
 };
 
-interface ProductItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  size?: string;
-  color?: string;
-  isFlashSale: boolean;
-}
-
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -317,27 +308,12 @@ export default function PaymentModal({
   });
 
   useEffect(() => {
-    const fetchPromoUsage = async () => {
+    const loadPromoUsage = async () => {
       if (!user) return;
       setFetching(true);
       try {
-        const ordersRef = collection(firestore, `users/${user.uid}/orders`);
-        const q = query(ordersRef, orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-
-        // Dictionary for counting promoCode usage
-        const promoUsage: Record<string, number> = {};
-
-        snapshot.docs.forEach((doc) => {
-          const data = doc.data();
-          const code = data.promoCode?.trim().toLowerCase();
-          if (code) {
-            promoUsage[code] = (promoUsage[code] || 0) + 1;
-          }
-        });
-
-        console.log("Promo code usage counts:", promoUsage);
-        setPromoCodeUsage(promoUsage); // store in state if needed
+        const usage = await fetchPromoUsage(user.uid);
+        setPromoCodeUsage(usage);
       } catch (err) {
         console.error("Fehler beim Laden der PromoCodes:", err);
         toast.error("PromoCode-Daten konnten nicht geladen werden");
@@ -346,7 +322,7 @@ export default function PaymentModal({
       }
     };
 
-    if (user) fetchPromoUsage();
+    loadPromoUsage();
   }, [user]);
 
   useEffect(() => {

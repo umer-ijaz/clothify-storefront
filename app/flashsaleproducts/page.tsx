@@ -2,14 +2,14 @@
 import { Filter } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getFlashProducts, getProducts } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
-import Loading from "@/components/categoryComponents/loading";
 import HomeLink from "@/components/home-link";
 import TextField from "@/components/text-field";
 import SideBar from "@/components/categoryComponents/SideBar";
 import CategoryProducts from "@/components/categoryComponents/categoryProducts";
 import { getFlashSaleItems } from "@/lib/flashSaleItems";
+import Loading from "../loading";
 
 export default function FlashSalePage() {
   const [products, setProducts] = useState<CategoryProductsInterface[]>([]);
@@ -72,7 +72,7 @@ export default function FlashSalePage() {
         <div className="px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="text-gray-400">/</span>
-          <span className="text-red-500 hover:text-red-700 active:text-red-700">
+          <span className="text-red-500 hover:text-red-700 active:text-red-700 subheading">
             Blitzverkauf
           </span>
         </div>
@@ -89,7 +89,7 @@ export default function FlashSalePage() {
         />
 
         {products.length === 0 ? (
-          <div className="flex items-center text-gray-400 justify-center">
+          <div className="flex items-center text-gray-400 justify-center heading">
             Kein Produkt in der folgenden Kategorie gefunden!
           </div>
         ) : (
@@ -100,7 +100,7 @@ export default function FlashSalePage() {
                 <summary className="list-none flex items-center justify-between p-4 cursor-pointer">
                   <div className="flex items-center">
                     <Filter className="h-5 w-5 mr-2" />
-                    <span className="font-medium">Filters</span>
+                    <span className="font-medium heading">Filters</span>
                   </div>
                   <span className="text-sm text-red-500">
                     {(() => {

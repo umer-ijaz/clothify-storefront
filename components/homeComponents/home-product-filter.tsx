@@ -5,14 +5,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "../ui/button";
 import { getProducts } from "@/lib/products";
 
-// Mock data for suggestions
 const popularSearches = [
-  "Schuhe", // shoes
-  "Kleider", // dresses
-  "Jacken", // jackets
-  "Jeans", // jeans
-  "T-Shirts", // t-shirts
-  "Sneaker", // sneakers
+  "Schuhe",
+  "Kleider",
+  "Jacken",
+  "Jeans",
+  "T-Shirts",
+  "Sneaker",
 ];
 
 interface FilterProps {
@@ -32,7 +31,6 @@ export default function FilterProducts({
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -57,10 +55,9 @@ export default function FilterProducts({
 
     debounceTimeoutRef.current = setTimeout(() => {
       setDebouncedSearchTerm(value);
-    }, 700); // 500ms debounce delay
+    }, 700);
   }, []);
 
-  // Update debounced search term when searchTerm changes
   useEffect(() => {
     debounceSearch(searchTerm);
     return () => {
@@ -104,7 +101,6 @@ export default function FilterProducts({
     fetchSuggestions();
   }, [debouncedSearchTerm]);
 
-  // Apply filters when category or debounced search changes
   useEffect(() => {
     onFilterChange({
       category: selectedCategory,
@@ -133,10 +129,10 @@ export default function FilterProducts({
 
   return (
     <div className="flex flex-wrap gap-3 items-center justify-center pb-4 px-3">
-      {["All", "Women", "Men", "Shuhe"].map((category) => (
+      {["All", "Women", "Men", "Schuhe"].map((category) => (
         <button
           key={category}
-          className={`px-4 py-2 text-sm font-medium rounded-full border cursor-pointer ${
+          className={`px-4 py-2 text-sm font-medium rounded-full border border-gray-400 cursor-pointer body ${
             selectedCategory === category.toLowerCase()
               ? "bg-red-500 text-white"
               : "text-gray-700 hover:bg-orange-600 hover:text-white transition-all duration-300"
@@ -169,7 +165,7 @@ export default function FilterProducts({
         <Button
           type="submit"
           size="icon"
-          className="h-9 w-9 rounded-full bg-transparent text-red absolute right-0 top-0 cursor-pointer"
+          className="h-9 w-9 rounded-full bg-transparent text-red absolute right-0 top-0 cursor-pointer px-5"
         >
           <Search className="h-4 w-4" />
           <span className="sr-only">Suche</span>

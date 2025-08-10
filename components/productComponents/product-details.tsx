@@ -11,55 +11,11 @@ import TextBox from "../text-box";
 import TextField from "../text-field";
 import HomeLink from "../home-link";
 import RelativeItems from "../relativeComponent/relative-items";
-import Loading from "../categoryComponents/loading";
+import { Product, ProductDetailState } from "@/interfaces/productdetailinterface";
+import Loading from "@/app/loading";
+import formatName from "@/lib/formatNames";
 
 // Updated interfaces
-export interface Variant {
-  color: {
-    name: string;
-    hex: string;
-  };
-  mainImage: string;
-  subImages: string[];
-  sizes: (string | number)[];
-  outOfStockSizes?: (string | number)[];
-}
-
-export interface Product {
-  id: string;
-  productId: string;
-  name: string;
-  isFlashSale: boolean;
-  brand: string;
-  category: string;
-  subcategory: string;
-  image: string; // main display image
-  images: string[]; // all additional images
-  currentPrice: number;
-  originalPrice: number;
-  discount: number;
-  stock: number;
-  rating: number;
-  reviewsCount: number;
-  reviews: any[];
-  sku: string;
-  description: string;
-  material: string;
-  features: string[];
-  createdAt: string;
-  updatedAt: string;
-  variants: Variant[];
-}
-
-interface ProductDetailState {
-  product: Product | null;
-  isLoading: boolean;
-  error: string | null;
-  selectedImage: number;
-  quantity: number;
-  selectedColor: string;
-  selectedSize: string;
-}
 
 export default function ProductDetailPage({
   params,
@@ -283,17 +239,17 @@ export default function ProductDetailPage({
           </span>
           <Link
             href={`/category/${product.category}`}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 hover:text-gray-700 transition-colors subcategory"
           >
             {getCategoryDisplayName(product.category)}
           </Link>
           <span className="mx-2 text-gray-400" aria-hidden="true">
             /
           </span>
-          <span className="text-red-500 font-medium">{product.name}</span>
+          <span className="text-red-500 font-medium subcategory">{formatName(product.name)}</span>
         </nav>
 
-        <TextField text={product.name} />
+        <TextField text={formatName(product.name)} />
 
         <div className="px-0 sm:px-2 md:px-4 lg:px-8 mb-8">
           <div className="flex flex-col lg:flex-row gap-4 bg-white p-4 sm:p-6 md:p-8 rounded-xl justify-center shadow-sm md:shadow-md">

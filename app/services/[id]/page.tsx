@@ -17,19 +17,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import TextField from "@/components/text-field";
-
-interface Service {
-  id: string;
-  name: string;
-  details: string;
-  mainImage: string;
-  subImages: string[];
-  video: string;
-  createdAt: {
-    seconds: number;
-    nanoseconds: number;
-  };
-}
+import { Service } from "@/interfaces/servicesforpageinterface";
+import formatName from "@/lib/formatNames";
 
 interface MediaItem {
   type: "image" | "video";
@@ -251,17 +240,17 @@ export default function ServiceDetailPage({
           <ChevronRight className="mx-2 h-4 w-4 text-gray-400" />
           <Link
             href="/services"
-            className="text-gray-600 hover:text-gray-800 transition"
+            className="text-gray-600 hover:text-gray-800 transition subheading"
           >
             Dienstleistungen
           </Link>
           <ChevronRight className="mx-2 h-4 w-4 text-gray-400" />
           <span className="text-red-500 font-medium truncate">
-            {service.name}
+            {formatName(service.name)}
           </span>
         </nav>
 
-        <TextField text={service.name} />
+        <TextField text={formatName(service.name)} />
 
         <div className="bg-white rounded-2xl shadow-sm p-8 overflow-hidden animate-fade-in-up">
           {/* Video Section - Full Width at Top */}
@@ -365,11 +354,11 @@ export default function ServiceDetailPage({
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 leading-tight">
-                {service.name}
+                {formatName(service.name)}
               </h1>
 
               <div className="prose prose-lg text-gray-600 mb-8 flex-grow">
-                <pre className="mr-5 whitespace-pre-wrap font-sans">
+                <pre className="mr-5 whitespace-pre-wrap font-sans body">
                   {service.details}
                 </pre>
               </div>
@@ -401,7 +390,7 @@ export default function ServiceDetailPage({
                   onClick={() => handleImageSelect(index)}
                   className={`w-20 h-20 relative rounded-lg cursor-pointer border-2 shadow-md animate-fade-in-up transition-all duration-300 hover:scale-105 ${
                     selectedImageIndex === index
-                      ? "border-red-500 ring-2 ring-red-500 ring-offset-2"
+                      ? "border-red-500"
                       : "border-white hover:border-red-200 active:border-red-200"
                   }`}
                   style={{ animationDelay: `${index * 100}ms` }}

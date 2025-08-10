@@ -8,6 +8,7 @@ import HomeLink from "@/components/home-link";
 import TextField from "@/components/text-field";
 import Button from "@/components/button";
 import { useTaxStore } from "@/context/taxContext";
+import formatName from "@/lib/formatNames";
 
 export default function CartClient() {
   const { cart, removeFromCart, updateQuantity } = useCartStore();
@@ -34,22 +35,22 @@ export default function CartClient() {
         <h1 className="py-8 mx-4 sm:mx-6 md:mx-8 lg:mx-12 flex gap-1 md:gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500">Warenkorb</span>
+          <span className="text-red-500 subheading">Warenkorb</span>
         </h1>
 
         <TextField text={"Warenkorb"} />
         <div className="mx-2 sm:mx-4 md:mx-8 lg:mx-12 py-12 px-2 sm:px-4 md:px-8 lg:px-12 rounded-xl bg-white shadow-lg">
-          <h1 className="text-xl font-semibold mb-1">Einkaufswagen</h1>
-          <p className="text-gray-600 text-md mb-6">
+          <h1 className="text-xl font-semibold mb-1 heading">Einkaufswagen</h1>
+          <p className="text-gray-600 text-md mb-6 body">
             Sie haben {cart.length} Artikel in Ihrem Warenkorb.
           </p>
 
           {cart.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-gray-500 mb-4">Ihr Warenkorb ist leer.</p>
+              <p className="text-gray-500 mb-4 heading">Ihr Warenkorb ist leer.</p>
               <Link
                 href="/"
-                className="inline-block items-center gap-2 px-4 md:px-5 py-2 md:py-3 
+                className="body inline-block items-center gap-2 px-4 md:px-5 py-2 md:py-3 
     bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] bg-[length:200%_200%] bg-left
     text-md md:text-md text-white font-semibold shadow-lg 
     transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center
@@ -63,9 +64,9 @@ export default function CartClient() {
               <div className="flex-1">
                 {/* Desktop View Header - Hidden on Mobile */}
                 <div className="mb-4 hidden md:grid grid-cols-4 font-semibold text-xl">
-                  <div className="col-span-1">Produkt</div>
-                  <div className="text-center col-span-1">Preis</div>
-                  <div className="text-center col-span-1">Menge</div>
+                  <div className="col-span-1 subheading">Produkt</div>
+                  <div className="text-center col-span-1 subheading">Preis</div>
+                  <div className="text-center col-span-1 subheading">Menge</div>
                 </div>
 
                 {/* Mobile View Header */}
@@ -78,7 +79,7 @@ export default function CartClient() {
                     <div key={item.id} className="border-b pb-4">
                       {/* Desktop View - Hidden on Mobile */}
                       <div className="hidden md:grid grid-cols-4 items-center">
-                        <div className="col-span-1 flex items-center gap-3">
+                        <div className="col-span-1 flex items-center gap-3 justify-center">
                           <div className="w-18 h-18 relative">
                             <Image
                               src={
@@ -87,12 +88,13 @@ export default function CartClient() {
                                 "/placeholder.svg"
                               }
                               alt={item.name}
-                              fill
+                              width={60}
+                              height={60}
                               className="object-contain rounded-md"
                             />
                           </div>
                           <div>
-                            <h3 className="font-medium">{item.name}</h3>
+                            <h3 className="font-medium">{formatName(item.name)}</h3>
                             <p className="text-xs text-gray-500">
                               {item.color && `Color: ${item.color}`}
                               {item.size && ` | Size: ${item.size}`}
@@ -192,7 +194,7 @@ export default function CartClient() {
                               />
                             </div>
                             <div>
-                              <h3 className="font-medium">{item.name}</h3>
+                              <h3 className="font-medium">{formatName(item.name)}</h3>
                               <p className="text-xs text-gray-500">
                                 {item.color && `Color: ${item.color}`}
                                 {item.size && ` | Size: ${item.size}`}
@@ -278,7 +280,7 @@ export default function CartClient() {
 
               <div className="w-full md:w-80">
                 <div className="border rounded-xl p-4">
-                  <h2 className="text-center font-semibold mb-4">
+                  <h2 className="text-center font-semibold mb-4 heading">
                     Gesamtsumme
                   </h2>
                   <div className="space-y-3">

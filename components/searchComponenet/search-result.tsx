@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getFlashProducts, getProducts, Product, Variant } from "@/lib/products";
+import { getFlashProducts, getProducts, Product } from "@/lib/products";
 import { useRouter } from "next/navigation";
 import { Pagination } from "../pagination";
 import HomeLink from "../home-link";
 import TextField from "../text-field";
-import Loading from "./loading";
 import Image from "next/image";
 import { Filter } from "lucide-react";
 import SideBar from "../categoryComponents/SideBar";
 import CategoryProducts from "../categoryComponents/categoryProducts";
+import formatName from "@/lib/formatNames";
+import Loading from "@/app/loading";
 
 export function SearchResults({
   query,
@@ -123,11 +124,18 @@ export function SearchResults({
       <div className="px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-4 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-gray-400">Suche</span>
+        <span className="text-gray-400 subheading">Suche</span>
         <span className="text-gray-400">/</span>
-        <span className="text-red-500 hover:text-red-700"> {query}</span>
+        <span className="text-red-500 hover:text-red-700 subheading">
+          {" "}
+          {formatName(query)}
+        </span>
       </div>
-      <TextField text={query.charAt(0).toUpperCase() + query.slice(1)} />
+      <div className="mt-4">
+        <TextField
+          text={formatName(query.charAt(0).toUpperCase() + query.slice(1))}
+        />
+      </div>
       {/* Page Layout with padding to avoid overlap */}
       <div className="flex-1 py-8 relative">
         <Image
@@ -151,7 +159,7 @@ export function SearchResults({
                 <summary className="list-none flex items-center justify-between p-4 cursor-pointer">
                   <div className="flex items-center">
                     <Filter className="h-5 w-5 mr-2" />
-                    <span className="font-medium">Filter</span>
+                    <span className="font-medium subheading">Filter</span>
                   </div>
                   <span className="text-sm text-red-500">
                     {(() => {

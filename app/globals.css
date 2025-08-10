@@ -10,6 +10,21 @@ body{
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Serif Stack (for premium look) */
+:root {
+  --font-serif: Georgia, "Times New Roman", Times, serif;
+}
+
+/* Monospace Stack (for code, numbers) */
+:root {
+  --font-mono: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -206,4 +221,36 @@ input[type="search"]::-webkit-search-results-decoration {
 .announcement-float:hover {
   transform: scale(1.1);
   box-shadow: 0 8px 16px rgba(37, 211, 102, 0.6);
+}
+
+.heading {
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+.subheading {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+/* Body text */
+.body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+}
+
+/* Luxury headings (serif) */
+.heading-luxury {
+  font-family: var(--font-serif);
+  font-weight: 500;
+}
+.heading-luxury-title {
+  font-family: var(--font-serif);
+  font-weight: 550;
+}
+
+/* Monospaced */
+.code-text {
+  font-family: var(--font-mono);
+  font-weight: 200;
 }

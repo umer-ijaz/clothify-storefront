@@ -8,19 +8,9 @@ import HomeLink from "@/components/home-link";
 import TextField from "@/components/text-field";
 import { collection, getDocs } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
+import { Service } from "@/interfaces/servicesforpageinterface";
 import Loading from "../loading";
-
-interface Service {
-  id: string;
-  name: string;
-  details: string;
-  mainImage: string;
-  subImages: string[];
-  createdAt: {
-    seconds: number;
-    nanoseconds: number;
-  };
-}
+import formatName from "@/lib/formatNames";
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -70,7 +60,7 @@ export default function ServicesPage() {
         <nav className="flex items-center mb-8 text-md md:text-xl font-small capitalize">
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500">Dienstleistungen</span>
+          <span className="text-red-500 subheading">Dienstleistungen</span>
         </nav>
 
         {/* Services Header */}
@@ -95,9 +85,9 @@ export default function ServicesPage() {
                 </div>
                 <div className="p-5">
                   <h2 className="text-lg font-bold mb-2 text-gray-800 line-clamp-2 h-[4.5rem]">
-                    {service.name}
+                    {formatName(service.name)}
                   </h2>
-                  <p className="text-gray-600 mb-6 line-clamp-3 h-[4.5rem]">
+                  <p className="text-gray-600 mb-6 line-clamp-3 h-[4.5rem] body">
                     {service.details}
                   </p>
                   <Link

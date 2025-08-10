@@ -100,7 +100,7 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="lastName"
-                className="block text-sm font-bold text-gray-700"
+                className="block text-sm font-bold text-gray-700 heading"
               >
                 Nachname*
               </label>
@@ -120,7 +120,7 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="phoneNumber"
-                className="block text-sm font-bold text-gray-700"
+                className="block text-sm font-bold text-gray-700 heading"
               >
                 Telefonnummer
               </label>
@@ -139,7 +139,7 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-bold text-gray-700"
+                className="block text-sm font-bold text-gray-700 heading"
               >
                 Email
               </label>
@@ -159,7 +159,7 @@ export default function ContactForm() {
           <div className="mt-4 flex-1 md:mt-0">
             <label
               htmlFor="message"
-              className="block text-sm font-bold text-gray-700"
+              className="block text-sm font-bold text-gray-700 heading"
             >
               Nachricht
             </label>

@@ -1,5 +1,5 @@
 "use client";
- 
+
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -14,94 +14,10 @@ import {
 } from "lucide-react";
 import HomeLink from "@/components/home-link";
 import TextField from "@/components/text-field";
-import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "@/lib/firebaseConfig";
+import { AboutUsData } from "@/interfaces/aboutUs";
+import { fetchAboutUsData } from "@/lib/aboutUs";
+import formatName from "@/lib/formatNames";
 import Loading from "../loading";
-
-// Define interfaces for our data structure
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  bio: string;
-  image: string;
-}
-
-interface MissionValue {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-}
-
-interface ChooseUsReason {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-}
-
-interface ContactInfo {
-  address: {
-    line1: string;
-    line2: string;
-    line3: string;
-  };
-  hours: {
-    weekdays: string;
-    saturday: string;
-    sunday: string;
-  };
-  support: {
-    email: string;
-    phone: string;
-    chat: string;
-  };
-}
-
-interface CTASection {
-  title: string;
-  description: string;
-  buttonText: string;
-  buttonLink: string;
-}
-
-interface VideoSection {
-  description: string;
-  enabled: boolean;
-  thumbnailUrl: string;
-  title: string;
-  videoUrl: string;
-}
-
-interface AboutUsData {
-  // Our Story Section
-  storyTitle: string;
-  storyText: string[];
-  storyImage: string;
-
-  // Team Section
-  teamTitle: string;
-  teamDescription: string;
-  teamMembers: TeamMember[];
-
-  // Mission Statement Section
-  missionTitle: string;
-  missionDescription: string;
-  missionValues: MissionValue[];
-
-  // Why Choose Us Section
-  chooseUsTitle: string;
-  chooseUsDescription: string;
-  chooseUsReasons: ChooseUsReason[];
-
-  // Contact Info Section
-  contactInfo: ContactInfo;
-
-  // CTA Section
-  ctaSection: CTASection;
-  videoSection: VideoSection;
-}
 
 // Helper function to render icon based on icon name
 const renderIcon = (iconName: string) => {
@@ -136,23 +52,16 @@ export default function About() {
   }, []);
 
   useEffect(() => {
-    const fetchAboutData = async () => {
-      try {
-        const docRef = doc(firestore, "settings", "aboutUs");
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setAboutData(docSnap.data() as AboutUsData);
-        }
-      } catch (error) {
-        console.error("Error fetching about us data:", error);
-      } finally {
-        setLoading(false);
+    const loadAboutData = async () => {
+      const data = await fetchAboutUsData();
+      if (data) {
+        setAboutData(data);
       }
+      setLoading(false);
     };
 
     if (mounted) {
-      fetchAboutData();
+      loadAboutData();
     }
   }, [mounted]);
 
@@ -166,13 +75,13 @@ export default function About() {
       <div className="py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-0 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-red-500">Über</span>
+        <span className="text-red-500 heading">Über</span>
       </div>
       <TextField text={"Über"} />
 
       {/* Our Story Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 px-2 sm:px-4 md:px-8 lg:px-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 heading">
           {aboutData?.storyTitle || "Our Story"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center justify-center">
@@ -182,7 +91,7 @@ export default function About() {
             {aboutData?.storyText?.map((paragraph, index) => (
               <div
                 key={index}
-                className="text-gray-600 mb-6 mr-0 md:mr-5 whitespace-pre-wrap font-sans text-justify"
+                className="text-gray-600 mb-6 mr-0 md:mr-5 whitespace-pre-wrap font-sans text-justify body"
               >
                 {paragraph}
               </div>
@@ -210,10 +119,10 @@ export default function About() {
         <section className="py-8 pb-15">
           <div className="max-w-4xl mx-auto px-4">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 heading">
                 {aboutData?.videoSection.title}
               </h2>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-lg body">
                 {aboutData?.videoSection.description}
               </p>
             </div>
@@ -244,11 +153,11 @@ export default function About() {
       <section className="py-16 bg-gray-100">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 heading">
               {aboutData?.missionTitle || "Mission Statement"}
             </h2>
             <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
-            <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+            <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center body">
               {aboutData?.missionDescription ||
                 "These principles guide everything we do and help us deliver an exceptional experience to our customers."}
             </div>
@@ -264,10 +173,10 @@ export default function About() {
                   <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     {renderIcon(value.icon)}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4 heading">
                     {value.title}
                   </h3>
-                  <div className="text-gray-600 mr-5 whitespace-pre-wrap font-sans text-center mx-auto">
+                  <div className="text-gray-600 mr-5 whitespace-pre-wrap font-sans text-center mx-auto body">
                     {value.description}
                   </div>
                 </div>
@@ -335,11 +244,11 @@ export default function About() {
       {/* Why Choose Us Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 heading">
             {aboutData?.chooseUsTitle || "Why Choose Us"}
           </h2>
           <div className="w-20 h-1 bg-red-600 mx-auto mb-8"></div>
-          <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+          <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center body">
             {aboutData?.chooseUsDescription ||
               "We're committed to providing you with the best online shopping experience possible."}
           </div>
@@ -356,10 +265,10 @@ export default function About() {
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
                   {renderIcon(reason.icon)}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4 heading">
                   {reason.title}
                 </h3>
-                <div className="text-gray-600 mx-auto whitespace-pre-wrap font-sans text-center">
+                <div className="text-gray-600 mx-auto whitespace-pre-wrap font-sans text-center body">
                   {reason.description}
                 </div>
               </div>
@@ -418,11 +327,11 @@ export default function About() {
           aboutData.teamMembers[0]?.name ? (
             <>
               <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 heading">
                   {aboutData?.teamTitle || "Meet Our Team"}
                 </h2>
                 <div className="w-20 h-1 bg-orange-500 mx-auto mb-8"></div>
-                <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+                <div className="text-gray-600 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center body">
                   {aboutData?.teamDescription ||
                     "The dedicated professionals behind Daniel's E-commerce who work tirelessly to serve you better."}
                 </div>
@@ -445,11 +354,11 @@ export default function About() {
                         />
                       </div>
                       <div className="p-6 text-center">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                          {member.name}
+                        <h3 className="text-xl font-semibold text-gray-800 mb-1 heading">
+                          {formatName(member.name)}
                         </h3>
                         <p className="text-orange-500 mb-4">{member.role}</p>
-                        <div className="text-gray-600 text-sm whitespace-pre-wrap font-sans">
+                        <div className="text-gray-600 text-sm whitespace-pre-wrap font-sans body">
                           {member.bio}
                         </div>
                       </div>
@@ -464,10 +373,10 @@ export default function About() {
       {/* CTA Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-red-600 to-orange-500 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 heading">
             {aboutData?.ctaSection?.title || "Ready to Start Shopping?"}
           </h2>
-          <div className="text-xl mb-8 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center">
+          <div className="text-xl mb-8 max-w-2xl mx-auto whitespace-pre-wrap font-sans text-center body">
             {aboutData?.ctaSection?.description ||
               "Join thousands of satisfied customers who trust Daniel's E-commerce for their shopping needs."}
           </div>

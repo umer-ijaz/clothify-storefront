@@ -21,7 +21,6 @@ export default function ProductsPage() {
   const [category, setCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch products from Firestore
   useEffect(() => {
     async function fetchProducts() {
       setIsLoading(true);
@@ -29,18 +28,17 @@ export default function ProductsPage() {
       const items2 = await getProducts();
       items = items.concat(items2).filter((item) => !item.isFlashSale);
 
-      // Map Firestore products to match ItemCardInterface
       const mappedProducts: CategoryProductsInterface[] = items.map(
         (product) => ({
           ...product,
-          id: String(product.id), // Keep id as a string
+          id: String(product.id),
           brand: product.brand || "Unbekannte Marke",
           material: product.material || "Unbekanntes Material",
         })
       );
 
       setProducts(mappedProducts);
-      setFilteredProducts(mappedProducts); // Initialize filtered products
+      setFilteredProducts(mappedProducts);
       setIsLoading(false);
     }
 
@@ -63,21 +61,18 @@ export default function ProductsPage() {
     setTimeout(() => {
       let updatedProducts = [...products];
 
-      // Apply category filter
       if (category !== "all") {
         updatedProducts = updatedProducts.filter(
           (product) => product.category.toLowerCase() === category.toLowerCase()
         );
       }
 
-      // Apply search filter (match only names starting with the search term)
       if (searchTerm) {
         updatedProducts = updatedProducts.filter((product) =>
           product.name.toLowerCase().startsWith(searchTerm.toLowerCase())
         );
       }
 
-      // Apply sorting
       if (sortFilter) {
         updatedProducts = [...updatedProducts].sort((a, b) => {
           if (sortFilter === "Preis: Niedrig bis Hoch")
@@ -96,22 +91,23 @@ export default function ProductsPage() {
 
   return (
     <div>
-      {isLoading &&
-      (!products || products.length === 0) ? null : (
+      {isLoading && (!products || products.length === 0) ? null : (
         <div className="mt-5">
           <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
             <TextBox text={"Unsere Produkte"} />
             <Link
               href={"/allproducts"}
-              className="text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
+              className="body text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
             >
               Alle anzeigen
               <IoIosArrowForward size={20} />
             </Link>
           </div>
           <div className="p-6 px-4 lg:px-8 xl:px-12" id="products">
-            <h2 className="text-2xl font-bold mb-4">Aktuelle Trends</h2>
-            <p className="text-gray-500 mb-6">
+            <h2 className="text-2xl font-bold mb-4 heading-luxury">
+              Aktuelle Trends
+            </h2>
+            <p className="text-gray-500 mb-6 subheading">
               Entdecken Sie die angesagtesten Produkte in unserem Shop.
             </p>
             <div className="flex flex-wrap gap-4 justify-center pb-4 border-b border-gray-400">

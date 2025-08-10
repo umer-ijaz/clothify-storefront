@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getProducts } from "@/lib/products";
 import CategoryProductsInterface from "@/interfaces/categoriesInterface";
-import Loading from "@/components/categoryComponents/loading";
+import Loading from "../loading";
 import HomeLink from "@/components/home-link";
 import TextField from "@/components/text-field";
 import SideBar from "@/components/categoryComponents/SideBar";
@@ -20,7 +20,10 @@ export default function ProductsPage() {
   useEffect(() => {
     async function fetchProducts() {
       setIsLoading(true);
-      const items = await getProducts();
+      let items = await getProducts();
+      items = items.filter(
+        (item) => item.isFlashSale === false || item.isFlashSale === undefined
+      );
 
       const mappedProducts: CategoryProductsInterface[] = items.map(
         (product: any) => ({
@@ -69,7 +72,7 @@ export default function ProductsPage() {
         <div className="px-2 sm:px-4 md:px-8 lg:px-12 flex flex-row gap-2 text-sm md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="text-gray-400">/</span>
-          <span className="text-red-500 hover:text-red-700 active:text-red-700">
+          <span className="text-red-500 hover:text-red-700 active:text-red-700 heading">
             Products
           </span>
         </div>

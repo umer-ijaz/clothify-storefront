@@ -8,6 +8,7 @@ import { useState } from "react";
 import { AuthModal } from "@/components/auth-modal";
 import { useUser } from "@/context/userContext";
 import { useTaxStore } from "@/context/taxContext";
+import formatName from "@/lib/formatNames";
 
 interface ProductInfoProps {
   product: {
@@ -170,8 +171,8 @@ export default function ProductInfo({
       <header className="flex flex-col md:justify-between md:items-start gap-4">
         <div className="flex flex-col gap-4 w-full">
           <div className="flex justify-between items-center gap-4">
-            <h1 className="text-3xl font-semibold text-gray-900">
-              {product.name}
+            <h1 className="text-3xl font-semibold text-gray-900 heading-luxury">
+              {formatName(product.name)}
             </h1>
           </div>
 
@@ -241,12 +242,12 @@ export default function ProductInfo({
 
         {/* Description */}
         <div>
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">Details</h2>
-          <pre className="text-gray-600 mb-4 mr-5 whitespace-pre-wrap font-sans">
+          <h2 className="text-xl font-semibold mb-2 text-gray-800 heading">Details</h2>
+          <pre className="text-gray-600 mb-4 mr-5 whitespace-pre-wrap body">
             {product.description}
           </pre>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>
+            <p className="subheading">
               <strong>SKU:</strong> {product.sku || "N/A"}
             </p>
           </div>
@@ -258,22 +259,22 @@ export default function ProductInfo({
         {/* Category and Subcategory */}
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-700">Kategorie</h3>
-            <p className="text-gray-600">
+            <h3 className="text-lg font-semibold text-gray-700 heading">Kategorie</h3>
+            <p className="text-gray-600 body">
               {product.category === "men"
                 ? "Herren"
                 : product.category === "women"
                 ? "Damen"
-                : product.category.charAt(0).toUpperCase() +
-                  product.category.slice(1)}
+                : formatName(product.category.charAt(0).toUpperCase() +
+                  product.category.slice(1))}
             </p>
           </div>
           {product.subcategory && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-700">
+              <h3 className="text-lg font-semibold text-gray-700 heading">
                 Unterkategorie
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 body">
                 {product.subcategory.charAt(0).toUpperCase() +
                   product.subcategory.slice(1).toLowerCase()}
               </p>
@@ -284,12 +285,12 @@ export default function ProductInfo({
         {/* Brand and Material */}
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-700">Marke</h3>
-            <p className="text-gray-600">{product.brand}</p>
+            <h3 className="text-lg font-semibold text-gray-700 heading">Marke</h3>
+            <p className="text-gray-600 body">{product.brand}</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-700">Material</h3>
-            <p className="text-gray-600">{product.material}</p>
+            <h3 className="text-lg font-semibold text-gray-700 heading">Material</h3>
+            <p className="text-gray-600 body">{product.material}</p>
           </div>
         </div>
       </div>
@@ -302,7 +303,7 @@ export default function ProductInfo({
             <p className="text-sm text-red-500 mb-2">
               Wählen Sie Farben aus, um relevante Fotos anzuzeigen
             </p>
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+            <h3 className="text-xl font-semibold text-gray-800 mb-3 heading">
               Farben{" "}
               {!selectedColor && (
                 <span className="text-red-500 text-sm">*</span>
@@ -336,7 +337,7 @@ export default function ProductInfo({
         {/* Sizes */}
         {availableSizes.length > 0 && (
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-gray-800">
+            <h3 className="text-xl font-semibold mb-3 text-gray-800 heading">
               Größe{" "}
               {!selectedSize && <span className="text-red-500 text-sm">*</span>}
             </h3>

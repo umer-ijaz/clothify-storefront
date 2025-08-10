@@ -5,17 +5,7 @@ import Image from "next/image";
 import { ArrowLeft, ArrowRight, Quote } from "lucide-react";
 import TextBox from "../text-box";
 import { cn } from "@/lib/utils";
-
-interface Review {
-  id: number;
-  name: string;
-  text: string;
-  image?: string;
-}
-
-interface ReviewsProps {
-  reviews: Review[];
-}
+import { ReviewsProps } from "@/interfaces/reviews";
 
 export default function CustomerReviews({ reviews }: ReviewsProps) {
   const [activeIndex, setActiveIndex] = useState(0);
