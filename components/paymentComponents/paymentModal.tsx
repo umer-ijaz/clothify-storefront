@@ -346,95 +346,6 @@ export default function PaymentModal({
   const normalizeDate = (date: Date) =>
     new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-  const handleVerify = async () => {
-    setMessage("");
-    setDiscount(0);
-    setValidUntil(null);
-
-    const enteredCode = inputCode.trim().toLowerCase();
-
-    // Check flash sale condition
-    const allFlashSale = products.every((item) => item.isFlashSale === true);
-    const hasNonFlashSale = products.some((item) => item.isFlashSale === false);
-
-    if (allFlashSale) {
-      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
-      return;
-    }
-
-    // 1. Get promo codes from DB
-    const promoCodes = await getPromoCodes();
-    setPromoCodes(promoCodes);
-
-    // 2. Find the matched promo code
-    const matchedPromo = promoCodes.find(
-      (promo) => promo.code.toLowerCase() === enteredCode
-    );
-
-    if (!matchedPromo) {
-      setMessage(
-        "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
-      );
-      return;
-    }
-
-    // 3. Normalize noOfTimes
-    let allowedCount: number;
-    if (
-      matchedPromo.noOfTimes === null ||
-      matchedPromo.noOfTimes === undefined ||
-      matchedPromo.noOfTimes === "" ||
-      matchedPromo.noOfTimes === "Infinity" ||
-      matchedPromo.noOfTimes === 0
-    ) {
-      allowedCount = Infinity;
-    } else {
-      allowedCount = Number(matchedPromo.noOfTimes);
-      if (isNaN(allowedCount) || allowedCount < 0) {
-        allowedCount = Infinity; // fallback if invalid
-      }
-    }
-
-    // 4. Check usage limit
-    const usedCount = promoCodeUsage?.[enteredCode] || 0; // times already used
-
-    if (usedCount >= allowedCount) {
-      setMessage(
-        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
-          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
-        }x erlaubt)`
-      );
-      setDiscount(0);
-      return;
-    }
-
-    setSelectedCode(enteredCode);
-
-    // 5. Check expiry date
-    const today = normalizeDate(new Date());
-    const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
-
-    if (expiry >= today) {
-      setDiscount(matchedPromo.discount);
-
-      if (hasNonFlashSale) {
-        setMessage(
-          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
-        );
-      } else {
-        setMessage(
-          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
-        );
-      }
-
-      setValidUntil(
-        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
-      );
-    } else {
-      setMessage("⚠️ Der Aktionscode ist abgelaufen.");
-    }
-  };
-
   // Fetch free delivery threshold from Firebase
   useEffect(() => {
     const fetchFreeDeliveryData = async () => {
@@ -471,10 +382,12 @@ export default function PaymentModal({
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-
-  const allnoflashtotal = products
-    .filter((item) => item.isFlashSale === false)
-    .reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const allnoflashtotal = products.reduce((acc, item) => {
+    if (item.isFlashSale === false || item.isFlashSale == null) {
+      return acc + item.price * item.quantity;
+    }
+    return acc;
+  }, 0);
 
   // Check if cart qualifies for free delivery (only for standard delivery)
   const isEligibleForFreeDelivery =
@@ -498,6 +411,8 @@ export default function PaymentModal({
   const discountCost = parseFloat(
     ((discount / 100) * allnoflashtotal).toFixed(2)
   );
+  console.log(allnoflashtotal);
+  console.log(discountCost);
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -729,6 +644,95 @@ export default function PaymentModal({
       toast.error(
         "Bestellung nach Zahlung konnte nicht abgeschlossen werden. Bitte kontaktieren Sie den Support."
       );
+    }
+  };
+
+  const handleVerify = async () => {
+    setMessage("");
+    setDiscount(0);
+    setValidUntil(null);
+
+    const enteredCode = inputCode.trim().toLowerCase();
+
+    // Check flash sale condition
+    const allFlashSale = products.every((item) => item.isFlashSale === true);
+    const hasNonFlashSale = products.some((item) => item.isFlashSale === false);
+
+    if (allFlashSale) {
+      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
+      return;
+    }
+
+    // 1. Get promo codes from DB
+    const promoCodes = await getPromoCodes();
+    setPromoCodes(promoCodes);
+
+    // 2. Find the matched promo code
+    const matchedPromo = promoCodes.find(
+      (promo) => promo.code.toLowerCase() === enteredCode
+    );
+
+    if (!matchedPromo) {
+      setMessage(
+        "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
+      );
+      return;
+    }
+
+    // 3. Normalize noOfTimes
+    let allowedCount: number;
+    if (
+      matchedPromo.noOfTimes === null ||
+      matchedPromo.noOfTimes === undefined ||
+      matchedPromo.noOfTimes === "" ||
+      matchedPromo.noOfTimes === "Infinity" ||
+      matchedPromo.noOfTimes === 0
+    ) {
+      allowedCount = Infinity;
+    } else {
+      allowedCount = Number(matchedPromo.noOfTimes);
+      if (isNaN(allowedCount) || allowedCount < 0) {
+        allowedCount = Infinity; // fallback if invalid
+      }
+    }
+
+    // 4. Check usage limit
+    const usedCount = promoCodeUsage?.[enteredCode] || 0; // times already used
+
+    if (usedCount >= allowedCount) {
+      setMessage(
+        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
+          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
+        }x erlaubt)`
+      );
+      setDiscount(0);
+      return;
+    }
+
+    setSelectedCode(enteredCode);
+
+    // 5. Check expiry date
+    const today = normalizeDate(new Date());
+    const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
+
+    if (expiry >= today) {
+      setDiscount(matchedPromo.discount);
+
+      if (hasNonFlashSale) {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
+        );
+      } else {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
+        );
+      }
+
+      setValidUntil(
+        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
+      );
+    } else {
+      setMessage("⚠️ Der Aktionscode ist abgelaufen.");
     }
   };
 
