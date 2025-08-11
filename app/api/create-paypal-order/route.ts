@@ -1,34 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-const PAYPAL_CLIENT_SECRET = process.env.NEXT_PUBLIC_PAYPAL_SECRET_KEY;
-const PAYPAL_BASE_URL = 'https://api-m.sandbox.paypal.com'; // Use https://api-m.paypal.com for production
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || process.env.NEXT_PUBLIC_PAYPAL_SECRET_KEY;
+
+// Determine if we're using sandbox or live based on client ID
+const isLive = PAYPAL_CLIENT_ID?.startsWith('A') && !PAYPAL_CLIENT_ID?.includes('sandbox');
+const PAYPAL_BASE_URL = isLive 
+  ? 'https://api-m.paypal.com' 
+  : 'https://api-m.sandbox.paypal.com';
 
 async function getPayPalAccessToken() {
-  const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
-  
-  const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
+  try {
+    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+      throw new Error('PayPal credentials are not configured');
+    }
 
-  if (!response.ok) {
-    throw new Error(`Failed to get PayPal access token: ${response.status}`);
+    const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
+    
+    const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('PayPal token response error:', error);
+      throw new Error(`Failed to get PayPal access token: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.access_token) {
+      throw new Error('No access token received from PayPal');
+    }
+
+    return data.access_token;
+  } catch (error) {
+    console.error('Error getting PayPal access token:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.access_token;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { amount, currency = 'EUR', customerInfo } = await request.json();
 
+    console.log('PayPal Environment:', isLive ? 'LIVE' : 'SANDBOX');
+    console.log('PayPal Base URL:', PAYPAL_BASE_URL);
+    console.log('PayPal Order Request:', { amount, currency, customerInfo });
+
     if (!amount || amount <= 0) {
+      console.error('Invalid amount:', amount);
       return NextResponse.json(
         { error: 'Invalid amount' },
         { status: 400 }
@@ -36,6 +62,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+      console.error('PayPal credentials missing:', { 
+        hasClientId: !!PAYPAL_CLIENT_ID, 
+        hasSecret: !!PAYPAL_CLIENT_SECRET,
+        clientIdLength: PAYPAL_CLIENT_ID?.length,
+        secretLength: PAYPAL_CLIENT_SECRET?.length
+      });
       return NextResponse.json(
         { error: 'PayPal credentials not configured' },
         { status: 500 }
@@ -44,13 +76,35 @@ export async function POST(request: NextRequest) {
 
     const accessToken = await getPayPalAccessToken();
 
+    // Ensure amount is properly formatted
+    const formattedAmount = parseFloat(amount.toString()).toFixed(2);
+
+    // Get country code from customer info
+    const getCountryCode = (country: string) => {
+      const countryMap: { [key: string]: string } = {
+        'Germany': 'DE',
+        'Pakistan': 'PK',
+        'United States': 'US',
+        'United Kingdom': 'GB',
+        'France': 'FR',
+        'Spain': 'ES',
+        'Italy': 'IT',
+        'Netherlands': 'NL',
+        'Austria': 'AT',
+        'Belgium': 'BE',
+        'Switzerland': 'CH',
+        // Add more countries as needed
+      };
+      return countryMap[country] || 'DE'; // Default to DE if country not found
+    };
+
     const orderData = {
       intent: 'CAPTURE',
       purchase_units: [
         {
           amount: {
             currency_code: currency.toUpperCase(),
-            value: amount.toFixed(2),
+            value: formattedAmount,
           },
           shipping: {
             name: {
@@ -61,7 +115,7 @@ export async function POST(request: NextRequest) {
               address_line_2: customerInfo?.additionalAddress || '',
               admin_area_2: customerInfo?.townCity || '',
               postal_code: customerInfo?.postcode || '',
-              country_code: 'DE', // Germany
+              country_code: getCountryCode(customerInfo?.country || 'Germany'),
             },
           },
         },
@@ -75,6 +129,8 @@ export async function POST(request: NextRequest) {
       },
     };
 
+    console.log('PayPal Order Data:', JSON.stringify(orderData, null, 2));
+
     const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
@@ -87,18 +143,23 @@ export async function POST(request: NextRequest) {
     const order = await response.json();
 
     if (!response.ok) {
-      console.error('PayPal API Error:', order);
+      console.error('PayPal API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: order
+      });
       return NextResponse.json(
         { error: 'Failed to create PayPal order', details: order },
         { status: 500 }
       );
     }
 
+    console.log('PayPal Order Created Successfully:', order.id);
     return NextResponse.json({ orderID: order.id });
   } catch (error) {
     console.error('Error creating PayPal order:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

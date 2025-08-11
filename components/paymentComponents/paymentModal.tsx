@@ -29,7 +29,8 @@ import {
 import { getCountries } from "@/context/countries";
 import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
 import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
-import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { PayPalButtons } from "@paypal/react-paypal-js";
+import PayPalProviderWrapper from "@/components/paypal-provider-wrapper";
 import {
   collection,
   doc,
@@ -142,30 +143,48 @@ const PayPalCheckoutForm = ({
   const createOrder = async () => {
     try {
       setIsProcessing(true);
+      
+      // Validate amount
+      if (!amount || amount <= 0) {
+        throw new Error("Ungültiger Betrag");
+      }
+
+      console.log('Creating PayPal order with:', {
+        amount: amount,
+        currency: currency,
+        customerInfo: customerInfo
+      });
+
       const response = await fetch("/api/create-paypal-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: amount,
+          amount: Number(amount).toFixed(2),
           currency: currency,
           customerInfo: customerInfo,
         }),
       });
 
       const data = await response.json();
+      console.log('PayPal order response:', data);
 
       if (!response.ok) {
+        console.error('PayPal order creation failed:', data);
         throw new Error(
           data.error || "Fehler beim Erstellen der PayPal-Bestellung"
         );
       }
 
+      if (!data.orderID) {
+        throw new Error("Keine PayPal-Bestell-ID erhalten");
+      }
+
       return data.orderID;
     } catch (error) {
       console.error("PayPal Order Creation Error:", error);
-      toast.error("Fehler beim Erstellen der PayPal-Bestellung");
+      toast.error(`Fehler beim Erstellen der PayPal-Bestellung: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
       setIsProcessing(false);
       throw error;
     }
@@ -174,6 +193,9 @@ const PayPalCheckoutForm = ({
   const onApprove = async (data: any) => {
     try {
       setIsProcessing(true);
+      
+      console.log('PayPal order approved:', data);
+
       const response = await fetch("/api/capture-paypal-payment", {
         method: "POST",
         headers: {
@@ -185,8 +207,10 @@ const PayPalCheckoutForm = ({
       });
 
       const captureData = await response.json();
+      console.log('PayPal capture response:', captureData);
 
       if (!response.ok) {
+        console.error('PayPal capture failed:', captureData);
         throw new Error(
           captureData.error || "Fehler beim Abschließen der PayPal-Zahlung"
         );
@@ -196,12 +220,13 @@ const PayPalCheckoutForm = ({
         toast.success("PayPal-Zahlung erfolgreich!");
         onSuccessfulPayment(captureData.transactionId);
       } else {
-        toast.error("PayPal-Zahlung konnte nicht abgeschlossen werden");
+        console.error('PayPal payment not completed:', captureData);
+        toast.error(`PayPal-Zahlung konnte nicht abgeschlossen werden. Status: ${captureData.status || 'Unbekannt'}`);
         setIsProcessing(false);
       }
     } catch (error) {
       console.error("PayPal Capture Error:", error);
-      toast.error("Fehler beim Abschließen der PayPal-Zahlung");
+      toast.error(`Fehler beim Abschließen der PayPal-Zahlung: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
       setIsProcessing(false);
     }
   };
@@ -346,6 +371,95 @@ export default function PaymentModal({
   const normalizeDate = (date: Date) =>
     new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
+  const handleVerify = async () => {
+    setMessage("");
+    setDiscount(0);
+    setValidUntil(null);
+
+    const enteredCode = inputCode.trim().toLowerCase();
+
+    // Check flash sale condition
+    const allFlashSale = products.every((item) => item.isFlashSale === true);
+    const hasNonFlashSale = products.some((item) => item.isFlashSale === false);
+
+    if (allFlashSale) {
+      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
+      return;
+    }
+
+    // 1. Get promo codes from DB
+    const promoCodes = await getPromoCodes();
+    setPromoCodes(promoCodes);
+
+    // 2. Find the matched promo code
+    const matchedPromo = promoCodes.find(
+      (promo) => promo.code.toLowerCase() === enteredCode
+    );
+
+    if (!matchedPromo) {
+      setMessage(
+        "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
+      );
+      return;
+    }
+
+    // 3. Normalize noOfTimes
+    let allowedCount: number;
+    if (
+      matchedPromo.noOfTimes === null ||
+      matchedPromo.noOfTimes === undefined ||
+      matchedPromo.noOfTimes === "" ||
+      matchedPromo.noOfTimes === "Infinity" ||
+      matchedPromo.noOfTimes === 0
+    ) {
+      allowedCount = Infinity;
+    } else {
+      allowedCount = Number(matchedPromo.noOfTimes);
+      if (isNaN(allowedCount) || allowedCount < 0) {
+        allowedCount = Infinity; // fallback if invalid
+      }
+    }
+
+    // 4. Check usage limit
+    const usedCount = promoCodeUsage?.[enteredCode] || 0; // times already used
+
+    if (usedCount >= allowedCount) {
+      setMessage(
+        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
+          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
+        }x erlaubt)`
+      );
+      setDiscount(0);
+      return;
+    }
+
+    setSelectedCode(enteredCode);
+
+    // 5. Check expiry date
+    const today = normalizeDate(new Date());
+    const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
+
+    if (expiry >= today) {
+      setDiscount(matchedPromo.discount);
+
+      if (hasNonFlashSale) {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
+        );
+      } else {
+        setMessage(
+          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
+        );
+      }
+
+      setValidUntil(
+        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
+      );
+    } else {
+      setMessage("⚠️ Der Aktionscode ist abgelaufen.");
+    }
+  };
+
   // Fetch free delivery threshold from Firebase
   useEffect(() => {
     const fetchFreeDeliveryData = async () => {
@@ -382,12 +496,10 @@ export default function PaymentModal({
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  const allnoflashtotal = products.reduce((acc, item) => {
-    if (item.isFlashSale === false || item.isFlashSale == null) {
-      return acc + item.price * item.quantity;
-    }
-    return acc;
-  }, 0);
+
+  const allnoflashtotal = products
+    .filter((item) => item.isFlashSale === false)
+    .reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   // Check if cart qualifies for free delivery (only for standard delivery)
   const isEligibleForFreeDelivery =
@@ -404,15 +516,8 @@ export default function PaymentModal({
 
   const tax = subtotal * (taxRate / 100);
   const totalPrice =
-    subtotal +
-    tax +
-    deliveryFee -
-    parseFloat(((discount / 100) * allnoflashtotal).toFixed(2));
-  const discountCost = parseFloat(
-    ((discount / 100) * allnoflashtotal).toFixed(2)
-  );
-  console.log(allnoflashtotal);
-  console.log(discountCost);
+    subtotal + tax + deliveryFee - (discount / 100) * allnoflashtotal;
+  const discountCost = (discount / 100) * allnoflashtotal;
 
   useEffect(() => {
     if (isOpen && scrollRef.current) {
@@ -647,95 +752,6 @@ export default function PaymentModal({
     }
   };
 
-  const handleVerify = async () => {
-    setMessage("");
-    setDiscount(0);
-    setValidUntil(null);
-
-    const enteredCode = inputCode.trim().toLowerCase();
-
-    // Check flash sale condition
-    const allFlashSale = products.every((item) => item.isFlashSale === true);
-    const hasNonFlashSale = products.some((item) => item.isFlashSale === false);
-
-    if (allFlashSale) {
-      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
-      return;
-    }
-
-    // 1. Get promo codes from DB
-    const promoCodes = await getPromoCodes();
-    setPromoCodes(promoCodes);
-
-    // 2. Find the matched promo code
-    const matchedPromo = promoCodes.find(
-      (promo) => promo.code.toLowerCase() === enteredCode
-    );
-
-    if (!matchedPromo) {
-      setMessage(
-        "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
-      );
-      return;
-    }
-
-    // 3. Normalize noOfTimes
-    let allowedCount: number;
-    if (
-      matchedPromo.noOfTimes === null ||
-      matchedPromo.noOfTimes === undefined ||
-      matchedPromo.noOfTimes === "" ||
-      matchedPromo.noOfTimes === "Infinity" ||
-      matchedPromo.noOfTimes === 0
-    ) {
-      allowedCount = Infinity;
-    } else {
-      allowedCount = Number(matchedPromo.noOfTimes);
-      if (isNaN(allowedCount) || allowedCount < 0) {
-        allowedCount = Infinity; // fallback if invalid
-      }
-    }
-
-    // 4. Check usage limit
-    const usedCount = promoCodeUsage?.[enteredCode] || 0; // times already used
-
-    if (usedCount >= allowedCount) {
-      setMessage(
-        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
-          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
-        }x erlaubt)`
-      );
-      setDiscount(0);
-      return;
-    }
-
-    setSelectedCode(enteredCode);
-
-    // 5. Check expiry date
-    const today = normalizeDate(new Date());
-    const expiry = normalizeDate(new Date(matchedPromo.expiryDate));
-
-    if (expiry >= today) {
-      setDiscount(matchedPromo.discount);
-
-      if (hasNonFlashSale) {
-        setMessage(
-          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
-        );
-      } else {
-        setMessage(
-          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
-        );
-      }
-
-      setValidUntil(
-        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
-      );
-    } else {
-      setMessage("⚠️ Der Aktionscode ist abgelaufen.");
-    }
-  };
-
   const handleCashCheckout = async () => {
     if (!user) {
       setModal(true);
@@ -788,7 +804,7 @@ export default function PaymentModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />
-      <DialogContent className="max-w-[100vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
+      <DialogContent className="max-w-[99vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
         <DialogTitle className="sr-only">Ihren Kauf abschließen</DialogTitle>
         <div className="relative">
           {/* Header */}
@@ -1118,10 +1134,7 @@ export default function PaymentModal({
                       </span>
                       <span className="font-medium">
                         {" "}
-                        €
-                        {parseFloat(
-                          ((discount / 100) * allnoflashtotal).toFixed(2)
-                        )}
+                        €{((discount / 100) * allnoflashtotal).toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -1387,12 +1400,8 @@ export default function PaymentModal({
                   <X size={24} />
                 </button>
               </div>
-              <PayPalScriptProvider
-                options={{
-                  clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
-                  currency: "EUR",
-                  intent: "capture",
-                }}
+              <PayPalProviderWrapper
+                clientId={process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!}
               >
                 <PayPalCheckoutForm
                   amount={totalPrice}
@@ -1400,7 +1409,7 @@ export default function PaymentModal({
                   onSuccessfulPayment={handleSuccessfulPayPalPayment}
                   customerInfo={customerInfo}
                 />
-              </PayPalScriptProvider>
+              </PayPalProviderWrapper>
             </div>
           </div>
         )}
