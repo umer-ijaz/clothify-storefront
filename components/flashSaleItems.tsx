@@ -47,7 +47,7 @@ const FlashSaleCarousel = () => {
       setLoading(true);
       let items = await getFlashSaleItems();
       const items2 = await getProducts();
-      items = items.concat(items2).filter((item) => item.isFlashSale === true);
+      items = items.concat(items2).filter((item) => item.isFlashSale == true);
 
       setProducts(items);
       setLoading(false);
@@ -82,7 +82,7 @@ const FlashSaleCarousel = () => {
 
   return (
     <section className="relative mt-0 md:mt-10 w-full overflow-x-hidden pt-20 md:pt-10 h-auto">
-      {loading && (!products || products.length === 0) ? null : (
+      {loading && (!products || products.length == null || 0) ? null : (
         <div>
           <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
             <TextBox text={"Angebote des Tages"} />

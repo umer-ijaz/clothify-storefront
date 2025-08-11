@@ -190,11 +190,7 @@ export default function ProductInfo({
             {product.originalPrice > product.currentPrice && (
               <span className="bg-red-100 text-red-600 text-sm font-medium px-2 py-1 rounded-full">
                 -
-                {Math.round(
-                  ((product.originalPrice - product.currentPrice) /
-                    product.originalPrice) *
-                    100
-                )}
+                {product.discount}
                 %
               </span>
             )}
