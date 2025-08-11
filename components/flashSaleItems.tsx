@@ -72,8 +72,8 @@ const FlashSaleCarousel = () => {
     draggable: true,
     autoplay: true,
     autoplaySpeed: 3000,
-    lazyLoad: "ondemand", // 👈 only load images when needed
-    waitForAnimate: false, // 👈 prevents DOM buildup during fast nav
+    lazyLoad: "ondemand" as const, // Fix TypeScript type
+    waitForAnimate: false,
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 3 } },
       { breakpoint: 768, settings: { slidesToShow: 2 } },

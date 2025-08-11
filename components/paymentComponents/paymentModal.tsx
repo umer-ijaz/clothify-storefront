@@ -30,7 +30,7 @@ import { getCountries } from "@/context/countries";
 import { useDeliveryPriceStore } from "@/context/deliveryPriceContext";
 import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-import PayPalProviderWrapper from "@/components/paypal-provider-wrapper";
+import PayPalProviderWrapper from "@/paypal-provider-wrapper";
 import {
   collection,
   doc,

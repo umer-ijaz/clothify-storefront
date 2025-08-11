@@ -28,7 +28,7 @@ import {
 import { getCountries } from "@/context/countries";
 import { useExpressDeliveryPriceStore } from "@/context/expressDeliveryPriceContext";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import PayPalProviderWrapper from "@/components/paypal-provider-wrapper";
+import PayPalProviderWrapper from "@/paypal-provider-wrapper";
 import {
   updateProductInventory,
   validateInventoryBeforeOrder,
