@@ -318,6 +318,7 @@ export default function Navbar() {
             variant="ghost"
             size="icon"
             className="md:hidden text-white p-2"
+            aria-label="Menu"
           >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Menü öffnen</span>
@@ -334,7 +335,11 @@ export default function Navbar() {
             <nav className="py-2">
               {/* Mobile Logo */}
               <div className="px-4 mb-4">
-                <Link href="/" className="flex justify-center">
+                <Link
+                  href="/"
+                  className="flex justify-center"
+                  aria-label="Home"
+                >
                   <div className="h-[60px] w-[60px] relative">
                     <Image
                       src="/logo.webp?height=150&width=150"
@@ -394,6 +399,7 @@ export default function Navbar() {
                                         category.href
                                       )
                                     }
+                                    aria-label="Category"
                                     className="flex-1 text-left px-4 py-2.5 text-sm font-medium hover:bg-white transition-colors"
                                   >
                                     {category.title === "Women"
@@ -409,6 +415,7 @@ export default function Navbar() {
                                       onClick={() =>
                                         toggleMobileCategory(category.title)
                                       }
+                                      aria-label="Mobile Cateogory"
                                       className="p-2 hover:bg-white transition-colors"
                                     >
                                       <ChevronDown
@@ -452,6 +459,7 @@ export default function Navbar() {
                                                   subcategory
                                                 )
                                               }
+                                              aria-label="SubCategory"
                                               className="block w-full text-left px-6 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-600 transition-colors border-l-2 border-transparent hover:border-red-300"
                                             >
                                               {subcategory.title}
@@ -480,6 +488,7 @@ export default function Navbar() {
                           ? "text-red-600 bg-red-50"
                           : "text-gray-700"
                       )}
+                      aria-label="Items"
                     >
                       {item.title}
                     </Link>
@@ -494,6 +503,7 @@ export default function Navbar() {
                     variant="outline"
                     className="w-full bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] border-none hover:opacity-90 text-white"
                     onClick={() => setIsModalOpen(true)}
+                    aria-label="Click"
                   >
                     {user ? "Mein Konto" : "Anmelden"}
                   </Button>
@@ -511,6 +521,7 @@ export default function Navbar() {
           "hidden md:block",
           isSearchOpen ? "hidden" : "block md:h-[70px] md:w-[70px]"
         )}
+        aria-label="Home"
       >
         <div className="h-[50px] w-[50px] md:h-[70px] md:w-[70px] relative">
           <Image
@@ -630,6 +641,7 @@ export default function Navbar() {
                                     onClick={() =>
                                       handleCategoryNavigation(hoveredCategory)
                                     }
+                                    aria-label="All Category"
                                     className="text-red-600 border-red-200 hover:bg-red-50 text-xs lg:text-sm"
                                   >
                                     Alle anzeigen
@@ -652,6 +664,7 @@ export default function Navbar() {
                                               subcategory
                                             )
                                           }
+                                          aria-label="SubCategory"
                                           className="group p-3 rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-md transition-all duration-200 text-left bg-white hover:bg-gradient-to-br hover:from-red-50 hover:to-orange-50"
                                         >
                                           <div className="flex items-center justify-between">
@@ -716,6 +729,7 @@ export default function Navbar() {
                         navigationMenuTriggerStyle(),
                         "text-white hover:bg-white/20 hover:text-white transition-colors duration-300 heading-luxury"
                       )}
+                      aria-label="Items"
                     >
                       {formatName(item.title)}
                     </Link>
@@ -728,7 +742,7 @@ export default function Navbar() {
 
         {!loading &&
           (!user ? (
-            <button onClick={() => setIsModalOpen(true)}>
+            <button onClick={() => setIsModalOpen(true)} aria-label="Search">
               <div className="heading-luxury text-sm font-medium leading-none text-white hover:bg-white/20 hover:text-white transition-colors duration-300 block select-none space-y-1 rounded-md p-3 no-underline outline-none hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 focus:bg-accent focus:text-accent-foreground">
                 Anmelden
               </div>
@@ -743,8 +757,12 @@ export default function Navbar() {
           isSearchOpen ? "flex ml-2" : "hidden md:flex"
         )}
       >
-        <form className="w-full" onSubmit={handleSearchSubmit}>
-          <div className="relative w-full" ref={searchRef}>
+        <form
+          className="w-full"
+          onSubmit={handleSearchSubmit}
+          aria-label="Search Form"
+        >
+          <div className="relative max-w-[600px]" ref={searchRef}>
             <div className="flex items-center rounded-full">
               <Input
                 type="search"
@@ -758,6 +776,7 @@ export default function Navbar() {
                 <Button
                   type="submit"
                   size="icon"
+                  aria-label="Submit"
                   className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-transparent text-red absolute right-1 cursor-pointer"
                 >
                   <Search className="h-4 w-4" />
@@ -776,6 +795,7 @@ export default function Navbar() {
                           key={`suggestion-${index}`}
                           className="flex items-center justify-between w-full px-3 py-2 md:px-4 md:py-3 text-left hover:bg-gray-50 cursor-pointer"
                           onClick={() => handleSuggestionClick(suggestion)}
+                          aria-label="Select Suggestion"
                         >
                           <div className="flex gap-2 items-center">
                             <div>
@@ -808,6 +828,7 @@ export default function Navbar() {
                             key={`popular-${index}`}
                             className="block w-full text-left hover:text-gray-600 cursor-pointer text-sm md:text-base"
                             onClick={() => handleSuggestionClick(search)}
+                            aria-label="search"
                           >
                             {search}
                           </button>
@@ -854,6 +875,7 @@ export default function Navbar() {
                   <Link
                     href="/orders"
                     className="cursor-pointer text-sm md:text-base subheading"
+                    aria-label="Orders"
                   >
                     Bestellungen
                   </Link>
@@ -871,12 +893,13 @@ export default function Navbar() {
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-white p-1 md:p-2 rounded-full"
+              aria-label="Profile"
             >
               <ProfileIcon className="h-5 w-5 md:h-6 md:w-6" />
             </button>
           ))}
 
-        <Link href="/cart">
+        <Link href="/cart" aria-label="cart">
           <div className="relative bg-white p-1 md:p-2 rounded-full">
             <CartIcon className="h-5 w-5 md:h-6 md:w-6" />
             {isClient && cartCount > 0 && (

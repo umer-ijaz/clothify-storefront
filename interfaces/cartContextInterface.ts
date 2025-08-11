@@ -1,4 +1,4 @@
-interface CartItem {
+export interface CartItem {
   id: string;
   name: string;
   price: number;
@@ -8,13 +8,15 @@ interface CartItem {
   size?: string;
   stock?: number;
   isFlashSale: boolean;
+  isChecked: boolean;
 }
 
 interface CartState {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string, isFlashSale: boolean) => void; // updated
-  updateQuantity: (id: string, isFlashSale: boolean, quantity: number) => void; // updated
+  removeFromCart: (id: string, isFlashSale: boolean) => void;
+  updateQuantity: (id: string, isFlashSale: boolean, quantity: number) => void;
+  toggleChecked: (id: string, isFlashSale: boolean, checked: boolean) => void; // NEW
   getCartCount: () => number;
   clearCart: () => void;
 }

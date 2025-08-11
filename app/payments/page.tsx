@@ -410,8 +410,13 @@ export default function Payments() {
     const enteredCode = inputCode.trim().toLowerCase();
 
     // Check flash sale condition
-    const allFlashSale = cart.every((item) => item.isFlashSale === true);
-    const hasNonFlashSale = cart.some((item) => item.isFlashSale === false);
+    const allFlashSale = cart
+      .filter((item) => item.isChecked)
+      .every((item) => item.isFlashSale === true);
+
+    const hasNonFlashSale = cart
+      .filter((item) => item.isChecked)
+      .some((item) => item.isFlashSale === false);
 
     if (allFlashSale) {
       setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
@@ -538,11 +543,13 @@ export default function Payments() {
   }
 
   const allnoflashtotal = cart
-    .filter((item) => item.isFlashSale === false)
+    .filter((item) => item.isFlashSale === false || item.isFlashSale == null)
+    .filter((items) => items.isChecked == true)
     .reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const subtotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) =>
+      item.isChecked == true ? acc + item.price * item.quantity : acc,
     0
   );
 
@@ -1354,38 +1361,43 @@ export default function Payments() {
             <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-md h-full">
               <h2 className="text-xl font-semibold mb-4">Warenkorbsumme</h2>
               <div className="space-y-4 w-full">
-                {cart.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-center"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        {item.image && (
-                          <div className="w-10 h-10 rounded overflow-hidden">
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              width={40}
-                              height={40}
-                              className="object-cover w-full h-full"
-                            />
-                          </div>
-                        )}
-                        <span>{item.name}</span>
+                {cart
+                  .filter((items) => items.isChecked == true)
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          {item.image && (
+                            <div className="w-10 h-10 rounded overflow-hidden">
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                width={40}
+                                height={40}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                          )}
+                          <span>{item.name}</span>
+                        </div>
+                        <div className="text-xs text-red-500">
+                          {item.isFlashSale === true
+                            ? "Artikel gehört zu FlashSale."
+                            : null}
+                        </div>
                       </div>
-                      <div className="text-xs text-red-500">
-                        {item.isFlashSale === true
-                          ? "Artikel gehört zu FlashSale."
-                          : null}
+                      <div>
+                        <span className="text-emerald-500"> €{item.price}</span>{" "}
+                        x{" "}
+                        <span className="text-emerald-500">
+                          {item.quantity}
+                        </span>
                       </div>
                     </div>
-                    <div>
-                      <span className="text-emerald-500"> €{item.price}</span> x{" "}
-                      <span className="text-emerald-500">{item.quantity}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
                 <div className="flex justify-between items-center border-t pt-2">
                   <span className="font-medium">Zwischensumme</span>
                   <span className="font-medium"> €{subtotal.toFixed(2)}</span>

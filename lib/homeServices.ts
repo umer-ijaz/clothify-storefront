@@ -1,7 +1,7 @@
+"use cache";
 import { collection, getDocs } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig"; // adjust import path to your firebase config
 import { HomeService } from "@/interfaces/homeserviceinterface";
-
 
 export const fetchHomeServices = async (): Promise<HomeService[]> => {
   try {

@@ -788,7 +788,7 @@ export default function PaymentModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />
-      <DialogContent className="max-w-[99vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
+      <DialogContent className="max-w-[100vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
         <DialogTitle className="sr-only">Ihren Kauf abschließen</DialogTitle>
         <div className="relative">
           {/* Header */}

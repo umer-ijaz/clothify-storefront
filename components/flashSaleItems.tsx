@@ -70,8 +70,10 @@ const FlashSaleCarousel = () => {
     arrows: false,
     touchMove: true,
     draggable: true,
-    autoplay: true, // <--- Enable autoplay
-    autoplaySpeed: 3000, // <--- Delay between slides in milliseconds (3s)
+    autoplay: true,
+    autoplaySpeed: 3000,
+    lazyLoad: "ondemand", // 👈 only load images when needed
+    waitForAnimate: false, // 👈 prevents DOM buildup during fast nav
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 3 } },
       { breakpoint: 768, settings: { slidesToShow: 2 } },
@@ -100,6 +102,7 @@ const FlashSaleCarousel = () => {
                 type="button"
                 onClick={() => sliderRef.current?.slickPrev()}
                 className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
+                aria-label="Left Slide"
               >
                 <FaChevronLeft
                   size={16}
@@ -110,6 +113,7 @@ const FlashSaleCarousel = () => {
                 type="button"
                 onClick={() => sliderRef.current?.slickNext()}
                 className="p-2 bg-gray-200 hover:bg-red-500 active:bg-red-500 rounded-full cursor-pointer"
+                aria-label="Right Slide"
               >
                 <FaChevronRight
                   size={16}

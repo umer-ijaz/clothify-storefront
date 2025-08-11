@@ -57,7 +57,7 @@ export default function Footer() {
               width={100}
               height={100}
               loading="lazy"
-              className="w-30 h-25 mx-auto md:mx-0 border p-2"
+              className="w-35 h-30 mx-auto md:mx-0 border p-2"
             />
             <p className="mt-4 text-sm heading-luxury">
               „Trage Selbstvertrauen, beherrsche den Moment. Mode, die spricht,
@@ -75,27 +75,43 @@ export default function Footer() {
               <h3 className="font-bold text-lg mb-3 heading">Direktlinks</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/" className="hover:underline">
+                  <Link href="/" className="hover:underline" aria-label="home">
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link href="/category/men" className="hover:underline">
+                  <Link
+                    href="/category/men"
+                    className="hover:underline"
+                    aria-label="category men"
+                  >
                     Herren
                   </Link>
                 </li>
                 <li>
-                  <Link href="/category/women" className="hover:underline">
+                  <Link
+                    href="/category/women"
+                    className="hover:underline"
+                    aria-label="category women"
+                  >
                     Damen
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:underline">
+                  <Link
+                    href="/contact"
+                    className="hover:underline"
+                    aria-label="Contact"
+                  >
                     Kontakt
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about" className="hover:underline">
+                  <Link
+                    href="/about"
+                    className="hover:underline"
+                    aria-label="about"
+                  >
                     Über uns
                   </Link>
                 </li>
@@ -126,9 +142,15 @@ export default function Footer() {
               <div>
                 <h3 className="font-bold text-lg mb-3 heading">Impressum</h3>
                 <ul className="space-y-2">
-                  <Link href="/impression" className="hover:underline">
-                    Impressum
-                  </Link>
+                  <li>
+                    <Link
+                      href="/impression"
+                      className="hover:underline"
+                      aria-label="impression"
+                    >
+                      Impressum
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -140,8 +162,7 @@ export default function Footer() {
             <div className="flex flex-col items-center md:items-start gap-4">
               <h3 className="font-bold text-lg mb-3 heading">Versandarten</h3>
               <div className="flex flex-col-reverse justify-start gap-4">
-                <Image src="/DHL-photo.png" alt="DPD" width={100} height={50} />
-                <Image src="/DPD-Photo.png" alt="DHL" width={80} height={30} />
+                <Image src="/DPD-Photo.webp" alt="DPD" width={80} height={30} />
               </div>
             </div>
             <div className="flex flex-col items-start md:items-start gap-2">
@@ -149,7 +170,11 @@ export default function Footer() {
                 Allgemeine Geschäftsbedingungen
               </h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
-                <Link href="/return-condition" className="hover:underline">
+                <Link
+                  href="/return-condition"
+                  className="hover:underline"
+                  aria-label="return"
+                >
                   Rückgaberecht
                 </Link>
               </div>
@@ -163,12 +188,14 @@ export default function Footer() {
                 <Link
                   href="/payment-methods-details/paypal"
                   className="hover:underline"
+                  aria-label="paypal"
                 >
                   Paypal
                 </Link>
                 <Link
                   href="/payment-methods-details/via-bank"
                   className="hover:underline"
+                  aria-label="card"
                 >
                   Kreditkarte / Debitkarte
                 </Link>
@@ -179,7 +206,11 @@ export default function Footer() {
             <div className="flex flex-col items-start md:items-start gap-2">
               <h3 className="font-bold text-lg mb-2 heading">Rechnungsarten</h3>
               <div className="flex flex-col-reverse justify-center md:justify-start gap-2">
-                <Link href="/invoice" className="hover:underline">
+                <Link
+                  href="/invoice"
+                  className="hover:underline"
+                  aria-label="invoice"
+                >
                   Rechnungskauf
                 </Link>
               </div>
@@ -214,6 +245,7 @@ export default function Footer() {
               href="https://www.facebook.com/share/1DmBGBh3Wv/"
               className="p-2 border rounded-full bg-white"
               target="_blank"
+              aria-label="facebook"
             >
               <Facebook className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
             </a>
@@ -221,6 +253,7 @@ export default function Footer() {
               href="https://www.instagram.com/daniels_believe?igsh=MW05M2JwOTR1MWoxaQ=="
               className="p-2 border rounded-full bg-white"
               target="_blank"
+              aria-label="Instagram"
             >
               <Instagram className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
             </a>
@@ -228,6 +261,7 @@ export default function Footer() {
               href="https://www.tiktok.com/@daniels_believe?_t=ZS-8yZe7VBgyKA&_r=1"
               className="p-2 border rounded-full bg-white"
               target="_blank"
+              aria-label="tiktok"
             >
               <SiTiktok className="w-6 h-6 p-1 md:w-8 md:h-8 bg-red-500 rounded-full" />
             </a>

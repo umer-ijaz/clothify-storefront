@@ -41,7 +41,7 @@ const TopBar: React.FC = () => {
             height={50}
             priority={index === 0} // first one is above fold
             loading={index === 0 ? "eager" : "lazy"}
-            className="rounded-md object-cover"
+            className="rounded-md object-cover w-[50px] h-[50px]"
           />
           <div>
             <h2 className="font-semibold text-gray-800 heading-luxury text-base">
@@ -53,7 +53,7 @@ const TopBar: React.FC = () => {
             <Link
               href={`/services/${service.id}`}
               className="text-blue-600 text-sm hover:underline body"
-              aria-label={`Mehr Informationen über ${service.name}`}
+              aria-label={`${service.name}`}
             >
               Mehr über {service.name} lesen
             </Link>

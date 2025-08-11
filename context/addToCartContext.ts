@@ -3,8 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { CartState } from "@/interfaces/cartContextInterface";
-
-const CART_EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour
+const CART_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -18,7 +17,7 @@ export const useCartStore = create<CartState>()(
               cartItem.id === item.id &&
               cartItem.color === item.color &&
               cartItem.size === item.size &&
-              cartItem.isFlashSale === item.isFlashSale // also check flash sale status
+              cartItem.isFlashSale === item.isFlashSale
           );
 
           if (existingItem) {
@@ -46,11 +45,12 @@ export const useCartStore = create<CartState>()(
               ...state.cart,
               {
                 ...item,
+                isChecked: false, // default unchecked
                 quantity:
                   item.stock !== undefined && item.quantity > item.stock
                     ? item.stock
                     : item.quantity,
-                isFlashSale: !!item.isFlashSale, // ensure we store boolean
+                isFlashSale: !!item.isFlashSale,
               },
             ],
           };
@@ -76,6 +76,16 @@ export const useCartStore = create<CartState>()(
                 }
               : item;
           }),
+        }));
+      },
+
+      toggleChecked: (id, isFlashSale, checked) => {
+        set((state) => ({
+          cart: state.cart.map((item) =>
+            item.id === id && item.isFlashSale === isFlashSale
+              ? { ...item, isChecked: checked }
+              : item
+          ),
         }));
       },
 

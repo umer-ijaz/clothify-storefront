@@ -1,3 +1,4 @@
+"use cache";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 
@@ -15,7 +16,7 @@ export interface Product {
   currentPrice: number;
   originalPrice: number;
   discount: number;
-  isFlashSale:boolean;
+  isFlashSale: boolean;
   isBoth: boolean;
   stock: number;
   rating: number;

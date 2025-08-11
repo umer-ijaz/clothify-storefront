@@ -1,3 +1,4 @@
+"use cache";
 import { collection, getDocs } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig"; // adjust the path to your firebase config
 import { Service } from "@/interfaces/services";

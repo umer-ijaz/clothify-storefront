@@ -1,4 +1,4 @@
-"use client";
+"use cache"
 
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
@@ -11,7 +11,7 @@ interface HeroData {
 export const getHeroData = async (): Promise<HeroData> => {
   try {
     // Clear old cache
-    localStorage.removeItem("hero_data");
+    // localStorage.removeItem("hero_data");
 
     const q = query(
       collection(firestore, "carouseltitle"),
@@ -31,7 +31,7 @@ export const getHeroData = async (): Promise<HeroData> => {
       };
 
       // Store fresh hero data in localStorage
-      localStorage.setItem("hero_data", JSON.stringify(heroInfo));
+      // localStorage.setItem("hero_data", JSON.stringify(heroInfo));
 
       return heroInfo;
     }
@@ -43,7 +43,7 @@ export const getHeroData = async (): Promise<HeroData> => {
       subtitle: "Find the best this season 🔥",
     };
 
-    localStorage.setItem("hero_data", JSON.stringify(fallback));
+    // localStorage.setItem("hero_data", JSON.stringify(fallback));
     return fallback;
   } catch (error) {
     console.error("Error fetching hero data:", error);
@@ -55,7 +55,7 @@ export const getHeroData = async (): Promise<HeroData> => {
       subtitle: "Find the best this season 🔥",
     };
 
-    localStorage.setItem("hero_data", JSON.stringify(fallback));
+    // localStorage.setItem("hero_data", JSON.stringify(fallback));
     return fallback;
   }
 };

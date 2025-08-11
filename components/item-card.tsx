@@ -28,6 +28,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
         <Link
           href={`/product/${props.id}`}
           className="block relative w-full h-full"
+          aria-label={`${props.name}`}
         >
           <Image
             src={imageSrc}
@@ -135,6 +136,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           <Link
             className="w-full gap-2 flex flex-row justify-center items-center py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white transform transition-transform active:scale-95 rounded-full"
             href={`/product/${props.id}`}
+            aria-label={`${props.name}`}
           >
             <ShoppingBag className="h-4 w-4 text-sm md:text-md" />
             Jetzt kaufen

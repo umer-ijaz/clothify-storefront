@@ -9,9 +9,8 @@ import { Suspense } from "react";
 import Loading from "./loading"; // Import global loading UI
 import { UserProvider } from "@/context/userContext";
 import ClearCategoriesClient from "@/components/clearCategory";
-import AnnouncementPage from "./pop-up/page";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import MobileSearch from "./mobilesearch/page";
+import ClientProviders from "@/components/client-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +67,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <meta
+        name="description"
+        content="Discover premium products at Daniel's Believe We Ensure. Shop our curated collection with fast shipping, secure checkout, and exceptional customer service. Your trusted online shopping destination."
+      ></meta>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
@@ -75,23 +78,10 @@ export default function RootLayout({
           <ClearCategoriesClient />
           <TopBar />
           <Navbar />
-          <MobileSearch />
-          <AnnouncementPage />
-          <Suspense fallback={<Loading />}>{children}</Suspense>
+          <ClientProviders>
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+          </ClientProviders>
           <Footer />
-          <div>
-            <a
-              href="https://wa.me/923324257764"
-              target="_blank"
-              className="whatsapp-float"
-            >
-              <img
-                src="https://img.icons8.com/color/24/000000/whatsapp--v1.png"
-                alt="WhatsApp"
-              />
-              <span className="body">Chatten Sie mit uns</span>
-            </a>
-          </div>
           <Toaster />
         </UserProvider>
         <SpeedInsights />

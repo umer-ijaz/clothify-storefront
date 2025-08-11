@@ -7,7 +7,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
-import { getCarouselImages } from "@/lib/carouselImg"; // Adjust path as needed
+import { getCarouselImages } from "@/lib/carouselImg";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
 
@@ -21,35 +21,21 @@ const Carousel: React.FC = () => {
   const sliderRef = useRef<Slider>(null);
   const [images, setImages] = useState<CarouselImage[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
+
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        // Step 1: Clear carousel images from localStorage on first load
-        localStorage.removeItem("carousel_images");
-
-        // Step 2: Fetch data from Firestore
         const data = await getCarouselImages();
-
-        // Step 3: Format data
         const formattedData = data.map(
           (item: { id: string; url?: string; title?: string }) => ({
             id: item.id,
             url: item.url || "",
-            title: item.title || "", // fallback if URL is missing
+            title: item.title || "",
           })
         );
-
-        // Step 4: Store formatted data in localStorage
-        localStorage.setItem("carousel_images", JSON.stringify(formattedData));
-
-        // Step 5: Load from localStorage into state
-        const storedImages = localStorage.getItem("carousel_images");
-        if (storedImages) {
-          setImages(JSON.parse(storedImages));
-        } else {
-          setImages(formattedData); // fallback
-        }
+        setImages(formattedData);
       } catch (error) {
         console.error("Error fetching carousel images:", error);
       } finally {
@@ -69,6 +55,7 @@ const Carousel: React.FC = () => {
     autoplay: true,
     autoplaySpeed: 5000,
     arrows: false,
+    beforeChange: (_: number, next: number) => setCurrentIndex(next),
     dotsClass:
       "slick-dots flex justify-center gap-3 absolute bottom-8 w-full z-20",
   };
@@ -86,30 +73,43 @@ const Carousel: React.FC = () => {
       </div>
     );
 
+  // Only render current + 2 buffer slides
+  const buffer = 2;
+  const visibleImages = images.filter((_, idx) => {
+    const diff = Math.abs(idx - currentIndex);
+    return diff <= buffer || diff >= images.length - buffer;
+  });
+
   return (
     <div className="relative w-full h-full bg-white">
       <Slider ref={sliderRef} {...settings} className="w-full h-full">
-        {images.map((item) => (
-          <div key={item.id} className="w-full h-full">
-            <div className="w-full h-screen flex items-center justify-center p-4">
-              <Image
-                src={item.url || "/placeholder.svg"}
-                alt={"Carousel Image"}
-                width={800}
-                height={600}
-                loading="lazy"
-                className="w-full h-full object-contain cursor-pointer"
-                onClick={() => router.push(`/product/${item.title}`)}
-              />
+        {images.map((item, idx) =>
+          visibleImages.includes(item) ? (
+            <div key={item.id} className="w-full h-full">
+              <div className="w-full h-screen flex items-center justify-center p-4">
+                <Image
+                  src={item.url || "/placeholder.svg"}
+                  alt={"Carousel Image"}
+                  width={800}
+                  height={600}
+                  loading="lazy"
+                  className="w-full h-full object-contain cursor-pointer"
+                  onClick={() => router.push(`/product/${item.title}`)}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          ) : (
+            // Placeholder div keeps layout intact without loading all images
+            <div key={item.id} className="w-full h-full" />
+          )
+        )}
       </Slider>
 
       {/* Custom Navigation Buttons */}
       <button
         className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white bg-opacity-80 rounded-full shadow-lg transition-all duration-300 hover:bg-red-500 hover:bg-opacity-90 active:bg-red-600 hover:shadow-xl z-30"
         onClick={() => sliderRef.current?.slickPrev()}
+        aria-label="Left Slide"
       >
         <FaChevronLeft
           size={24}
@@ -120,6 +120,7 @@ const Carousel: React.FC = () => {
       <button
         className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white bg-opacity-80 rounded-full shadow-lg transition-all duration-300 hover:bg-red-500 hover:bg-opacity-90 active:bg-red-600 hover:shadow-xl z-30"
         onClick={() => sliderRef.current?.slickNext()}
+        aria-label="Right Slide"
       >
         <FaChevronRight
           size={24}

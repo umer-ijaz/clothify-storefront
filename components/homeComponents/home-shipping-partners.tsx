@@ -26,7 +26,7 @@ export default function ShippingPartners({ images }: ShippingPartnersProps) {
             <li
               key={index}
               className={`
-                ${index >= 6 ? "hidden md:block" : ""} 
+                ${index >= 4 ? "hidden md:block" : ""} 
                 list-none
               `}
             >

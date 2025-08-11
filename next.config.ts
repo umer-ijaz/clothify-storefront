@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import BundleAnalyzer from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
   webpack(config) {
@@ -18,10 +19,15 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
+    useCache: true,
     serverActions: {
       allowedOrigins: ["firebasestorage.googleapis.com"],
     },
   },
 };
+
+// const withBundleAnalyzer = BundleAnalyzer({
+//   enabled: process.env.ANALYZE === "true",
+// });
 
 export default nextConfig;

@@ -5,7 +5,7 @@ import TextField from "@/components/text-field";
 import { fetchReturnPolicyPeriod } from "@/lib/returnCondition";
 
 export default function ReturnCondition() {
-  const [returnPeriod, setReturnPeriod] = useState<number>(14); // Default value
+  const [returnPeriod, setReturnPeriod] = useState<number>(14); // Standardwert
   const [lastUpdated, setLastUpdated] = useState<string>("");
 
   useEffect(() => {
@@ -28,142 +28,154 @@ export default function ReturnCondition() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 text-gray-800 mt-5 mb-5 shadow-md rounded-md pl-10">
-      <TextField text={"Return & Exchange"} />
-      <p className="text-sm text-gray-500 mb-8">Last updated: {lastUpdated}</p>
+      <TextField text={"Rückgabe & Umtausch"} />
+      <p className="text-sm text-gray-500 mb-8">
+        Zuletzt aktualisiert: {lastUpdated}
+      </p>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">1. Returns & Exchanges</h2>
+        <h2 className="text-xl font-semibold mb-2">1. Rückgabe & Umtausch</h2>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            You may return or exchange any Artikel sold by Daniel’s Believe
-            within <strong>{returnPeriod} days</strong> of delivery.
+            Sie können jeden von Daniel’s Believe verkauften Artikel innerhalb
+            von <strong>{returnPeriod} Tagen</strong> nach Lieferung zurückgeben
+            oder umtauschen.
           </li>
           <li>
-            Items must be in new, unused, and unwashed condition, in their
-            original packaging, with tags attached (if provided), and free from
-            any markings, odors, or damages.
+            Artikel müssen in neuem, unbenutztem und ungewaschenem Zustand, in
+            Originalverpackung, mit Etiketten (falls vorhanden) und ohne
+            Beschädigungen, Gerüche oder Markierungen sein.
           </li>
         </ul>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">2. Return Timeframe</h2>
+        <h2 className="text-xl font-semibold mb-2">2. Rückgabezeitraum</h2>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            All return requests must be submitted within{" "}
-            <strong>{returnPeriod} days</strong> of delivery.
+            Rückgabeanträge müssen innerhalb von{" "}
+            <strong>{returnPeriod} Tagen</strong> nach Lieferung eingereicht
+            werden.
           </li>
           <li>
-            Items must be received by us no later than{" "}
-            <strong>{returnPeriod + 6} days</strong> from delivery.
+            Artikel müssen spätestens <strong>{returnPeriod + 6} Tage</strong>{" "}
+            nach Lieferung bei uns eingegangen sein.
           </li>
         </ul>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">
-          3. How to Initiate a Return
+          3. Wie Sie eine Rückgabe einleiten
         </h2>
         <ol className="list-decimal pl-5 space-y-1">
-          <li>Customers must initiate return on Return button.</li>
-          <li>We will received return request and approve.</li>
           <li>
-            Customers receive the Barcode via email from us within 24 working
-            hours.
+            Kunden müssen über den Rückgabe-Button die Rückgabe einleiten.
+          </li>
+          <li>Wir erhalten den Rückgabeantrag und genehmigen ihn.</li>
+          <li>
+            Kunden erhalten innerhalb von 24 Werksstunden per E-Mail einen
+            Barcode.
           </li>
           <li>
-            Customers need to bring Barcode with to the courier company outlet.
+            Kunden legen den Barcode in der Filiale des Versanddienstleisters
+            vor.
           </li>
           <li>
-            After scanning the barcode, courier company send the parcel to us
-            free of cost.
+            Nach dem Scannen des Barcodes sendet der Versanddienstleister das
+            Paket kostenfrei an uns zurück.
           </li>
         </ol>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">4. Eligible Items</h2>
+        <h2 className="text-xl font-semibold mb-2">4. Zulässige Artikel</h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>✔️ All textiles in original, pristine condition</li>
+          <li>✔️ Alle Textilien in originalem, einwandfreiem Zustand</li>
           <li>
-            ❌ Non-returnable: custom-printed fabrics, personalized items, final
-            sale or discounted goods, hygienic items (like intimate wear), and
-            samples .
+            ❌ Nicht rückgabefähig: individuell bedruckte Stoffe,
+            personalisierte Artikel, Ausverkaufs- oder rabattierte Ware,
+            hygienische Artikel (z. B. Unterwäsche) und Muster.
           </li>
         </ul>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">5. Return Shipping</h2>
+        <h2 className="text-xl font-semibold mb-2">5. Rückversand</h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Free returns within Germany.</li>
+          <li>Kostenloser Rückversand innerhalb Deutschlands.</li>
           <li>
-            Customer covers return shipping if using own courier (unless
-            defective/damaged).
-          </li>
-        </ul>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">6. Refunds & Exchanges</h2>
-        <ul className="list-disc pl-5 space-y-1">
-          <li>We offer full refunds to your original payment method.</li>
-          <li>
-            Refunds are processed within <strong>3 business days</strong> once
-            we’ve received and inspect the return.
-          </li>
-          <li>
-            Customer will have the refund amount into original payment method
-            within <strong>5-10 days</strong> once we issue refund.
+            Kunden tragen die Rücksendekosten bei eigenem Versand (außer bei
+            Defekten/Beschädigungen).
           </li>
         </ul>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">
-          7. Defective or Incorrect Items
+          6. Rückerstattung & Umtausch
         </h2>
         <ul className="list-disc pl-5 space-y-1">
           <li>
-            Contact us via email within <strong>7 days</strong> of delivery to
-            report damage or errors, preferably with photos.
+            Wir bieten vollständige Rückerstattung auf die ursprüngliche
+            Zahlungsmethode.
           </li>
           <li>
-            We will cover return shipping and offer a replacement or full
-            refund.
+            Rückerstattungen werden innerhalb von <strong>3 Werktagen</strong>{" "}
+            nach Eingangsprüfung bearbeitet.
+          </li>
+          <li>
+            Der Betrag wird innerhalb von <strong>5–10 Tagen</strong> nach
+            Ausstellung der Rückerstattung gutgeschrieben.
           </li>
         </ul>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-2">
-          8. Restocking & Additional Fees
+          7. Defekte oder falsche Artikel
+        </h2>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>
+            Kontaktieren Sie uns innerhalb von <strong>7 Tagen</strong> nach
+            Lieferung per E-Mail und möglichst mit Fotos.
+          </li>
+          <li>
+            Wir übernehmen den Rückversand und bieten Ersatz oder vollständige
+            Rückerstattung.
+          </li>
+        </ul>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">
+          8. Wiedereinlagerungs­gebühr & Zusatzkosten
         </h2>
         <p>
-          No restocking fee unless the returned item is not in its original
-          condition, in which case we reserve the right to deduct a percentage
-          (up to 20%) from the refund.
+          Keine Wiedereinlagerungsgebühr, es sei denn, der Artikel ist nicht im
+          Originalzustand – in dem Fall behalten wir uns vor, einen Teilbetrag
+          (bis zu 20 %) vom Erstattungsbetrag einzubehalten.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">9. Lost Packages</h2>
+        <h2 className="text-xl font-semibold mb-2">9. Verlorene Sendungen</h2>
         <p>
-          Once the return is handed to the carrier, we are not responsible for
-          lost packages unless you opted for insured shipping or used our
-          provided label.
+          Sobald die Rücksendung an den Versanddienstleister übergeben wurde,
+          übernehmen wir keine Haftung bei Verlust – außer Sie haben eine
+          Versicherung gewählt oder unser Etikett genutzt.
         </p>
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-2">10. Contact Information</h2>
+        <h2 className="text-xl font-semibold mb-2">10. Kontakt</h2>
         <p>
-          If you have questions or need help, email{" "}
+          Bei Fragen oder Unterstützung erreichen Sie uns per E-Mail an{" "}
           <a href="mailto:Info@danielsbelieve.de" className="text-blue-600">
             Info@danielsbelieve.de
           </a>{" "}
-          or call <strong>+49 1522 3815822</strong>. We aim to respond within{" "}
-          <strong>24 hours</strong>.
+          oder telefonisch unter <strong>+49 1522 3815822</strong>. Wir bemühen
+          uns, innerhalb von <strong>24 Stunden</strong> zu antworten.
         </p>
       </section>
     </div>

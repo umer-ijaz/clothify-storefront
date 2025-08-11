@@ -133,6 +133,7 @@ export default function ProductInfo({
       size: selectedSize || "",
       stock: product.stock,
       isFlashSale: product.isFlashSale,
+      isChecked: true,
     });
     toast.success("Produkt wurde zum Warenkorb hinzugefügt.");
   };
@@ -242,7 +243,9 @@ export default function ProductInfo({
 
         {/* Description */}
         <div>
-          <h2 className="text-xl font-semibold mb-2 text-gray-800 heading">Details</h2>
+          <h2 className="text-xl font-semibold mb-2 text-gray-800 heading">
+            Details
+          </h2>
           <pre className="text-gray-600 mb-4 mr-5 whitespace-pre-wrap body">
             {product.description}
           </pre>
@@ -259,14 +262,18 @@ export default function ProductInfo({
         {/* Category and Subcategory */}
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-700 heading">Kategorie</h3>
+            <h3 className="text-lg font-semibold text-gray-700 heading">
+              Kategorie
+            </h3>
             <p className="text-gray-600 body">
               {product.category === "men"
                 ? "Herren"
                 : product.category === "women"
                 ? "Damen"
-                : formatName(product.category.charAt(0).toUpperCase() +
-                  product.category.slice(1))}
+                : formatName(
+                    product.category.charAt(0).toUpperCase() +
+                      product.category.slice(1)
+                  )}
             </p>
           </div>
           {product.subcategory && (
@@ -285,11 +292,15 @@ export default function ProductInfo({
         {/* Brand and Material */}
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-700 heading">Marke</h3>
+            <h3 className="text-lg font-semibold text-gray-700 heading">
+              Marke
+            </h3>
             <p className="text-gray-600 body">{product.brand}</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-700 heading">Material</h3>
+            <h3 className="text-lg font-semibold text-gray-700 heading">
+              Material
+            </h3>
             <p className="text-gray-600 body">{product.material}</p>
           </div>
         </div>

@@ -19,6 +19,7 @@ export default function DropDownFilter({
     <div className="flex justify-center item-center m-0">
       <div className="relative w-50">
         <select
+          aria-label="filters for price"
           className="body w-full appearance-none bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] 
           text-white font-semibold rounded-full py-2 px-3  text-sm shadow-md 
           focus:outline-none cursor-pointer transition-all duration-500 ease-out transform hover:shadow-xl

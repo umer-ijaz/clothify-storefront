@@ -27,6 +27,7 @@ export default function ProductQuickViewButton({
         variant="outline"
         size={iconOnly ? "icon" : "default"}
         className={className}
+        aria-label="Eye"
       >
         <Eye className="h-3 w-3 md:h-4 md:w-4 text-black-500" />
         {!iconOnly && buttonText}

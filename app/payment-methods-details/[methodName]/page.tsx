@@ -27,7 +27,7 @@ const paymentMethods: Record<
       "Bestätigen Sie die Zahlungsdetails.",
       "Klicken Sie auf 'Jetzt bezahlen', um die Transaktion abzuschließen.",
     ],
-    img: "/Plain-card.jpg",
+    img: "/Plain-card.webp",
     icon: <ShieldCheck className="text-blue-500 w-8 h-8" />,
   },
 
@@ -42,7 +42,7 @@ const paymentMethods: Record<
       "Überprüfen Sie Ihre Angaben und klicken Sie auf 'Weiter'.",
       "Führen Sie eventuell erforderliche zusätzliche Sicherheitsprüfungen durch (OTP, 3D Secure).",
     ],
-    img: "/credit_debit.jpg",
+    img: "/credit_debit.webp",
     icon: <CreditCard className="text-green-600 w-8 h-8" />,
   },
 };

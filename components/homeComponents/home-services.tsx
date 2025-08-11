@@ -46,7 +46,7 @@ export default function HomeServices() {
   );
 
   return (
-    <section className="py-12 w-full h-auto">
+    <section>
       <TextBox text="Dienstleistungen" />
       <ShippingPartners images={shippingPartnersImages} />
 
@@ -93,8 +93,7 @@ export default function HomeServices() {
                       </span>
                     </div>
                     <h3 className="text-lg md:text-xl font-semibold mt-3 heading">
-                      {service.name.charAt(0).toUpperCase() +
-                        service.name.slice(1).toLowerCase()}
+                      {formatName(service.name)}
                     </h3>
                     <p className="text-gray-600 text-sm md:text-base mt-2 body">
                       {service.content}

@@ -11,7 +11,8 @@ import { useTaxStore } from "@/context/taxContext";
 import formatName from "@/lib/formatNames";
 
 export default function CartClient() {
-  const { cart, removeFromCart, updateQuantity } = useCartStore();
+  const { cart, removeFromCart, updateQuantity, toggleChecked } =
+    useCartStore();
   const [mounted, setMounted] = useState(false);
   const { taxRate, setTaxRate } = useTaxStore();
 
@@ -25,9 +26,16 @@ export default function CartClient() {
   }
 
   const totalPrice = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) =>
+      item.isChecked ? acc + Number(item.price) * item.quantity : acc,
     0
   );
+
+  function updateAll() {
+    cart.forEach((item) => {
+      toggleChecked(item.id, item.isFlashSale, true);
+    });
+  }
 
   return (
     <>
@@ -40,14 +48,23 @@ export default function CartClient() {
 
         <TextField text={"Warenkorb"} />
         <div className="mx-2 sm:mx-4 md:mx-8 lg:mx-12 py-12 px-2 sm:px-4 md:px-8 lg:px-12 rounded-xl bg-white shadow-lg">
-          <h1 className="text-xl font-semibold mb-1 heading">Einkaufswagen</h1>
-          <p className="text-gray-600 text-md mb-6 body">
-            Sie haben {cart.length} Artikel in Ihrem Warenkorb.
-          </p>
+          <div className="flex justify-between items-center w-full">
+            <div>
+              <h1 className="text-xl font-semibold mb-1 heading">
+                Einkaufswagen
+              </h1>
+              <p className="text-gray-600 text-md mb-6 body">
+                Sie haben {cart.length} Artikel in Ihrem Warenkorb.
+              </p>
+            </div>
+            <Button text="Alle markieren" onClick={updateAll} />
+          </div>
 
           {cart.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-gray-500 mb-4 heading">Ihr Warenkorb ist leer.</p>
+              <p className="text-gray-500 mb-4 heading">
+                Ihr Warenkorb ist leer.
+              </p>
               <Link
                 href="/"
                 className="body inline-block items-center gap-2 px-4 md:px-5 py-2 md:py-3 
@@ -80,6 +97,23 @@ export default function CartClient() {
                       {/* Desktop View - Hidden on Mobile */}
                       <div className="hidden md:grid grid-cols-4 items-center">
                         <div className="col-span-1 flex items-center gap-3 justify-center">
+                          <input
+                            type="checkbox"
+                            checked={item.isChecked}
+                            onChange={(e) =>
+                              toggleChecked(
+                                item.id,
+                                item.isFlashSale,
+                                e.target.checked
+                              )
+                            }
+                            className={`mr-2 ${
+                              item.isChecked
+                                ? "accent-red-500"
+                                : "accent-gray-200"
+                            }`}
+                          />
+
                           <div className="w-18 h-18 relative">
                             <Image
                               src={
@@ -94,7 +128,9 @@ export default function CartClient() {
                             />
                           </div>
                           <div>
-                            <h3 className="font-medium">{formatName(item.name)}</h3>
+                            <h3 className="font-medium">
+                              {formatName(item.name)}
+                            </h3>
                             <p className="text-xs text-gray-500">
                               {item.color && `Color: ${item.color}`}
                               {item.size && ` | Size: ${item.size}`}
@@ -114,7 +150,11 @@ export default function CartClient() {
                             <div className="flex flex-col justify-center items-center gap-0">
                               <button
                                 onClick={() =>
-                                  updateQuantity(item.id, item.isFlashSale,item.quantity + 1,)
+                                  updateQuantity(
+                                    item.id,
+                                    item.isFlashSale,
+                                    item.quantity + 1
+                                  )
                                 }
                                 className="w-5 h-5 flex items-center justify-center rounded-full"
                               >
@@ -162,7 +202,9 @@ export default function CartClient() {
                         </div>
                         <div className="flex justify-end">
                           <button
-                            onClick={() => removeFromCart(item.id, item.isFlashSale)}
+                            onClick={() =>
+                              removeFromCart(item.id, item.isFlashSale)
+                            }
                             className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500"
                             aria-label="Remove item"
                           >
@@ -180,7 +222,24 @@ export default function CartClient() {
                       {/* Mobile View - Vertical Layout */}
                       <div className="md:hidden w-full">
                         <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={item.isChecked}
+                              onChange={(e) =>
+                                toggleChecked(
+                                  item.id,
+                                  item.isFlashSale,
+                                  e.target.checked
+                                )
+                              }
+                              className={`mr-2 ${
+                                item.isChecked
+                                  ? "accent-red-500"
+                                  : "accent-gray-200"
+                              }`}
+                            />
+
                             <div className="w-[50px] h-[50px] relative flex-shrink-0">
                               <Image
                                 src={
@@ -194,7 +253,9 @@ export default function CartClient() {
                               />
                             </div>
                             <div>
-                              <h3 className="font-medium">{formatName(item.name)}</h3>
+                              <h3 className="font-small">
+                                {formatName(item.name)}
+                              </h3>
                               <p className="text-xs text-gray-500">
                                 {item.color && `Color: ${item.color}`}
                                 {item.size && ` | Size: ${item.size}`}
@@ -205,7 +266,9 @@ export default function CartClient() {
                             </div>
                           </div>
                           <button
-                            onClick={() => removeFromCart(item.id, item.isFlashSale)}
+                            onClick={() =>
+                              removeFromCart(item.id, item.isFlashSale)
+                            }
                             className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500"
                             aria-label="Remove item"
                           >
@@ -227,7 +290,11 @@ export default function CartClient() {
                             <div className="flex flex-col justify-center items-center gap-0">
                               <button
                                 onClick={() =>
-                                  updateQuantity(item.id, item.isFlashSale,item.quantity + 1)
+                                  updateQuantity(
+                                    item.id,
+                                    item.isFlashSale,
+                                    item.quantity + 1
+                                  )
                                 }
                                 className="w-5 h-5 flex items-center justify-center rounded-full"
                               >
@@ -314,9 +381,7 @@ export default function CartClient() {
                     </div>
 
                     <Link href="/payments" className="flex justify-center">
-                      <Button
-                        text="Zur Bezahlung fortfahren"
-                      />
+                      <Button text="Zur Bezahlung fortfahren" />
                     </Link>
                   </div>
                 </div>

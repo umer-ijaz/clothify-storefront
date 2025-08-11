@@ -79,6 +79,7 @@ export default function AnnouncementPage() {
         <button
           onClick={handleAnnouncementClick}
           disabled={loading}
+          aria-label="announcements"
           className="group relative bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed animate-bounce"
         >
           {/* Notification Ping */}
