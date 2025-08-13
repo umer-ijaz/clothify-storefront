@@ -83,7 +83,7 @@ const nextConfig: NextConfig = {
     },
   },
 };
-
+ 
 // const withBundleAnalyzer = BundleAnalyzer({
 //   enabled: process.env.ANALYZE === "true",
 // });
