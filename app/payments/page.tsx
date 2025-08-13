@@ -1105,6 +1105,7 @@ export default function Payments() {
                   <select
                     id="country"
                     value={customerInfo.country}
+                    defaultValue={"Germany"}
                     onChange={(e) =>
                       handleSelectChange("country", e.target.value)
                     }
