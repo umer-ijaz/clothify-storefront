@@ -151,7 +151,7 @@ export default function ReturnItemModal({
             <div className="h-16 w-16 overflow-hidden rounded-md border border-gray-300 flex-shrink-0">
               <Image
                 src={
-                  resizeImageUrl(item.image, "200x200") ||
+                  resizeImageUrl(item.image!, "200x200") ||
                   item.image ||
                   "/placeholder.svg?height=64&width=64"
                 }
@@ -159,6 +159,10 @@ export default function ReturnItemModal({
                 width={64}
                 height={64}
                 className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    item.image || "/placeholder.svg?height=64&width=64";
+                }}
               />
             </div>
             <div>
