@@ -11,6 +11,7 @@ import { firestore } from "@/lib/firebaseConfig";
 import { Service } from "@/interfaces/servicesforpageinterface";
 import Loading from "../loading";
 import formatName from "@/lib/formatNames";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -77,7 +78,11 @@ export default function ServicesPage() {
               >
                 <div className="h-48 relative">
                   <Image
-                    src={service.mainImage || "/placeholder.svg"}
+                    src={
+                      resizeImageUrl(service.mainImage, "500x500") ||
+                      service.mainImage ||
+                      "/placeholder.svg"
+                    }
                     alt={service.name}
                     fill
                     className="object-cover rounded-t-lg"

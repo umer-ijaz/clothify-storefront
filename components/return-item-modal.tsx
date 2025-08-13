@@ -16,6 +16,7 @@ import Button from "./button";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 import { toast } from "sonner";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 interface Item {
   id: string;
@@ -149,7 +150,11 @@ export default function ReturnItemModal({
           <div className="flex items-center gap-4 p-3 border rounded-md bg-gray-50">
             <div className="h-16 w-16 overflow-hidden rounded-md border border-gray-300 flex-shrink-0">
               <Image
-                src={item.image || "/placeholder.svg?height=64&width=64"}
+                src={
+                  resizeImageUrl(item.image, "200x200") ||
+                  item.image ||
+                  "/placeholder.svg?height=64&width=64"
+                }
                 alt={item.name}
                 width={64}
                 height={64}

@@ -8,6 +8,7 @@ import HomeLink from "@/components/home-link";
 import Button from "@/components/button";
 import { ArrowLeft, ChevronRight, Clock, Calendar, Star } from "lucide-react";
 import TextField from "@/components/text-field";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 interface Service {
   id: string;
@@ -174,7 +175,11 @@ export default function ServiceDetailPageClient({
             {/* Left column - Main Image */}
             <div className="aspect-square relative rounded-xl overflow-hidden border border-gray-100 shadow-sm">
               <Image
-                src={selectedImage || service.mainImage}
+                src={
+                  resizeImageUrl(selectedImage!, "500x500") ||
+                  selectedImage ||
+                  service.mainImage
+                }
                 alt={service.name}
                 fill
                 className="object-cover transition-transform duration-700 hover:scale-105"
@@ -213,9 +218,7 @@ export default function ServiceDetailPageClient({
 
                 <Link href="/contact">
                   <div className="w-full">
-                    <Button
-                      text="Kontaktieren Sie uns bezüglich dieses Dienstes"
-                    />
+                    <Button text="Kontaktieren Sie uns bezüglich dieses Dienstes" />
                   </div>
                 </Link>
               </div>
@@ -224,7 +227,7 @@ export default function ServiceDetailPageClient({
 
           {/* Image thumbnails - now below the main content */}
           {allImages.length > 1 && (
-            <div className="mt-8 flex space-x-4 overflow-x-auto pb-2">
+            <div className="mt-8 flex space-x-4 overflow-x-scroll pb-2">
               {allImages.map((image, index) => (
                 <div
                   key={index}
@@ -237,10 +240,18 @@ export default function ServiceDetailPageClient({
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
+                    src={
+                      resizeImageUrl(image, "200X200") ||
+                      image ||
+                      "/placeholder.svg"
+                    }
                     alt={`${service.name} thumbnail ${index + 1}`}
-                    fill
+                    height={80}
+                    width={80}
                     className="object-cover rounded-md"
+                    onError={(e) => {
+                      e.currentTarget.src = image;
+                    }}
                   />
                 </div>
               ))}

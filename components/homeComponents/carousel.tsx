@@ -10,6 +10,7 @@ import Image from "next/image";
 import { getCarouselImages } from "@/lib/carouselImg";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 interface CarouselImage {
   id: string;
@@ -86,15 +87,40 @@ const Carousel: React.FC = () => {
         {images.map((item, idx) =>
           visibleImages.includes(item) ? (
             <div key={item.id} className="w-full h-full">
-              <div className="w-full h-screen flex items-center justify-center p-4">
+              <div className="w-full h-screen items-center justify-center p-2 hidden md:flex">
                 <Image
-                  src={item.url || "/placeholder.svg"}
+                  src={
+                    resizeImageUrl(item.url, "1000x1000") ||
+                    item.url ||
+                    "/placeholder.svg"
+                  }
                   alt={"Carousel Image"}
                   width={800}
                   height={600}
                   loading="lazy"
-                  className="w-full h-full object-contain cursor-pointer"
+                  className="w-full h-full object-contain cursor-pointer "
                   onClick={() => router.push(`/product/${item.title}`)}
+                  onError={(e) => {
+                    e.currentTarget.src = item.url; // fallback to original
+                  }}
+                />
+              </div>
+              <div className="w-full h-screen items-center justify-center p-2 flex md:hidden">
+                <Image
+                  src={
+                    resizeImageUrl(item.url, "500x500") ||
+                    item.url ||
+                    "/placeholder.svg"
+                  }
+                  alt={"Carousel Image"}
+                  width={800}
+                  height={600}
+                  loading="lazy"
+                  className="w-full h-full object-contain cursor-pointer "
+                  onClick={() => router.push(`/product/${item.title}`)}
+                  onError={(e) => {
+                    e.currentTarget.src = item.url; // fallback to original
+                  }}
                 />
               </div>
             </div>

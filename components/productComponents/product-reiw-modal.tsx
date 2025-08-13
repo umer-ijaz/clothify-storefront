@@ -16,14 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  doc,
-  updateDoc,
-  getDoc,
-  type Timestamp,
-} from "firebase/firestore";
+import { doc, updateDoc, getDoc, type Timestamp } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig";
 import Button from "../button";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 // Define item types
 type ItemType = "product" | "flashSaleItem";
@@ -192,7 +188,7 @@ export default function ProductReviewModal({
       // Get current product data to append the new review
       const currentProductData = itemDoc.data();
       const currentReviews = currentProductData?.reviews || [];
-      
+
       // Create new review with unique ID
       const reviewData = {
         id: `review_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -204,7 +200,7 @@ export default function ProductReviewModal({
 
       // Add the new review to the existing reviews array
       const updatedReviews = [...currentReviews, reviewData];
-      
+
       // Calculate new average rating and reviews count
       const totalRating = updatedReviews.reduce(
         (sum, r) => sum + (r.rating || 0),

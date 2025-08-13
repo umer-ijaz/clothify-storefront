@@ -19,6 +19,7 @@ import {
 import TextField from "@/components/text-field";
 import { Service } from "@/interfaces/servicesforpageinterface";
 import formatName from "@/lib/formatNames";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 interface MediaItem {
   type: "image" | "video";
@@ -295,11 +296,17 @@ export default function ServiceDetailPage({
               onMouseLeave={() => setIsHovering(false)}
             >
               <Image
-                src={allImages[selectedImageIndex] || service.mainImage}
+                src={
+                  resizeImageUrl(allImages[selectedImageIndex], "500x500") ||
+                  service.mainImage
+                }
                 alt={service.name}
                 fill
                 className="transition-all duration-500 object-cover"
                 quality={100}
+                onError={(e) => {
+                  e.currentTarget.src = allImages[selectedImageIndex];
+                }}
               />
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -383,7 +390,7 @@ export default function ServiceDetailPage({
 
           {/* Image thumbnails - now below the main content */}
           {allImages.length > 1 && (
-            <div className="mt-8 flex space-x-4 overflow-x-auto pb-2">
+            <div className="mt-8 flex space-x-4  pb-2 overflow-x-scroll">
               {allImages.map((image, index) => (
                 <div
                   key={index}
@@ -396,10 +403,18 @@ export default function ServiceDetailPage({
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
+                    src={
+                      resizeImageUrl(image, "200x200") ||
+                      image ||
+                      "/placeholder.svg"
+                    }
+                    width={80}
+                    height={80}
                     alt={`${service.name} thumbnail ${index + 1}`}
-                    fill
                     className="object-cover rounded-md"
+                    onError={(e) => {
+                      e.currentTarget.src = image;
+                    }}
                   />
                 </div>
               ))}

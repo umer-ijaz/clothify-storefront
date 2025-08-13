@@ -10,11 +10,13 @@ import { useState } from "react";
 import { ShoppingBag, Star } from "lucide-react";
 import { ProductCardEnhancedProps } from "@/interfaces/productCardinterface";
 import formatNames from "@/lib/formatNames";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 export default function ItemCard(props: ProductCardEnhancedProps) {
   const [isHovered, setIsHovered] = useState(false);
   const imageSrc =
     props.image || props.variants?.[0]?.mainImage || "/placeholder.svg";
+  console.log(imageSrc);
   return (
     <div
       className="group relative bg-white rounded-md md:rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 border-[0.01px] border-gray-300"
@@ -27,11 +29,11 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
       >
         <Link
           href={`/product/${props.id}`}
-          className="block relative w-full h-full"
+          className="relative w-full h-full hidden md:block"
           aria-label={`${props.name}`}
         >
           <Image
-            src={imageSrc}
+            src={resizeImageUrl(imageSrc, "500x500") || imageSrc}
             alt={props.name}
             width={500}
             height={500}
@@ -41,6 +43,30 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
               "object-cover transition-transform duration-500 p-2 shadow-sm cursor-pointer w-full h-full rounded-md"
             )}
             unoptimized={false}
+            onError={(e) => {
+              e.currentTarget.src = imageSrc;
+            }}
+          />
+        </Link>
+        <Link
+          href={`/product/${props.id}`}
+          className="relative w-full h-full block md:hidden"
+          aria-label={`${props.name}`}
+        >
+          <Image
+            src={resizeImageUrl(imageSrc, "200x200") || imageSrc}
+            alt={props.name}
+            width={500}
+            height={500}
+            quality={65}
+            loading="lazy"
+            className={cn(
+              "object-cover transition-transform duration-500 p-2 shadow-sm cursor-pointer w-full h-full rounded-md"
+            )}
+            unoptimized={false}
+            onError={(e) => {
+              e.currentTarget.src = imageSrc;
+            }}
           />
         </Link>
         {props.discount > 0 && (

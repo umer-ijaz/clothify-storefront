@@ -43,6 +43,7 @@ import { firestore } from "@/lib/firebaseConfig";
 import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
 import { ProductItem } from "@/interfaces/paymentModalCartinterface";
 import { fetchPromoUsage } from "@/lib/promoDataforUser";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -143,16 +144,16 @@ const PayPalCheckoutForm = ({
   const createOrder = async () => {
     try {
       setIsProcessing(true);
-      
+
       // Validate amount
       if (!amount || amount <= 0) {
         throw new Error("Ungültiger Betrag");
       }
 
-      console.log('Creating PayPal order with:', {
+      console.log("Creating PayPal order with:", {
         amount: amount,
         currency: currency,
-        customerInfo: customerInfo
+        customerInfo: customerInfo,
       });
 
       const response = await fetch("/api/create-paypal-order", {
@@ -168,10 +169,10 @@ const PayPalCheckoutForm = ({
       });
 
       const data = await response.json();
-      console.log('PayPal order response:', data);
+      console.log("PayPal order response:", data);
 
       if (!response.ok) {
-        console.error('PayPal order creation failed:', data);
+        console.error("PayPal order creation failed:", data);
         throw new Error(
           data.error || "Fehler beim Erstellen der PayPal-Bestellung"
         );
@@ -184,7 +185,11 @@ const PayPalCheckoutForm = ({
       return data.orderID;
     } catch (error) {
       console.error("PayPal Order Creation Error:", error);
-      toast.error(`Fehler beim Erstellen der PayPal-Bestellung: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+      toast.error(
+        `Fehler beim Erstellen der PayPal-Bestellung: ${
+          error instanceof Error ? error.message : "Unbekannter Fehler"
+        }`
+      );
       setIsProcessing(false);
       throw error;
     }
@@ -193,8 +198,8 @@ const PayPalCheckoutForm = ({
   const onApprove = async (data: any) => {
     try {
       setIsProcessing(true);
-      
-      console.log('PayPal order approved:', data);
+
+      console.log("PayPal order approved:", data);
 
       const response = await fetch("/api/capture-paypal-payment", {
         method: "POST",
@@ -207,10 +212,10 @@ const PayPalCheckoutForm = ({
       });
 
       const captureData = await response.json();
-      console.log('PayPal capture response:', captureData);
+      console.log("PayPal capture response:", captureData);
 
       if (!response.ok) {
-        console.error('PayPal capture failed:', captureData);
+        console.error("PayPal capture failed:", captureData);
         throw new Error(
           captureData.error || "Fehler beim Abschließen der PayPal-Zahlung"
         );
@@ -220,13 +225,21 @@ const PayPalCheckoutForm = ({
         toast.success("PayPal-Zahlung erfolgreich!");
         onSuccessfulPayment(captureData.transactionId);
       } else {
-        console.error('PayPal payment not completed:', captureData);
-        toast.error(`PayPal-Zahlung konnte nicht abgeschlossen werden. Status: ${captureData.status || 'Unbekannt'}`);
+        console.error("PayPal payment not completed:", captureData);
+        toast.error(
+          `PayPal-Zahlung konnte nicht abgeschlossen werden. Status: ${
+            captureData.status || "Unbekannt"
+          }`
+        );
         setIsProcessing(false);
       }
     } catch (error) {
       console.error("PayPal Capture Error:", error);
-      toast.error(`Fehler beim Abschließen der PayPal-Zahlung: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+      toast.error(
+        `Fehler beim Abschließen der PayPal-Zahlung: ${
+          error instanceof Error ? error.message : "Unbekannter Fehler"
+        }`
+      );
       setIsProcessing(false);
     }
   };
@@ -832,6 +845,7 @@ export default function PaymentModal({
                   <div className="relative">
                     <select
                       id="country"
+                      defaultValue={"Germany"}
                       value={customerInfo.country}
                       onChange={(e) =>
                         handleSelectChange("country", e.target.value)
@@ -1086,7 +1100,9 @@ export default function PaymentModal({
                           {item.image && (
                             <div className="w-10 h-10 rounded overflow-hidden">
                               <Image
-                                src={item.image}
+                                src={
+                                  item.image
+                                }
                                 alt={item.name}
                                 width={40}
                                 height={40}

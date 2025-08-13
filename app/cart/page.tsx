@@ -9,6 +9,7 @@ import TextField from "@/components/text-field";
 import Button from "@/components/button";
 import { useTaxStore } from "@/context/taxContext";
 import formatName from "@/lib/formatNames";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 export default function CartClient() {
   const { cart, removeFromCart, updateQuantity, toggleChecked } =
@@ -117,6 +118,7 @@ export default function CartClient() {
                           <div className="w-18 h-18 relative">
                             <Image
                               src={
+                                resizeImageUrl(item.image, "200x200") ||
                                 item.image ||
                                 "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
                                 "/placeholder.svg"
@@ -125,6 +127,9 @@ export default function CartClient() {
                               width={60}
                               height={60}
                               className="object-contain rounded-md"
+                              onError={(e) => {
+                                e.currentTarget.src = item.image;
+                              }}
                             />
                           </div>
                           <div>
@@ -243,6 +248,7 @@ export default function CartClient() {
                             <div className="w-[50px] h-[50px] relative flex-shrink-0">
                               <Image
                                 src={
+                                  resizeImageUrl(item.image, "200x200") ||
                                   item.image ||
                                   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
                                   "/placeholder.svg"
@@ -250,6 +256,9 @@ export default function CartClient() {
                                 alt={item.name}
                                 fill
                                 className="object-contain rounded-md"
+                                onError={(e) => {
+                                  e.currentTarget.src = item.image; // fallback to original
+                                }}
                               />
                             </div>
                             <div>

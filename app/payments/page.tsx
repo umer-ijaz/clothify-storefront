@@ -46,6 +46,7 @@ import { firestore } from "@/lib/firebaseConfig";
 import { getPromoCodes, PromoCode } from "@/lib/promoCodes";
 import { CustomerInfo } from "@/interfaces/customerInfo";
 import { fetchPromoUsage } from "@/lib/promoDataforUser";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -1373,11 +1374,17 @@ export default function Payments() {
                           {item.image && (
                             <div className="w-10 h-10 rounded overflow-hidden">
                               <Image
-                                src={item.image}
+                                src={
+                                  resizeImageUrl(item.image, "200x200") ||
+                                  item.image
+                                }
                                 alt={item.name}
                                 width={40}
                                 height={40}
                                 className="object-cover w-full h-full"
+                                onError={(e) => {
+                                  e.currentTarget.src = item.image; // fallback to original
+                                }}
                               />
                             </div>
                           )}

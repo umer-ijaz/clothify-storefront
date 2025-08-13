@@ -6,6 +6,7 @@ import Image from "next/image";
 import formatName from "@/lib/formatNames";
 import { fetchServices } from "@/lib/services";
 import { Service } from "@/interfaces/services";
+import { resizeImageUrl } from "@/lib/imagesizeadjutment";
 
 const TopBar: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -35,13 +36,18 @@ const TopBar: React.FC = () => {
           className="flex items-center space-x-4 w-full md:w-1/2"
         >
           <Image
-            src={service.mainImage}
+            src={
+              resizeImageUrl(service.mainImage, "200x200") || service.mainImage
+            }
             alt={`Bild von ${service.name}`}
             width={50}
             height={50}
             priority={index === 0} // first one is above fold
             loading={index === 0 ? "eager" : "lazy"}
             className="rounded-md object-cover w-[50px] h-[50px]"
+            onError={(e) => {
+              e.currentTarget.src = service.mainImage;
+            }}
           />
           <div>
             <h2 className="font-semibold text-gray-800 heading-luxury text-base">
