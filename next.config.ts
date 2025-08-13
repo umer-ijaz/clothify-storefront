@@ -82,6 +82,47 @@ const nextConfig: NextConfig = {
       allowedOrigins: ["firebasestorage.googleapis.com"],
     },
   },
+
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // SEO and Security Headers
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          // Cache headers for static assets
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, max-age=0',
+          },
+        ],
+      },
+    ];
+  },
 };
  
 // const withBundleAnalyzer = BundleAnalyzer({

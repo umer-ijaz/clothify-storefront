@@ -1,148 +1,37 @@
-"use client";
-import { Filter } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { getProducts } from "@/lib/products";
-import CategoryProductsInterface from "@/interfaces/categoriesInterface";
-import Loading from "../loading";
-import HomeLink from "@/components/home-link";
-import TextField from "@/components/text-field";
-import SideBar from "@/components/categoryComponents/SideBar";
-import CategoryProducts from "@/components/categoryComponents/categoryProducts";
+import { Metadata } from "next";
+import AllProductsPageClient from "./all-products-client";
 
-export default function ProductsPage() {
-  const [products, setProducts] = useState<CategoryProductsInterface[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
-  const [size, setSizes] = useState<(string | number)[]>([]);
-  const [material, setMaterials] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+export const metadata: Metadata = {
+  title: "Alle Produkte - Premium Online Shopping | Daniel's Believe",
+  description: "🛍️ Entdecke alle Premium-Produkte bei Daniel's Believe! ✨ Große Auswahl, faire Preise, Express-Versand 🚀 PayPal ✓ Stripe ✓ Rechnung ✓ Sichere Zahlung & Top Bewertungen!",
+  keywords: "Alle Produkte, Premium Produkte, Online Shopping, Daniel's Believe, Deutschland, Express-Versand, PayPal, Stripe, Rechnung, sichere Zahlung, Kundenbewertungen",
+  openGraph: {
+    title: "Alle Produkte - Premium Online Shopping bei Daniel's Believe",
+    description: "🛍️ Entdecke alle Premium-Produkte! Große Auswahl, Express-Versand & sichere Zahlung. Jetzt bei Daniel's Believe shoppen!",
+    type: "website",
+    url: "https://www.danielsbelieve.de/allproducts",
+    images: [
+      {
+        url: "https://www.danielsbelieve.de/logo.webp",
+        width: 1200,
+        height: 630,
+        alt: "Daniel's Believe - Alle Premium Produkte",
+      },
+    ],
+    siteName: "Daniel's Believe",
+    locale: "de_DE",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Alle Produkte - Premium Shopping | Daniel's Believe",
+    description: "🛍️ Premium-Produkte • 🚀 Express-Versand • 💳 Sichere Zahlung • ⭐ Top Bewertungen • Jetzt shoppen!",
+    images: ["https://www.danielsbelieve.de/logo.webp"],
+  },
+  alternates: {
+    canonical: "https://www.danielsbelieve.de/allproducts",
+  },
+};
 
-  useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
-      let items = await getProducts();
-      items = items.filter(
-        (item) => item.isFlashSale === false || item.isFlashSale === undefined
-      );
-
-      const mappedProducts: CategoryProductsInterface[] = items.map(
-        (product: any) => ({
-          ...product,
-          id: String(product.id),
-          brand: product.brand ?? "Unbekannte Marke",
-          material: product.material ?? "Unbekanntes Material",
-        })
-      );
-
-      const uniqueSizes: (string | number)[] = Array.from(
-        new Set(
-          mappedProducts
-            .flatMap((product) => product.variants || [])
-            .flatMap((variant) => variant.sizes || [])
-            .filter(Boolean)
-        )
-      );
-
-      const uniqueBrands = Array.from(
-        new Set(mappedProducts.map((product) => product.brand).filter(Boolean))
-      );
-
-      const uniqueMaterials = Array.from(
-        new Set(
-          mappedProducts.map((product) => product.material).filter(Boolean)
-        )
-      );
-
-      setSizes(uniqueSizes);
-      setBrands(uniqueBrands);
-      setMaterials(uniqueMaterials);
-      setProducts(mappedProducts);
-      setIsLoading(false);
-    }
-
-    fetchProducts();
-  }, []); // Added dependency to refetch when slug changes
-
-  return isLoading ? (
-    <Loading />
-  ) : (
-    <div className="min-h-screen flex flex-col pt-0 pb-20">
-      {/* Page Layout with padding to avoid overlap */}
-      <div className="flex-1 py-8 mt-0 lg:mt-0 relative">
-        <div className="px-2 sm:px-4 md:px-8 lg:px-12 flex flex-row gap-2 text-sm md:text-xl font-small mb-4 capitalize">
-          <HomeLink />
-          <span className="text-gray-400">/</span>
-          <span className="text-red-500 hover:text-red-700 active:text-red-700 heading">
-            Products
-          </span>
-        </div>
-
-        <TextField text={"Produkte"} />
-
-        <Image
-          src="/design.svg"
-          alt="Design"
-          width={200}
-          height={200}
-          priority
-          className="absolute right-0 -z-50"
-        />
-
-        {products.length === 0 ? (
-          <div className="flex items-center text-gray-400 justify-center">
-            Kein Produkt für die folgende Kategorie gefunden!
-          </div>
-        ) : (
-          <div>
-            {/* Mobile Filter Toggle */}
-            <div className="md:hidden mb-4 bg-white shadow-sm md:shadow-lg rounded-xl px-2 sm:px-4 md:px-8 lg:px-12">
-              <details className="rounded-lg shadow-sm">
-                <summary className="list-none flex items-center justify-between p-4 cursor-pointer">
-                  <div className="flex items-center">
-                    <Filter className="h-5 w-5 mr-2" />
-                    <span className="font-medium">Filters</span>
-                  </div>
-                  <span className="text-sm text-red-500">
-                    {(() => {
-                      let count = 0;
-                      if (products.length > 0) count++;
-                      return count > 0 ? `${count} active` : "";
-                    })()}
-                  </span>
-                </summary>
-                <div className="p-4 border-t">
-                  <SideBar brands={brands} size={size} materials={material} />
-                </div>
-              </details>
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-8 bg-white shadow-sm md:shadow-md rounded-xl">
-              {/* Sidebar on Desktop */}
-              <aside className="hidden md:block md:w-1/4">
-                <div className="p-4 rounded-lg sticky top-24">
-                  <SideBar brands={brands} size={size} materials={material} />
-                </div>
-              </aside>
-
-              {/* Main Content */}
-              <main className="w-full md:w-3/4 p-5 rounded-xl">
-                <CategoryProducts productsArray={products} />
-              </main>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="relative">
-        <Image
-          src="/design2.svg"
-          alt="Design"
-          width={200}
-          height={200}
-          priority
-          className="absolute left-0 bottom-0 -z-50"
-        />
-      </div>
-    </div>
-  );
+export default function AllProductsPage() {
+  return <AllProductsPageClient />;
 }
