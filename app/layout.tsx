@@ -24,20 +24,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Daniel's Believe - Premium Online Shopping | Flash Sales & Fast Delivery Germany",
-    template: "%s | Daniel's Believe"
+    default:
+      "Daniel's Believe - Premium Online Shopping | Flash Sales & Fast Delivery Germany",
+    template: "%s | Daniel's Believe",
   },
   description:
     "🛍️ Daniel's Believe - Deutschlands vertrauenswürdiger Online-Shop! ✨ Premium Produkte, Flash-Sale Deals, schnelle Lieferung & sichere Zahlung. PayPal ✓ Stripe ✓ Rechnung ✓ Express-Versand verfügbar!",
   keywords: [
     "Daniel's Believe",
-    "Online Shop Deutschland", 
+    "Online Shop Deutschland",
     "E-Commerce Germany",
     "Flash Sale",
     "Blitzangebote",
-    "schnelle Lieferung", 
+    "schnelle Lieferung",
     "PayPal",
-    "Stripe", 
+    "Stripe",
     "Rechnung",
     "Express Versand",
     "Premium Produkte",
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     "Kundenbewertungen",
     "24h Versand",
     "Deutschland Shopping",
-    "Online Einkaufen"
+    "Online Einkaufen",
   ].join(", "),
   icons: {
     icon: "/favicon.ico",
@@ -74,15 +75,16 @@ export const metadata: Metadata = {
         url: "https://www.danielsbelieve.de/logo.webp",
         width: 1200,
         height: 630,
-        alt: "Daniel's Believe - Premium Online Shopping Deutschland"
-      }
+        alt: "Daniel's Believe - Premium Online Shopping Deutschland",
+      },
     ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@danielsbelieve",
-    creator: "@danielsbelieve", 
-    title: "Daniel's Believe - Premium Online Shopping 🛍️ Flash Sales Deutschland",
+    creator: "@danielsbelieve",
+    title:
+      "Daniel's Believe - Premium Online Shopping 🛍️ Flash Sales Deutschland",
     description:
       "⚡ Flash-Sale Deals • 🚀 Express-Versand • 💳 Sichere Zahlung (PayPal, Stripe, Rechnung) • ⭐ Top Bewertungen • Jetzt bei Daniel's Believe!",
     images: ["https://www.danielsbelieve.de/logo.webp"],
@@ -101,9 +103,6 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  verification: {
-    google: "your-google-verification-code", // Add your actual Google Search Console verification code
   },
   alternates: {
     canonical: "https://www.danielsbelieve.de",
@@ -126,38 +125,39 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "OnlineStore",
-    "name": "Daniel's Believe",
-    "description": "Premium Online Shopping mit Flash Sales, Express-Versand und sicherer Zahlung in Deutschland",
-    "url": "https://www.danielsbelieve.de",
-    "logo": "https://www.danielsbelieve.de/logo.webp",
-    "sameAs": [
+    name: "Daniel's Believe",
+    description:
+      "Premium Online Shopping mit Flash Sales, Express-Versand und sicherer Zahlung in Deutschland",
+    url: "https://www.danielsbelieve.de",
+    logo: "https://www.danielsbelieve.de/logo.webp",
+    sameAs: [
       "https://www.facebook.com/danielsbelieve",
-      "https://www.instagram.com/danielsbelieve", 
-      "https://www.tiktok.com/@danielsbelieve"
+      "https://www.instagram.com/danielsbelieve",
+      "https://www.tiktok.com/@danielsbelieve",
     ],
-    "contactPoint": {
+    contactPoint: {
       "@type": "ContactPoint",
-      "telephone": "+49-152-23815822",
-      "contactType": "customer service",
-      "email": "info@danielsbelieve.de",
-      "availableLanguage": ["German", "English"]
+      telephone: "+49-152-23815822",
+      contactType: "customer service",
+      email: "info@danielsbelieve.de",
+      availableLanguage: ["German", "English"],
     },
-    "address": {
+    address: {
       "@type": "PostalAddress",
-      "addressCountry": "DE"
+      addressCountry: "DE",
     },
-    "offers": {
+    offers: {
       "@type": "AggregateOffer",
-      "priceCurrency": "EUR",
-      "availability": "https://schema.org/InStock"
+      priceCurrency: "EUR",
+      availability: "https://schema.org/InStock",
     },
-    "paymentAccepted": ["PayPal", "Stripe", "Credit Card", "Invoice"],
-    "priceRange": "€€",
-    "aggregateRating": {
+    paymentAccepted: ["PayPal", "Stripe", "Credit Card", "Invoice"],
+    priceRange: "€€",
+    aggregateRating: {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "500"
-    }
+      ratingValue: "4.8",
+      reviewCount: "500",
+    },
   };
 
   return (

@@ -6,14 +6,36 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import ProductQuickViewButton from "./product-quick-view-button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShoppingBag, Star } from "lucide-react";
 import { ProductCardEnhancedProps } from "@/interfaces/productCardinterface";
 import formatNames from "@/lib/formatNames";
 import { resizeImageUrl } from "@/lib/imagesizeadjutment";
+import { usePathname } from "next/navigation";
 
 export default function ItemCard(props: ProductCardEnhancedProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const pathname = usePathname();
+  const [category, setCategory] = useState<string | null>(null);
+  const [subcategory, setSubcategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pathname) return;
+
+    const parts = pathname.split("/").filter(Boolean);
+    console.log("Current Path:", pathname, "Parts:", parts);
+
+    if (parts[0] === "productCategory") {
+      setCategory(parts[1] || null);
+      setSubcategory(parts[2] || null);
+      console.log(category, subcategory);
+    } else if (parts[0] === "category") {
+      setCategory(parts[1] || null);
+      setSubcategory(null);
+      console.log(category, subcategory);
+    }
+  }, [pathname, props]);
+
   const imageSrc =
     props.image || props.variants?.[0]?.mainImage || "/placeholder.svg";
   console.log(imageSrc);
@@ -99,9 +121,15 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
       <div className="p-4">
         <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground mb-1 subheading">
-            {props.category.charAt(0).toUpperCase() +
-              props.category.slice(1).toLowerCase() ==
-            "Men"
+            {(category != null && category.toLowerCase() == "men") ||
+            category?.toLowerCase() == "herren"
+              ? "Herren"
+              : (category != null && category.toLowerCase() == "women") ||
+                category?.toLowerCase() == "damen"
+              ? "Damen"
+              : props.category.charAt(0).toUpperCase() +
+                  props.category.slice(1).toLowerCase() ==
+                "Men"
               ? "Herren"
               : props.category.charAt(0).toUpperCase() +
                   props.category.slice(1).toLowerCase() ==

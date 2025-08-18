@@ -23,6 +23,7 @@ interface ProductInfoProps {
     currentPrice: number;
     originalPrice: number;
     discount: number;
+    isBoth: boolean;
     stock: number;
     rating: number;
     isFlashSale: boolean;
@@ -189,9 +190,7 @@ export default function ProductInfo({
             )}
             {product.originalPrice > product.currentPrice && (
               <span className="bg-red-100 text-red-600 text-sm font-medium px-2 py-1 rounded-full">
-                -
-                {product.discount}
-                %
+                -{product.discount}%
               </span>
             )}
           </div>
@@ -262,9 +261,16 @@ export default function ProductInfo({
               Kategorie
             </h3>
             <p className="text-gray-600 body">
-              {product.category === "men"
+              {(product.category.toLowerCase() == "men" ||
+                product.category.toLowerCase() == "herren" ||
+                product.category.toLowerCase() == "women" ||
+                product.category.toLowerCase() == "damen") &&
+              product.isBoth == true
+                ? "Herren & Damen"
+                : product.category.toLowerCase() === "men" ||
+                  product.category.toLowerCase() === "herren"
                 ? "Herren"
-                : product.category === "women"
+                : product.category === "women" || product.category === "damen"
                 ? "Damen"
                 : formatName(
                     product.category.charAt(0).toUpperCase() +
@@ -278,8 +284,22 @@ export default function ProductInfo({
                 Unterkategorie
               </h3>
               <p className="text-gray-600 body">
-                {product.subcategory.charAt(0).toUpperCase() +
-                  product.subcategory.slice(1).toLowerCase()}
+                {(product.subcategory.toLowerCase() == "men" ||
+                  product.subcategory.toLowerCase() == "herren" ||
+                  product.subcategory.toLowerCase() == "women" ||
+                  product.subcategory.toLowerCase() == "damen") &&
+                product.isBoth == true
+                  ? "Herren & Damen"
+                  : product.subcategory.toLowerCase() === "men" ||
+                    product.subcategory.toLowerCase() === "herren"
+                  ? "Herren"
+                  : product.subcategory.toLowerCase() == "women" ||
+                    product.subcategory.toLowerCase() == "damen"
+                  ? "Damen"
+                  : formatName(
+                      product.subcategory.charAt(0).toUpperCase() +
+                        product.subcategory.slice(1)
+                    )}
               </p>
             </div>
           )}

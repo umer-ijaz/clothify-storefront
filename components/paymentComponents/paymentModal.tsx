@@ -1100,9 +1100,7 @@ export default function PaymentModal({
                           {item.image && (
                             <div className="w-10 h-10 rounded overflow-hidden">
                               <Image
-                                src={
-                                  item.image
-                                }
+                                src={item.image}
                                 alt={item.name}
                                 width={40}
                                 height={40}
@@ -1257,7 +1255,7 @@ export default function PaymentModal({
                     </RadioGroup>
                   </div>
 
-                  <span className="font-medium">Zahlungsmethoden</span>
+                  <span className="font-medium mb-4">Zahlungsmethoden</span>
                   <div className="space-y-2">
                     <RadioGroup
                       value={paymentMethod}
@@ -1309,14 +1307,14 @@ export default function PaymentModal({
                           />
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      {/* <div className="flex items-center space-x-2">
                         <RadioGroupItem
                           value="cash"
                           id="cash"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
                         <Label htmlFor="cash">Nachnahme</Label>
-                      </div>
+                      </div> */}
                     </RadioGroup>
                   </div>
 

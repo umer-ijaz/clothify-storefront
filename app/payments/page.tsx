@@ -1104,8 +1104,8 @@ export default function Payments() {
                 <div className="relative">
                   <select
                     id="country"
-                    value={customerInfo.country}
                     defaultValue={"Germany"}
+                    value={customerInfo.country}
                     onChange={(e) =>
                       handleSelectChange("country", e.target.value)
                     }
@@ -1592,14 +1592,14 @@ export default function Payments() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value="cash"
                         id="cash"
                         className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                       />
                       <Label htmlFor="cash">Barzahlung bei Lieferung</Label>
-                    </div>
+                    </div> */}
                   </RadioGroup>
                 </div>
                 <div className="flex justify-between items-center border-t pt-2">

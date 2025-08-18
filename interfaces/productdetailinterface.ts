@@ -15,6 +15,7 @@ export interface Product {
   name: string;
   isFlashSale: boolean;
   brand: string;
+  isBoth: boolean;
   category: string;
   subcategory: string;
   image: string; // main display image
