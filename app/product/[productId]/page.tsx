@@ -24,7 +24,7 @@ export async function generateMetadata({
     const currentPrice = product.currentPrice;
 
     const title = `${product.name} ${isFlashSale ? '🔥 FLASH SALE' : ''} - ${product.brand || 'Daniel\'s Believe'}`;
-    const description = `${isFlashSale ? `⚡ FLASH SALE ${discount}% RABATT! ` : ''}${product.description || `${product.name} von ${product.brand || 'Daniel\'s Believe'}`}. ✅ Express-Versand ✅ Sichere Zahlung ✅ ${product.rating || 4.8}⭐ Bewertung. Nur €${currentPrice}${originalPrice !== currentPrice ? ` statt €${originalPrice}` : ''}!`;
+    const description = `${isFlashSale ? `⚡ BLITZANGEBOT ${discount}% RABATT! ` : ''}${product.description || `${product.name} von ${product.brand || 'Daniel\'s Believe'}`}. ✅ Premium Qualität ✅ Online Shopping ✅ ${product.rating || 4.8}⭐ Bewertung. Nur €${currentPrice}${originalPrice !== currentPrice ? ` statt €${originalPrice}` : ''}!`;
 
     const productImage = product.image || product.images?.[0] || "https://www.danielsbelieve.de/logo.webp";
 
@@ -37,14 +37,12 @@ export async function generateMetadata({
         product.category,
         product.subcategory,
         product.material,
-        isFlashSale ? 'Flash Sale' : '',
         isFlashSale ? 'Blitzangebot' : '',
         'Daniel\'s Believe',
-        'Online Shop',
-        'Deutschland',
-        'Express-Versand',
-        'PayPal',
-        'Stripe'
+        'Online Shopping',
+        'Premium Produkte',
+        'Services',
+        'Deutschland'
       ].filter(Boolean).join(", "),
       openGraph: {
         title: `${title} | Daniel's Believe`,

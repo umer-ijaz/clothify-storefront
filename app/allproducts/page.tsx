@@ -3,11 +3,11 @@ import AllProductsPageClient from "./all-products-client";
 
 export const metadata: Metadata = {
   title: "Alle Produkte - Premium Online Shopping | Daniel's Believe",
-  description: "🛍️ Entdecke alle Premium-Produkte bei Daniel's Believe! ✨ Große Auswahl, faire Preise, Express-Versand 🚀 PayPal ✓ Stripe ✓ Rechnung ✓ Sichere Zahlung & Top Bewertungen!",
-  keywords: "Alle Produkte, Premium Produkte, Online Shopping, Daniel's Believe, Deutschland, Express-Versand, PayPal, Stripe, Rechnung, sichere Zahlung, Kundenbewertungen",
+  description: "🛍️ Entdecke alle Premium-Produkte bei Daniel's Believe! ✨ Große Auswahl an hochwertigen Produkten und Services für jeden Bedarf.",
+  keywords: "Alle Produkte, Premium Produkte, Online Shopping, Daniel's Believe, Services, Dienstleistungen, Deutschland, Shop",
   openGraph: {
     title: "Alle Produkte - Premium Online Shopping bei Daniel's Believe",
-    description: "🛍️ Entdecke alle Premium-Produkte! Große Auswahl, Express-Versand & sichere Zahlung. Jetzt bei Daniel's Believe shoppen!",
+    description: "🛍️ Entdecke alle Premium-Produkte! Große Auswahl und Services bei Daniel's Believe.",
     type: "website",
     url: "https://www.danielsbelieve.de/allproducts",
     images: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Alle Produkte - Premium Shopping | Daniel's Believe",
-    description: "🛍️ Premium-Produkte • 🚀 Express-Versand • 💳 Sichere Zahlung • ⭐ Top Bewertungen • Jetzt shoppen!",
+    description: "🛍️ Premium-Produkte • � Services • �️ Online Shopping • Jetzt bei Daniel's Believe!",
     images: ["https://www.danielsbelieve.de/logo.webp"],
   },
   alternates: {

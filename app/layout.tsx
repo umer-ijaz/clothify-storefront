@@ -24,30 +24,24 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default:
-      "Daniel's Believe - Premium Online Shopping | Flash Sales & Fast Delivery Germany",
-    template: "%s | Daniel's Believe",
+    default: "Daniel's Believe - Premium Online Shopping | Flash Sales & Fast Delivery Germany",
+    template: "%s | Daniel's Believe"
   },
   description:
-    "🛍️ Daniel's Believe - Deutschlands vertrauenswürdiger Online-Shop! ✨ Premium Produkte, Flash-Sale Deals, schnelle Lieferung & sichere Zahlung. PayPal ✓ Stripe ✓ Rechnung ✓ Express-Versand verfügbar!",
+    "🛍️ Daniel's Believe - Premium Online Shopping und Services! ✨ Entdecke hochwertige Produkte, Blitzangebote und exklusive Dienstleistungen in Deutschland!",
   keywords: [
     "Daniel's Believe",
-    "Online Shop Deutschland",
-    "E-Commerce Germany",
-    "Flash Sale",
-    "Blitzangebote",
-    "schnelle Lieferung",
-    "PayPal",
-    "Stripe",
-    "Rechnung",
-    "Express Versand",
+    "Online Shopping Deutschland", 
     "Premium Produkte",
+    "Services",
+    "Dienstleistungen",
+    "Blitzangebote",
+    "Online Shop",
+    "E-Commerce Germany",
     "danielsbelieve.de",
-    "sichere Zahlung",
-    "Kundenbewertungen",
-    "24h Versand",
     "Deutschland Shopping",
     "Online Einkaufen",
+    "Service-Angebote"
   ].join(", "),
   icons: {
     icon: "/favicon.ico",
@@ -63,9 +57,9 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: "Daniel's Believe - Premium Online Shopping mit Flash Sales 🔥",
+    title: "Daniel's Believe - Premium Online Shopping & Services �️",
     description:
-      "🛍️ Entdecke Premium Produkte bei Daniel's Believe! ⚡ Flash-Sale Deals, Express-Versand, sichere Zahlung & top Kundenbewertungen. Jetzt sparen!",
+      "🛍️ Entdecke Premium Produkte und Services bei Daniel's Believe! ⚡ Blitzangebote, Online Shopping und exklusive Dienstleistungen.",
     type: "website",
     locale: "de_DE",
     url: "https://www.danielsbelieve.de",
@@ -75,18 +69,17 @@ export const metadata: Metadata = {
         url: "https://www.danielsbelieve.de/logo.webp",
         width: 1200,
         height: 630,
-        alt: "Daniel's Believe - Premium Online Shopping Deutschland",
-      },
+        alt: "Daniel's Believe - Premium Online Shopping Deutschland"
+      }
     ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@danielsbelieve",
-    creator: "@danielsbelieve",
-    title:
-      "Daniel's Believe - Premium Online Shopping 🛍️ Flash Sales Deutschland",
+    creator: "@danielsbelieve", 
+    title: "Daniel's Believe - Online Shopping & Services 🛍️",
     description:
-      "⚡ Flash-Sale Deals • 🚀 Express-Versand • 💳 Sichere Zahlung (PayPal, Stripe, Rechnung) • ⭐ Top Bewertungen • Jetzt bei Daniel's Believe!",
+      "⚡ Premium Produkte • �️ Online Shopping • 🔧 Services • 🎯 Blitzangebote • Jetzt bei Daniel's Believe entdecken!",
     images: ["https://www.danielsbelieve.de/logo.webp"],
   },
   robots: {
@@ -103,6 +96,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  verification: {
+    google: "your-google-verification-code", // Add your actual Google Search Console verification code
   },
   alternates: {
     canonical: "https://www.danielsbelieve.de",
@@ -125,39 +121,38 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "OnlineStore",
-    name: "Daniel's Believe",
-    description:
-      "Premium Online Shopping mit Flash Sales, Express-Versand und sicherer Zahlung in Deutschland",
-    url: "https://www.danielsbelieve.de",
-    logo: "https://www.danielsbelieve.de/logo.webp",
-    sameAs: [
+    "name": "Daniel's Believe",
+    "description": "Premium Online Shopping mit Flash Sales, Express-Versand und sicherer Zahlung in Deutschland",
+    "url": "https://www.danielsbelieve.de",
+    "logo": "https://www.danielsbelieve.de/logo.webp",
+    "sameAs": [
       "https://www.facebook.com/danielsbelieve",
-      "https://www.instagram.com/danielsbelieve",
-      "https://www.tiktok.com/@danielsbelieve",
+      "https://www.instagram.com/danielsbelieve", 
+      "https://www.tiktok.com/@danielsbelieve"
     ],
-    contactPoint: {
+    "contactPoint": {
       "@type": "ContactPoint",
-      telephone: "+49-152-23815822",
-      contactType: "customer service",
-      email: "info@danielsbelieve.de",
-      availableLanguage: ["German", "English"],
+      "telephone": "+49-152-23815822",
+      "contactType": "customer service",
+      "email": "info@danielsbelieve.de",
+      "availableLanguage": ["German", "English"]
     },
-    address: {
+    "address": {
       "@type": "PostalAddress",
-      addressCountry: "DE",
+      "addressCountry": "DE"
     },
-    offers: {
+    "offers": {
       "@type": "AggregateOffer",
-      priceCurrency: "EUR",
-      availability: "https://schema.org/InStock",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock"
     },
-    paymentAccepted: ["PayPal", "Stripe", "Credit Card", "Invoice"],
-    priceRange: "€€",
-    aggregateRating: {
+    "paymentAccepted": ["PayPal", "Stripe", "Credit Card", "Invoice"],
+    "priceRange": "€€",
+    "aggregateRating": {
       "@type": "AggregateRating",
-      ratingValue: "4.8",
-      reviewCount: "500",
-    },
+      "ratingValue": "4.8",
+      "reviewCount": "500"
+    }
   };
 
   return (

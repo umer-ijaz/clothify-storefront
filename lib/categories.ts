@@ -20,13 +20,18 @@ const LOCAL_STORAGE_KEY = "categories_data";
 
 // Save categories to localStorage
 function saveToLocalStorage(data: Category[]) {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+  }
 }
 
 // Read categories from localStorage
 function getFromLocalStorage(): Category[] | null {
-  const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-  return data ? JSON.parse(data) : null;
+  if (typeof window !== 'undefined') {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+  }
+  return null;
 }
 
 // Always fetch from Firebase and update localStorage
