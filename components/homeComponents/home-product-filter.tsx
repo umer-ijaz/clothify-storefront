@@ -1,9 +1,11 @@
 "use client";
+
 import { SearchIcon, ArrowRight, Search } from "lucide-react";
 import type React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "../ui/button";
 import { getProducts } from "@/lib/products";
+import { Category, fetchCategories } from "@/lib/categories";
 
 const popularSearches = [
   "Schuhe",
@@ -28,9 +30,37 @@ export default function FilterProducts({
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // ✅ always load categories fully
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCategories = async () => {
+      try {
+        const cats = await fetchCategories();
+        if (isMounted && cats.length > 0) {
+          const titles = cats.map((c: Category) => c.title);
+          // ensure unique and all categories included
+          const uniqueCategories = Array.from(new Set(["All", ...titles]));
+          setCategories(uniqueCategories);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); // ✅ only run once on mount
+
+  // close dropdown if clicked outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -40,19 +70,17 @@ export default function FilterProducts({
         setIsOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Debounce search term with useCallback for stable reference
+  // debounce search term
   const debounceSearch = useCallback((value: string) => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
-
     debounceTimeoutRef.current = setTimeout(() => {
       setDebouncedSearchTerm(value);
     }, 700);
@@ -67,13 +95,12 @@ export default function FilterProducts({
     };
   }, [searchTerm, debounceSearch]);
 
-  // Fetch suggestions when debounced search term changes
+  // fetch suggestions
   useEffect(() => {
     async function fetchSuggestions() {
       if (debouncedSearchTerm) {
         try {
           const items = await getProducts();
-          // Filter items where product.name includes debouncedValue (case-insensitive)
           const filteredNames = items
             .filter((product) =>
               product.name
@@ -97,10 +124,10 @@ export default function FilterProducts({
         setSuggestions([]);
       }
     }
-
     fetchSuggestions();
   }, [debouncedSearchTerm]);
 
+  // notify parent of filter changes
   useEffect(() => {
     onFilterChange({
       category: selectedCategory,
@@ -118,7 +145,6 @@ export default function FilterProducts({
     setSearchTerm(suggestion);
     setDebouncedSearchTerm(suggestion);
     setIsOpen(false);
-    setSearchTerm("");
   };
 
   const handleInputFocus = () => {
@@ -129,28 +155,29 @@ export default function FilterProducts({
 
   return (
     <div className="flex flex-wrap gap-3 items-center justify-center pb-4 px-3">
-      {["All", "Women", "Men", "Schuhe"].map((category) => (
-        <button
-          key={category}
-          className={`px-4 py-2 text-sm font-medium rounded-full border border-gray-400 cursor-pointer body ${
-            selectedCategory === category.toLowerCase()
-              ? "bg-red-500 text-white"
-              : "text-gray-700 hover:bg-orange-600 hover:text-white transition-all duration-300"
-          } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={() => setSelectedCategory(category.toLowerCase())}
-          disabled={isLoading}
-        >
-          {category === "All"
-            ? "Alle"
-            : category === "Women"
-            ? "Damen"
-            : category === "Men"
-            ? "Herren"
-            : category === "Shoes"
-            ? "Schuhe"
-            : category}
-        </button>
-      ))}
+      {categories.length > 0 &&
+        categories.map((category) => (
+          <Button
+            key={category}
+            className={`px-4 py-2 text-sm font-medium rounded-full border border-gray-400 cursor-pointer body ${
+              selectedCategory === category.toLowerCase()
+                ? "bg-red-500 text-white"
+                : "text-gray-700 hover:bg-orange-600 hover:text-white transition-all duration-300"
+            } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            onClick={() => setSelectedCategory(category.toLowerCase())}
+            disabled={isLoading}
+          >
+            {category === "All"
+              ? "Alle"
+              : category === "Women"
+              ? "Damen"
+              : category === "Men"
+              ? "Herren"
+              : category === "Shoes"
+              ? "Schuhe"
+              : category}
+          </Button>
+        ))}
 
       <div className="relative w-full sm:w-64" ref={searchRef}>
         <input
@@ -198,9 +225,8 @@ export default function FilterProducts({
 // Mock suggestions fallback
 const mockSuggestions = (query: string) => {
   if (!query) return [];
-
   return popularSearches
-    .filter((item) => item.includes(query.toLowerCase()))
+    .filter((item) => item.toLowerCase().includes(query.toLowerCase()))
     .concat([
       `${query} casual`,
       `${query} formal`,

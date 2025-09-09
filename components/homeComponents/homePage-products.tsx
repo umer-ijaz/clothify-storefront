@@ -115,7 +115,9 @@ export default function ProductsPage() {
                 onFilterChange={handleFilterChange}
                 isLoading={isLoading}
               />
-              <DropDownFilter onSortChange={setSortFilter} />
+              <div>
+                <DropDownFilter onSortChange={setSortFilter} />
+              </div>
             </div>
             <div className="mt-6">
               <ProductList products={filteredProducts} />
