@@ -45,7 +45,7 @@ export default function DropDownFilter({
         </select>
 
         {/* Chevron Icon positioned inside select */}
-        <div className="pointer-events-none absolute inset-y-0 bottom-0 md:bottom-5 right-5 flex items-center">
+        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
           <ChevronDown className="h-4 w-4 text-white" />
         </div>
       </div>
