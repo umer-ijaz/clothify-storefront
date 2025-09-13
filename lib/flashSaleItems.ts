@@ -33,6 +33,7 @@ export interface FlashSaleItem {
   updatedAt: string;
 
   variants: Variant[];
+  makeThisProductPrivate?: boolean; // Admin can make products private
 }
 
 export interface Variant {
@@ -46,15 +47,23 @@ export interface Variant {
   outOfStockSizes?: (string | number)[];
 }
 
+// Helper function to filter out private flash sale items
+function filterPublicFlashSaleItems(items: FlashSaleItem[]): FlashSaleItem[] {
+  return items.filter(item => !item.makeThisProductPrivate);
+}
+
 export async function getFlashSaleItems(): Promise<FlashSaleItem[]> {
   try {
     const flashSaleCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(flashSaleCollection);
 
-    return snapshot.docs.map((doc) => ({
+    const allItems = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as FlashSaleItem[];
+
+    // Filter out private products
+    return filterPublicFlashSaleItems(allItems);
   } catch (error) {
     console.error("Error fetching flash sale items:", error);
     return [];

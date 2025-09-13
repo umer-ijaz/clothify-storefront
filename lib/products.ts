@@ -33,6 +33,7 @@ export interface Product {
   updatedAt: string;
 
   variants: Variant[];
+  makeThisProductPrivate?: boolean; // Admin can make products private
 }
 
 export interface Variant {
@@ -46,15 +47,23 @@ export interface Variant {
   outOfStockSizes?: (string | number)[];
 }
 
+// Helper function to filter out private products
+function filterPublicProducts(products: Product[]): Product[] {
+  return products.filter(product => !product.makeThisProductPrivate);
+}
+
 export async function getProducts(): Promise<Product[]> {
   try {
     const productsCollection = collection(firestore, "v_products");
     const snapshot = await getDocs(productsCollection);
 
-    return snapshot.docs.map((doc) => ({
+    const allProducts = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Product[];
+
+    // Filter out private products
+    return filterPublicProducts(allProducts);
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
@@ -66,10 +75,13 @@ export async function getFlashProducts(): Promise<Product[]> {
     const productsCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(productsCollection);
 
-    return snapshot.docs.map((doc) => ({
+    const allProducts = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Product[];
+
+    // Filter out private products
+    return filterPublicProducts(allProducts);
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
@@ -89,22 +101,34 @@ export async function getProductById(productId: string): Promise<Product> {
 
     // Check if product exists in products collection
     if (productSnapshot.exists()) {
-      // Make sure we're returning a valid Product by using proper type assertion
       const productData = productSnapshot.data();
-      return {
+      const product = {
         id: productSnapshot.id,
         ...productData,
       } as Product;
+      
+      // Check if product is private
+      if (product.makeThisProductPrivate) {
+        throw new Error(`Product with ID ${productId} is not available`);
+      }
+      
+      return product;
     }
 
     // Check if product exists in flashSaleItems collection
     if (flashSaleSnapshot.exists()) {
-      // Make sure we're returning a valid Product by using proper type assertion
       const flashSaleData = flashSaleSnapshot.data();
-      return {
+      const product = {
         id: flashSaleSnapshot.id,
         ...flashSaleData,
       } as Product;
+      
+      // Check if product is private
+      if (product.makeThisProductPrivate) {
+        throw new Error(`Product with ID ${productId} is not available`);
+      }
+      
+      return product;
     }
     throw new Error(`Product with ID ${productId} not found in any collection`);
   } catch (error) {
@@ -120,9 +144,12 @@ export async function getFlashSaleItemsProductsById(
     const productsCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(productsCollection);
 
-    return snapshot.docs
+    const allProducts = snapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() } as Product))
       .filter((product) => productIds.includes(product.id));
+
+    // Filter out private products
+    return filterPublicProducts(allProducts);
   } catch (error) {
     console.error("Error fetching flash sale items:", error);
     return [];

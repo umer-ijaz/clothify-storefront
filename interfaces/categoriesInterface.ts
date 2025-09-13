@@ -29,6 +29,7 @@ export interface CategoryProductsInterface {
   updatedAt: string;
 
   variants: Variant[];
+  makeThisProductPrivate?: boolean; // Admin can make products private
 
   onBuyNow?: () => void;
 }
