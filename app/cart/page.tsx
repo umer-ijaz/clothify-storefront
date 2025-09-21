@@ -32,11 +32,23 @@ export default function CartClient() {
     0
   );
 
+  // Check if at least one item is selected
+  const hasSelectedItems = cart.some(item => item.isChecked);
+
   function updateAll() {
     cart.forEach((item) => {
       toggleChecked(item.id, item.isFlashSale, true);
     });
   }
+
+  // Handle payment button click
+  const handlePaymentClick = (e: React.MouseEvent) => {
+    if (!hasSelectedItems) {
+      e.preventDefault();
+      alert("Bitte wählen Sie mindestens einen Artikel aus, um fortzufahren.");
+      return;
+    }
+  };
 
   return (
     <>
@@ -387,11 +399,30 @@ export default function CartClient() {
                           )}
                         </span>
                       </div>
+                      {!hasSelectedItems && cart.length > 0 && (
+                        <p className="text-xs text-gray-500 text-center mt-2">
+                          Wählen Sie Artikel aus, um den Gesamtbetrag zu sehen
+                        </p>
+                      )}
                     </div>
 
-                    <Link href="/payments" className="flex justify-center">
-                      <Button text="Zur Bezahlung fortfahren" />
-                    </Link>
+                    <div className="flex flex-col items-center gap-2">
+                      {!hasSelectedItems && cart.length > 0 && (
+                        <p className="text-sm text-red-500 text-center">
+                          Bitte wählen Sie mindestens einen Artikel aus.
+                        </p>
+                      )}
+                      <Link 
+                        href="/payments" 
+                        className={`flex justify-center w-full ${!hasSelectedItems ? 'pointer-events-none' : ''}`}
+                        onClick={handlePaymentClick}
+                      >
+                        <Button 
+                          text="Zur Bezahlung fortfahren" 
+                          disabled={!hasSelectedItems}
+                        />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

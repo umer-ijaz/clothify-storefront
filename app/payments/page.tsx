@@ -346,6 +346,13 @@ export default function Payments() {
   const [fetching, setFetching] = useState(false);
   const [promoCodeUsage, setPromoCodeUsage] = useState<PromoUsage>({});
 
+  // Loading states for payment buttons
+  const [isStripeLoading, setIsStripeLoading] = useState(false);
+  const [isPayPalLoading, setIsPayPalLoading] = useState(false);
+  const [isCashLoading, setIsCashLoading] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [isPromoVerifying, setIsPromoVerifying] = useState(false);
+
   // Free delivery threshold state
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number>(0);
   const [freeDeliveryDescription, setFreeDeliveryDescription] =
@@ -404,6 +411,7 @@ export default function Payments() {
     new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
   const handleVerify = async () => {
+    setIsPromoVerifying(true);
     setMessage("");
     setDiscount(0);
     setValidUntil(null);
@@ -421,6 +429,7 @@ export default function Payments() {
 
     if (allFlashSale) {
       setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
+      setIsPromoVerifying(false);
       return;
     }
 
@@ -437,6 +446,7 @@ export default function Payments() {
       setMessage(
         "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
       );
+      setIsPromoVerifying(false);
       return;
     }
 
@@ -467,6 +477,7 @@ export default function Payments() {
         }x erlaubt)`
       );
       setDiscount(0);
+      setIsPromoVerifying(false);
       return;
     }
 
@@ -495,6 +506,8 @@ export default function Payments() {
     } else {
       setMessage("⚠️ Der Aktionscode ist abgelaufen.");
     }
+    
+    setIsPromoVerifying(false);
   };
 
   useEffect(() => {
@@ -748,9 +761,11 @@ export default function Payments() {
 
     // Then validate inventory
     try {
+      setIsValidating(true);
       toast.loading("Lagerbestand wird überprüft...");
       const inventoryResult = await validateInventoryBeforeOrder(cart);
       toast.dismiss();
+      setIsValidating(false);
 
       if (!inventoryResult.success) {
         if (inventoryResult.outOfStockItems.length > 0) {
@@ -770,6 +785,7 @@ export default function Payments() {
       return true;
     } catch (error) {
       toast.dismiss();
+      setIsValidating(false);
       console.error("❌ Inventory validation error:", error);
       toast.error(
         "Fehler bei der Lagerbestandsprüfung. Bitte versuchen Sie es erneut."
@@ -805,11 +821,15 @@ export default function Payments() {
       toast.error("Ihr Warenkorb ist leer.");
       return;
     }
+    
+    setIsPayPalLoading(true);
     const isValid = await validateInventoryAndCustomerInfo();
     if (!isValid) {
+      setIsPayPalLoading(false);
       return;
     }
     setShowPayPalModal(true);
+    setIsPayPalLoading(false);
   };
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
@@ -963,8 +983,11 @@ export default function Payments() {
       toast.error("Ihr Warenkorb ist leer.");
       return;
     }
+    
+    setIsCashLoading(true);
     const isValid = await validateInventoryAndCustomerInfo();
     if (!isValid) {
+      setIsCashLoading(false);
       return;
     }
 
@@ -1008,10 +1031,12 @@ export default function Payments() {
       toast.success(
         "Bestellung erfolgreich aufgegeben! (Barzahlung bei Lieferung)"
       );
+      setIsCashLoading(false);
       router.push("/orders");
     } catch (error) {
       console.error("Fehler bei der Barzahlungsbestellung:", error);
       toast.dismiss();
+      setIsCashLoading(false);
 
       // Revert inventory if it was updated but order failed
       if (inventoryUpdated) {
@@ -1337,7 +1362,11 @@ export default function Payments() {
                     placeholder="Enter code here"
                     className="mt-1 w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none"
                   />
-                  <Button text={"Verify"} onClick={handleVerify} />
+                  <Button 
+                    text={isPromoVerifying ? "Überprüfe..." : "Verify"} 
+                    onClick={handleVerify}
+                    disabled={isPromoVerifying || !inputCode.trim()}
+                  />
                 </div>
 
                 {message && (
@@ -1612,16 +1641,18 @@ export default function Payments() {
                 {paymentMethod === "card" && !showStripeModal && (
                   <div className="flex flex-row justify-center mt-4">
                     <Button
-                      text="Zur sicheren Zahlung"
+                      text={isStripeLoading || isValidating ? "Prüfe Daten..." : "Zur sicheren Zahlung"}
                       onClick={proceedToStripePayment}
+                      disabled={isStripeLoading || isValidating || isCashLoading || isPayPalLoading}
                     />
                   </div>
                 )}
                 {paymentMethod === "paypal" && !showPayPalModal && (
                   <div className="flex flex-row justify-center mt-4">
                     <Button
-                      text="Mit PayPal bezahlen"
+                      text={isPayPalLoading || isValidating ? "Prüfe Daten..." : "Mit PayPal bezahlen"}
                       onClick={proceedToPayPalPayment}
+                      disabled={isPayPalLoading || isValidating || isCashLoading || isStripeLoading}
                     />
                   </div>
                 )}
@@ -1716,8 +1747,9 @@ export default function Payments() {
                 {paymentMethod === "cash" && (
                   <div className="flex flex-row justify-center mt-4">
                     <Button
-                      text="Zur Kasse (Barzahlung)"
+                      text={isCashLoading || isValidating ? "Bestellung wird verarbeitet..." : "Zur Kasse (Barzahlung)"}
                       onClick={handleCashCheckout}
+                      disabled={isCashLoading || isValidating || isStripeLoading || isPayPalLoading}
                     />
                   </div>
                 )}
