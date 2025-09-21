@@ -140,7 +140,6 @@ const FlashSaleCarousel = () => {
                     ))
                 : products?.map((product) => {
                     if (!product.id) {
-                      console.warn("Product is missing an ID:", product);
                       return null;
                     }
                     return (

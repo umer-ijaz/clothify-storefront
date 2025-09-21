@@ -23,22 +23,18 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
     if (!pathname) return;
 
     const parts = pathname.split("/").filter(Boolean);
-    console.log("Current Path:", pathname, "Parts:", parts);
 
     if (parts[0] === "productCategory") {
       setCategory(parts[1] || null);
       setSubcategory(parts[2] || null);
-      console.log(category, subcategory);
     } else if (parts[0] === "category") {
       setCategory(parts[1] || null);
       setSubcategory(null);
-      console.log(category, subcategory);
     }
   }, [pathname, props]);
 
   const imageSrc =
     props.image || props.variants?.[0]?.mainImage || "/placeholder.svg";
-  console.log(imageSrc);
   return (
     <div
       className="group relative bg-white rounded-md md:rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 border-[0.01px] border-gray-300"
