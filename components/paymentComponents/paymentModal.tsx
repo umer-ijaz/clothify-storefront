@@ -366,7 +366,15 @@ export default function PaymentModal({
   useEffect(() => {
     const fetchId = async () => {
       try {
-        const id = base62ToDecimal(user!.uid);
+        // Early return if user is not available
+        if (!user || !user?.uid) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log("User not available for ID conversion");
+          }
+          return;
+        }
+        
+        const id = base62ToDecimal(user.uid);
         setUniqueId(id);
       } catch (error) {
         console.error("Failed to Convert Id:", error);

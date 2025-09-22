@@ -14,7 +14,8 @@ const TopBar: React.FC = () => {
   useEffect(() => {
     const getServices = async () => {
       try {
-        const data = await fetchServices(2); // Limit to 2
+        const data = await fetchServices(); // Get all services without limit
+        console.log("Fetched services:", data);
         setServices(data || []);
       } catch (error) {
         console.error("Error fetching services:", error);
@@ -23,7 +24,12 @@ const TopBar: React.FC = () => {
     getServices();
   }, []);
 
-  if (!services.length) return null;
+  if (!services.length) {
+    console.log("No services found, TopBar will not render");
+    return null;
+  }
+
+  console.log("Rendering TopBar with services:", services.length);
 
   return (
     <section
@@ -33,7 +39,7 @@ const TopBar: React.FC = () => {
       {services.map((service, index) => (
         <article
           key={service.id}
-          className="flex items-center space-x-4 w-full md:w-1/2"
+          className="flex items-center space-x-4 w-full flex-1"
         >
           <Image
             src={

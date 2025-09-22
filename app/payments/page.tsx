@@ -397,7 +397,13 @@ export default function Payments() {
   useEffect(() => {
     const fetchId = async () => {
       try {
-        const id = base62ToDecimal(user!.uid);
+        // Early return if user is not available
+        if (!user || !user.uid) {
+          console.log("User not available for ID conversion");
+          return;
+        }
+        
+        const id = base62ToDecimal(user.uid);
         setUniqueId(id);
       } catch (error) {
         console.error("Failed to Convert Id:", error);

@@ -4,7 +4,7 @@ import { firestore } from "@/lib/firebaseConfig"; // adjust the path to your fir
 import { Service } from "@/interfaces/services";
 
 export const fetchServices = async (
-  limitCount: number = 2
+  limitCount?: number
 ): Promise<Service[]> => {
   try {
     const querySnapshot = await getDocs(collection(firestore, "services"));
@@ -20,8 +20,11 @@ export const fetchServices = async (
       });
     });
 
-    // Shuffle and limit
-    return fetchedServices.sort(() => 0.5 - Math.random()).slice(0, limitCount);
+    // Shuffle the services
+    const shuffled = fetchedServices.sort(() => 0.5 - Math.random());
+    
+    // Return all services if no limit specified, otherwise limit
+    return limitCount ? shuffled.slice(0, limitCount) : shuffled;
   } catch (error) {
     console.error("Error fetching services:", error);
     return [];
