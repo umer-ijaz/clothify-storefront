@@ -11,7 +11,10 @@ import TextBox from "../text-box";
 import TextField from "../text-field";
 import HomeLink from "../home-link";
 import RelativeItems from "../relativeComponent/relative-items";
-import { Product, ProductDetailState } from "@/interfaces/productdetailinterface";
+import {
+  Product,
+  ProductDetailState,
+} from "@/interfaces/productdetailinterface";
 import Loading from "@/app/loading";
 import formatName from "@/lib/formatNames";
 
@@ -31,7 +34,6 @@ export default function ProductDetailPage({
     selectedColor: "",
     selectedSize: "",
   });
-
 
   const {
     product,
@@ -166,7 +168,7 @@ export default function ProductDetailPage({
 
     // Always reset size when color changes
     updateState({ selectedSize: "" });
-
+    updateState({ selectedImage: 0 });
     // If there are sizes available, try to select the first available one
     if (currentSizes.length > 0) {
       const firstAvailable = currentSizes.find(
@@ -246,7 +248,9 @@ export default function ProductDetailPage({
           <span className="mx-2 text-gray-400" aria-hidden="true">
             /
           </span>
-          <span className="text-red-500 font-medium subcategory">{formatName(product.name)}</span>
+          <span className="text-red-500 font-medium subcategory">
+            {formatName(product.name)}
+          </span>
         </nav>
 
         <TextField text={formatName(product.name)} />
