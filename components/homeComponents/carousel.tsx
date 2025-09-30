@@ -89,9 +89,8 @@ const Carousel: React.FC = () => {
             <div key={item.id} className="w-full h-full">
               <div className="w-full h-screen items-center justify-center p-2 hidden md:flex">
                 <Image
-                  src={
-                    resizeImageUrl(item.url, "1000x1000") ||
-                    item.url ||
+                  src={  item.url ?
+                    resizeImageUrl(item.url, "1000x1000") :
                     "/placeholder.svg"
                   }
                   alt={"Carousel Image"}
@@ -107,9 +106,8 @@ const Carousel: React.FC = () => {
               </div>
               <div className="w-full h-screen items-center justify-center p-2 flex md:hidden">
                 <Image
-                  src={
-                    resizeImageUrl(item.url, "500x500") ||
-                    item.url ||
+                  src={item.url ?
+                    resizeImageUrl(item.url, "500x500") :
                     "/placeholder.svg"
                   }
                   alt={"Carousel Image"}

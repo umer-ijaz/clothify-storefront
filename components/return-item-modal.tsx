@@ -151,9 +151,9 @@ export default function ReturnItemModal({
             <div className="h-16 w-16 overflow-hidden rounded-md border border-gray-300 flex-shrink-0">
               <Image
                 src={
-                  resizeImageUrl(item.image!, "200x200") ||
-                  item.image ||
-                  "/placeholder.svg?height=64&width=64"
+                  item.image
+                    ? resizeImageUrl(item.image!, "200x200")
+                    : item.image || "/placeholder.svg?height=64&width=64"
                 }
                 alt={item.name}
                 width={64}

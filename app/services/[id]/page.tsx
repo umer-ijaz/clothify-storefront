@@ -297,8 +297,9 @@ export default function ServiceDetailPage({
             >
               <Image
                 src={
-                  resizeImageUrl(allImages[selectedImageIndex], "500x500") ||
                   service.mainImage
+                    ? resizeImageUrl(allImages[selectedImageIndex], "500x500")
+                    : service.mainImage
                 }
                 alt={service.name}
                 fill
@@ -404,9 +405,9 @@ export default function ServiceDetailPage({
                 >
                   <Image
                     src={
-                      resizeImageUrl(image, "200x200") ||
-                      image ||
-                      "/placeholder.svg"
+                      image
+                        ? resizeImageUrl(image, "200x200")
+                        : image || "/placeholder.svg"
                     }
                     width={80}
                     height={80}

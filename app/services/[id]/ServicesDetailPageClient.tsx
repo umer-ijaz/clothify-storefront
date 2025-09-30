@@ -176,9 +176,9 @@ export default function ServiceDetailPageClient({
             <div className="aspect-square relative rounded-xl overflow-hidden border border-gray-100 shadow-sm">
               <Image
                 src={
-                  resizeImageUrl(selectedImage!, "500x500") ||
-                  selectedImage ||
-                  service.mainImage
+                  selectedImage
+                    ? resizeImageUrl(selectedImage!, "500x500")
+                    : selectedImage || service.mainImage
                 }
                 alt={service.name}
                 fill
@@ -241,9 +241,9 @@ export default function ServiceDetailPageClient({
                 >
                   <Image
                     src={
-                      resizeImageUrl(image, "200X200") ||
-                      image ||
-                      "/placeholder.svg"
+                      image
+                        ? resizeImageUrl(image, "200X200")
+                        : image || "/placeholder.svg"
                     }
                     alt={`${service.name} thumbnail ${index + 1}`}
                     height={80}
