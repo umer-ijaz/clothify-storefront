@@ -93,7 +93,7 @@ export default function AnnouncementPage() {
               loading ? "animate-spin" : "group-hover:animate-bounce"
             }`}
           />
-
+ 
           {/* Ripple Effect */}
           <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 group-hover:animate-ping"></div>
 
