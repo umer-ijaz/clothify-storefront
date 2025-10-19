@@ -11,6 +11,7 @@ import { UserProvider } from "@/context/userContext";
 import ClearCategoriesClient from "@/components/clearCategory";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ClientProviders from "@/components/client-provider";
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     "🛍️ Daniel's Believe - Premium Online Shopping und Services! ✨ Entdecke hochwertige Produkte, Blitzangebote und exklusive Dienstleistungen in Deutschland!",
   keywords: [
     "Daniel's Believe",
-    "Online Shopping Deutschland", 
+    "Online Shopping Deutschland",
     "Premium Produkte",
     "Services",
     "Dienstleistungen",
@@ -76,7 +77,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@danielsbelieve",
-    creator: "@danielsbelieve", 
+    creator: "@danielsbelieve",
     title: "Daniel's Believe - Online Shopping & Services 🛍️",
     description:
       "⚡ Premium Produkte • �️ Online Shopping • 🔧 Services • 🎯 Blitzangebote • Jetzt bei Daniel's Believe entdecken!",
@@ -127,7 +128,7 @@ export default function RootLayout({
     "logo": "https://www.danielsbelieve.de/logo.webp",
     "sameAs": [
       "https://www.facebook.com/danielsbelieve",
-      "https://www.instagram.com/danielsbelieve", 
+      "https://www.instagram.com/danielsbelieve",
       "https://www.tiktok.com/@danielsbelieve"
     ],
     "contactPoint": {
@@ -182,6 +183,7 @@ export default function RootLayout({
           <Footer />
           <Toaster />
         </UserProvider>
+        {/* <Analytics /> */}
         <SpeedInsights />
       </body>
     </html>
