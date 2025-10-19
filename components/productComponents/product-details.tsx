@@ -17,6 +17,7 @@ import {
 } from "@/interfaces/productdetailinterface";
 import Loading from "@/app/loading";
 import formatName from "@/lib/formatNames";
+import { useTaxStore } from "@/context/taxContext";
 
 // Updated interfaces
 
@@ -51,55 +52,67 @@ export default function ProductDetailPage({
   };
 
   // Get current variant data based on selected color
+  // Get current variant safely
   const getCurrentVariant = () => {
-    if (!product?.variants?.length || !selectedColor) return null;
-    return product.variants.find((v) => v.color.name === selectedColor) || null;
+    if (!product?.variants || product.variants.length === 0) return null;
+    if (!selectedColor) return null;
+
+    return (
+      product.variants.find((v) => v?.color?.name === selectedColor) || null
+    );
   };
 
-  // Get current images based on selected color
+  // Get current images safely
   const getCurrentImages = () => {
     const currentVariant = getCurrentVariant();
+
     if (currentVariant) {
       const images = [
         currentVariant.mainImage,
-        ...currentVariant.subImages,
+        ...(currentVariant.subImages || []),
       ].filter(Boolean);
-      return images.length > 0
-        ? images
-        : [product?.image || ""].filter(Boolean);
+
+      if (images.length > 0) {
+        return images;
+      }
     }
-    // Fallback to main product images
-    const fallbackImages = product?.images ? [...product.images] : [];
+
+    // Fallback: product-level images
+    const fallbackImages = [...(product?.images || [])];
     if (product?.image && !fallbackImages.includes(product.image)) {
       fallbackImages.unshift(product.image);
     }
-    return fallbackImages;
+
+    return fallbackImages.length > 0 ? fallbackImages : ["/placeholder.png"]; // ✅ safe fallback
   };
 
-  // Get current sizes based on selected color - ONLY from variant
+  // Get current sizes safely
   const getCurrentSizes = () => {
     const currentVariant = getCurrentVariant();
-    if (currentVariant && currentVariant.sizes) {
+    if (currentVariant?.sizes && Array.isArray(currentVariant.sizes)) {
       return currentVariant.sizes;
     }
-    // If no variants exist, this product doesn't have size variations
-    return [];
+    return []; // ✅ no crash
   };
 
-  // Get current out of stock sizes based on selected color - ONLY from variant
+  // Get out-of-stock sizes safely
   const getCurrentOutOfStockSizes = () => {
     const currentVariant = getCurrentVariant();
-    if (currentVariant) {
-      return currentVariant.outOfStockSizes || [];
+    if (
+      currentVariant?.outOfStockSizes &&
+      Array.isArray(currentVariant.outOfStockSizes)
+    ) {
+      return currentVariant.outOfStockSizes;
     }
-    // If no variants exist, no out of stock sizes
     return [];
   };
 
-  // Get available colors from variants
+  // Get available colors safely
   const getAvailableColors = () => {
-    if (!product?.variants?.length) return [];
-    return product.variants.map((v) => v.color);
+    if (!product?.variants || product.variants.length === 0) return [];
+    return product.variants
+      .map((v) => v?.color)
+      .filter((c): c is NonNullable<typeof c> => Boolean(c)); // ✅ filters out null/undefined
   };
 
   // Check if product has variants

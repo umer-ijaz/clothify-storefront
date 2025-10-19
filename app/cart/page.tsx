@@ -33,7 +33,7 @@ export default function CartClient() {
   );
 
   // Check if at least one item is selected
-  const hasSelectedItems = cart.some(item => item.isChecked);
+  const hasSelectedItems = cart.some((item) => item.isChecked);
 
   function updateAll() {
     cart.forEach((item) => {
@@ -130,10 +130,11 @@ export default function CartClient() {
                           <div className="w-18 h-18 relative">
                             <Image
                               src={
-                                resizeImageUrl(item.image, "200x200") ||
-                                item.image ||
-                                "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
-                                "/placeholder.svg"
+                                item.image
+                                  ? resizeImageUrl(item.image, "200x200")
+                                  : item.image ||
+                                    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
+                                    "/placeholder.svg"
                               }
                               alt={item.name}
                               width={60}
@@ -260,10 +261,11 @@ export default function CartClient() {
                             <div className="w-[50px] h-[50px] relative flex-shrink-0">
                               <Image
                                 src={
-                                  resizeImageUrl(item.image, "200x200") ||
-                                  item.image ||
-                                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
-                                  "/placeholder.svg"
+                                  item.image
+                                    ? resizeImageUrl(item.image, "200x200")
+                                    : item.image ||
+                                      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
+                                      "/placeholder.svg"
                                 }
                                 alt={item.name}
                                 fill
@@ -412,13 +414,15 @@ export default function CartClient() {
                           Bitte wählen Sie mindestens einen Artikel aus.
                         </p>
                       )}
-                      <Link 
-                        href="/payments" 
-                        className={`flex justify-center w-full ${!hasSelectedItems ? 'pointer-events-none' : ''}`}
+                      <Link
+                        href="/payments"
+                        className={`flex justify-center w-full ${
+                          !hasSelectedItems ? "pointer-events-none" : ""
+                        }`}
                         onClick={handlePaymentClick}
                       >
-                        <Button 
-                          text="Zur Bezahlung fortfahren" 
+                        <Button
+                          text="Zur Bezahlung fortfahren"
                           disabled={!hasSelectedItems}
                         />
                       </Link>

@@ -102,9 +102,9 @@ export default function ProductImages({
               >
                 <Image
                   src={
-                    resizeImageUrl(image, "200x200") ||
-                    image ||
-                    "/placeholder.svg"
+                    image
+                      ? resizeImageUrl(image, "200x200")
+                      : "/placeholder.svg"
                   }
                   alt={`${productName} thumbnail ${index + 1}`}
                   width={300}
@@ -139,9 +139,9 @@ export default function ProductImages({
         >
           <Image
             src={
-              resizeImageUrl(images[selectedImage], "1000x1000") ||
-              images[selectedImage] ||
-              "/placeholder.svg"
+              images[selectedImage]
+                ? resizeImageUrl(images[selectedImage], "1000x1000")
+                : "/placeholder.svg"
             }
             alt={productName}
             width={700}
@@ -179,9 +179,9 @@ export default function ProductImages({
         >
           <Image
             src={
-              resizeImageUrl(images[selectedImage], "500x500") ||
-              images[selectedImage] ||
-              "/placeholder.svg"
+              images[selectedImage]
+                ? resizeImageUrl(images[selectedImage], "500x500")
+                : "/placeholder.svg"
             }
             alt={productName}
             width={700}
@@ -242,9 +242,9 @@ export default function ProductImages({
                 >
                   <Image
                     src={
-                      resizeImageUrl(image, "200x200") ||
-                      image ||
-                      "/placeholder.svg"
+                      image
+                        ? resizeImageUrl(image, "200x200")
+                        : "/placeholder.svg"
                     }
                     alt={`${productName} thumbnail ${index + 1}`}
                     width={100}

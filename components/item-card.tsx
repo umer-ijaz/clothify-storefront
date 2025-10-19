@@ -72,7 +72,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           aria-label={`${props.name}`}
         >
           <Image
-            src={resizeImageUrl(imageSrc, "200x200") || imageSrc}
+            src={imageSrc ? resizeImageUrl(imageSrc, "200x200") : imageSrc}
             alt={props.name}
             width={500}
             height={500}

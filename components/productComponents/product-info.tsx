@@ -195,6 +195,29 @@ export default function ProductInfo({
             )}
           </div>
 
+          {/* Exclusive Tax Price */}
+          <div className="gap-0 space-y-0 w-2/3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Preis ohne MwSt:</span>
+              <span className="text-lg font-medium text-gray-900">
+                €{product.currentPrice.toFixed(2)}
+              </span>
+            </div>
+            {/* Inclusive Tax Price */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">
+                Preis inkl. MwSt ({taxRate}%):
+              </span>
+              <span className="text-xl font-semibold text-green-600">
+                €
+                {(
+                  product.currentPrice * (taxRate / 100) +
+                  product.currentPrice
+                ).toFixed(2)}
+              </span>
+            </div>
+          </div>
+
           {/* Rating and Stock */}
           <div className="flex items-center gap-2">
             <div

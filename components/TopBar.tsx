@@ -43,7 +43,9 @@ const TopBar: React.FC = () => {
         >
           <Image
             src={
-              resizeImageUrl(service.mainImage, "200x200") || service.mainImage
+              service.mainImage
+                ? resizeImageUrl(service.mainImage, "200x200")
+                : service.mainImage
             }
             alt={`Bild von ${service.name}`}
             width={50}
