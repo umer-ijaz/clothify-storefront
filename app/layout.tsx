@@ -183,7 +183,7 @@ export default function RootLayout({
           <Footer />
           <Toaster />
         </UserProvider>
-        {/* <Analytics /> */}
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>

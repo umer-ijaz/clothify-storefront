@@ -61,9 +61,7 @@ const TopBar: React.FC = () => {
             <h2 className="font-semibold text-gray-800 heading-luxury text-base">
               {formatName(service.name)}
             </h2>
-            <p className="hidden md:block md:h-[40px] text-sm text-gray-600 overflow-hidden body">
-              {service.details}
-            </p>
+
             <Link
               href={`/services/${service.id}`}
               className="text-blue-600 text-sm hover:underline body"
