@@ -368,12 +368,12 @@ export default function PaymentModal({
       try {
         // Early return if user is not available
         if (!user || !user?.uid) {
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === "development") {
             console.log("User not available for ID conversion");
           }
           return;
         }
-        
+
         const id = base62ToDecimal(user.uid);
         setUniqueId(id);
       } catch (error) {

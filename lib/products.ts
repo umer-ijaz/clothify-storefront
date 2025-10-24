@@ -10,8 +10,8 @@ export interface Product {
   category: string;
   subcategory: string;
 
-  image: string; // main display image
-  images: string[]; // all additional images
+  image: string;
+  images: string[];
 
   currentPrice: number;
   originalPrice: number;
@@ -21,7 +21,7 @@ export interface Product {
   stock: number;
   rating: number;
   reviewsCount: number;
-  reviews: any[]; // If reviews have a structure, define an interface
+  reviews: any[];
 
   sku: string;
 
@@ -33,7 +33,7 @@ export interface Product {
   updatedAt: string;
 
   variants: Variant[];
-  makeThisProductPrivate?: boolean; // Admin can make products private
+  makeThisProductPrivate?: boolean;
 }
 
 export interface Variant {
@@ -47,50 +47,53 @@ export interface Variant {
   outOfStockSizes?: (string | number)[];
 }
 
-// Helper function to filter out private products
-function filterPublicProducts(products: Product[]): Product[] {
-  return products.filter(product => !product.makeThisProductPrivate);
+// 🔹 Helper to filter and sort
+function filterAndSortProducts(products: Product[]): Product[] {
+  return products
+    .filter((product) => !product.makeThisProductPrivate)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 }
 
+// 🔹 Fetch all products
 export async function getProducts(): Promise<Product[]> {
   try {
     const productsCollection = collection(firestore, "v_products");
     const snapshot = await getDocs(productsCollection);
 
-    const allProducts = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Product[];
+    const allProducts = snapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as Product)
+    );
 
-    // Filter out private products
-    return filterPublicProducts(allProducts);
+    return filterAndSortProducts(allProducts);
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
   }
 }
 
+// 🔹 Fetch all flash sale products
 export async function getFlashProducts(): Promise<Product[]> {
   try {
     const productsCollection = collection(firestore, "v_flashSaleItems");
     const snapshot = await getDocs(productsCollection);
 
-    const allProducts = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Product[];
+    const allProducts = snapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as Product)
+    );
 
-    // Filter out private products
-    return filterPublicProducts(allProducts);
+    return filterAndSortProducts(allProducts);
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching flash sale products:", error);
     return [];
   }
 }
 
+// 🔹 Fetch single product by ID (checks both collections)
 export async function getProductById(productId: string): Promise<Product> {
   try {
-    // Check both collections in parallel for better performance
     const productDocRef = doc(firestore, "v_products", productId);
     const flashSaleDocRef = doc(firestore, "v_flashSaleItems", productId);
 
@@ -99,44 +102,36 @@ export async function getProductById(productId: string): Promise<Product> {
       getDoc(flashSaleDocRef),
     ]);
 
-    // Check if product exists in products collection
+    let productData: Product | null = null;
+
     if (productSnapshot.exists()) {
-      const productData = productSnapshot.data();
-      const product = {
+      productData = {
         id: productSnapshot.id,
-        ...productData,
+        ...productSnapshot.data(),
       } as Product;
-      
-      // Check if product is private
-      if (product.makeThisProductPrivate) {
-        throw new Error(`Product with ID ${productId} is not available`);
-      }
-      
-      return product;
+    } else if (flashSaleSnapshot.exists()) {
+      productData = {
+        id: flashSaleSnapshot.id,
+        ...flashSaleSnapshot.data(),
+      } as Product;
     }
 
-    // Check if product exists in flashSaleItems collection
-    if (flashSaleSnapshot.exists()) {
-      const flashSaleData = flashSaleSnapshot.data();
-      const product = {
-        id: flashSaleSnapshot.id,
-        ...flashSaleData,
-      } as Product;
-      
-      // Check if product is private
-      if (product.makeThisProductPrivate) {
-        throw new Error(`Product with ID ${productId} is not available`);
-      }
-      
-      return product;
+    if (!productData) {
+      throw new Error(`Product with ID ${productId} not found`);
     }
-    throw new Error(`Product with ID ${productId} not found in any collection`);
+
+    if (productData.makeThisProductPrivate) {
+      throw new Error(`Product with ID ${productId} is not available`);
+    }
+
+    return productData;
   } catch (error) {
     console.error("Error fetching product by ID:", error);
     throw error;
   }
 }
 
+// 🔹 Fetch multiple flash sale items by IDs
 export async function getFlashSaleItemsProductsById(
   productIds: string[]
 ): Promise<Product[]> {
@@ -148,8 +143,7 @@ export async function getFlashSaleItemsProductsById(
       .map((doc) => ({ id: doc.id, ...doc.data() } as Product))
       .filter((product) => productIds.includes(product.id));
 
-    // Filter out private products
-    return filterPublicProducts(allProducts);
+    return filterAndSortProducts(allProducts);
   } catch (error) {
     console.error("Error fetching flash sale items:", error);
     return [];
