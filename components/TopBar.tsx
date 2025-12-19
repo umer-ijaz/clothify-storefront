@@ -47,7 +47,7 @@ const TopBar: React.FC = () => {
                 ? resizeImageUrl(service.mainImage, "200x200")
                 : service.mainImage
             }
-            alt={`Bild von ${service.name}`}
+            alt={`Image of ${service.name}`}
             width={50}
             height={50}
             priority={index === 0} // first one is above fold
@@ -67,7 +67,7 @@ const TopBar: React.FC = () => {
               className="text-blue-600 text-sm hover:underline body"
               aria-label={`${service.name}`}
             >
-              Mehr über {service.name} lesen
+              Read more about {service.name}
             </Link>
           </div>
         </article>

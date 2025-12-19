@@ -49,7 +49,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         onClose();
       } else {
         if (password !== confirmPassword) {
-          setError("Passwörter stimmen nicht überein.");
+          setError("Passwords do not match.");
           return;
         }
 
@@ -97,7 +97,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setError("");
 
     if (!email) {
-      setError("Bitte geben Sie Ihre E-Mail-Adresse ein.");
+      setError("Please enter your email address.");
       return;
     }
 
@@ -105,7 +105,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       await sendPasswordResetEmail(auth, email);
       setError(""); // Clear any existing errors
       alert(
-        "E-Mail zum Zurücksetzen des Passworts wurde gesendet! Bitte überprüfen Sie Ihr Postfach."
+        "Password reset email sent! Please check your inbox."
       );
       // Optionally switch back to login view
       setIsResetPassword(false);
@@ -140,17 +140,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </div>
           <h2 className="text-2xl font-bold">
             {isResetPassword
-              ? "Setzen Sie Ihr Passwort zurück"
+              ? "Reset your password"
               : isLogin
-              ? "Melden Sie sich in Ihrem Konto an"
-              : "Ein Konto erstellen"}
+                ? "Sign in to your account"
+                : "Create an account"}
           </h2>
           <p className="text-gray-500 mt-1">
             {isResetPassword
-              ? "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten."
+              ? "Enter your email address to receive a password reset link."
               : isLogin
-              ? "Geben Sie Ihre Zugangsdaten ein, um auf Ihr Konto zuzugreifen."
-              : "Füllen Sie die Angaben aus, um mit dem Einkauf zu beginnen."}
+                ? "Enter your credentials to access your account."
+                : "Fill in the details to start shopping."}
           </p>
         </div>
 
@@ -178,7 +178,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               type="submit"
               className="w-full rounded-full h-12 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white  cursor-pointer"
             >
-              Link zum Zurücksetzen senden
+              Send Reset Link
             </Button>
           </form>
         ) : (
@@ -203,7 +203,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password">Passwort</Label>
+                <Label htmlFor="password">Password</Label>
                 {isLogin && (
                   <button
                     type="button"
@@ -213,7 +213,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     }}
                     className="text-sm text-orange-500 hover:text-orange-600  cursor-pointer"
                   >
-                    Passwort vergessen?
+                    Forgot Password?
                   </button>
                 )}
               </div>
@@ -229,7 +229,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -245,7 +245,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               type="submit"
               className="w-full rounded-full h-12 bg-gradient-to-r from-[#EB1E24] via-[#F05021] to-[#F8A51B] text-white  cursor-pointer"
             >
-              {isLogin ? "Anmelden" : "Registrieren"}
+              {isLogin ? "Sign In" : "Register"}
             </Button>
           </form>
         )}
@@ -253,7 +253,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <div className="mt-6 text-center">
           {isResetPassword ? (
             <p className="text-gray-600">
-              Passwort merken?
+              Remember password?
               <button
                 onClick={() => {
                   setIsResetPassword(false);
@@ -262,14 +262,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 }}
                 className="ml-1 text-orange-500 hover:text-orange-600 font-medium  cursor-pointer"
               >
-                Zurück zum Login
+                Back to Login
               </button>
             </p>
           ) : (
             <p className="text-gray-600">
               {isLogin
-                ? "Sie haben kein Konto?"
-                : "Haben Sie bereits ein Konto?"}
+                ? "Don't have an account?"
+                : "Already have an account?"}
               <button
                 onClick={() => {
                   setIsLogin(!isLogin);
@@ -277,7 +277,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 }}
                 className="ml-1 text-orange-500 hover:text-orange-600 font-medium  cursor-pointer"
               >
-                {isLogin ? "Registrieren" : "Anmelden"}
+                {isLogin ? "Register" : "Sign In"}
               </button>
             </p>
           )}
@@ -291,7 +291,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Oder fortfahren mit
+                  Or continue with
                 </span>
               </div>
             </div>

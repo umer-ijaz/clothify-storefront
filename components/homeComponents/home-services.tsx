@@ -47,11 +47,11 @@ export default function HomeServices() {
 
   return (
     <section>
-      <TextBox text="Dienstleistungen" />
+      <TextBox text="Services" />
       <ShippingPartners images={shippingPartnersImages} />
 
       <h2 className="text-2xl md:text-3xl font-bold px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6 heading-luxury">
-        Wir bieten Ihnen das Beste
+        We offer you the best
         <span className="text-red-500">,</span>
       </h2>
 

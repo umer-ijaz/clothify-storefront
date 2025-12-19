@@ -47,9 +47,9 @@ import { getProducts } from "@/lib/products";
 import formatName from "@/lib/formatNames";
 
 const popularSearches = [
-  "Herrenschuhe", // man shoes
-  "Damenbekleidung", // woman clothing
-  "Kleidung für Damen", // clothes for ladies
+  "Men's Shoes", // man shoes
+  "Women's Clothing", // woman clothing
+  "Clothes for Ladies", // clothes for ladies
 ];
 
 export default function Navbar() {
@@ -225,7 +225,7 @@ export default function Navbar() {
     {
       title: "Home",
       href: "/",
-      description: "Entdecken Sie unsere neuesten Kollektionen und Angebote.",
+      description: "Discover our latest collections and offers.",
     },
     {
       title: "Shop",
@@ -233,21 +233,21 @@ export default function Navbar() {
       children: categories,
     },
     {
-      title: "Dienstleistungen",
+      title: "Services",
       href: "/services",
       description:
-        "Erfahren Sie mehr über unseren Kundenservice und Reparaturdienste.",
+        "Learn more about our customer service and repair services.",
     },
     {
-      title: "Über uns",
+      title: "About Us",
       href: "/about",
       description:
-        "Erfahren Sie mehr über unsere Geschichte, Mission und Werte.",
+        "Learn more about our history, mission, and values.",
     },
     {
-      title: "Kontakt",
+      title: "Contact",
       href: "/contact",
-      description: "Kontaktieren Sie uns für Anfragen, Support oder Feedback.",
+      description: "Contact us for inquiries, support, or feedback.",
     },
   ];
 
@@ -321,7 +321,7 @@ export default function Navbar() {
             aria-label="Menu"
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Menü öffnen</span>
+            <span className="sr-only">Open Menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent
@@ -329,7 +329,7 @@ export default function Navbar() {
           className="bg-white w-[90vw] sm:w-[350px] p-0"
         >
           <SheetHeader className="p-4 border-b">
-            <SheetTitle className="text-left">Menü</SheetTitle>
+            <SheetTitle className="text-left">Menu</SheetTitle>
           </SheetHeader>
           <div className="h-full overflow-y-auto scrollbar-hide">
             <nav className="py-2">
@@ -384,9 +384,8 @@ export default function Navbar() {
                         <div className="bg-gray-50 max-h-[60vh] overflow-y-auto scrollbar-hide subheading">
                           {item.children.map((category) => (
                             <div
-                              key={`mobile-category-${
-                                category.id || category.title
-                              }`}
+                              key={`mobile-category-${category.id || category.title
+                                }`}
                               className="border-b border-gray-200 last:border-b-0"
                             >
                               {/* Category Header */}
@@ -403,10 +402,10 @@ export default function Navbar() {
                                     className="flex-1 text-left px-4 py-2.5 text-sm font-medium hover:bg-white transition-colors"
                                   >
                                     {category.title === "Women"
-                                      ? "Damen"
+                                      ? "Women"
                                       : category.title === "Men"
-                                      ? "Herren"
-                                      : category.title}
+                                        ? "Men"
+                                        : category.title}
                                   </button>
                                 </SheetClose>
                                 {category.subcategories &&
@@ -505,7 +504,7 @@ export default function Navbar() {
                     onClick={() => setIsModalOpen(true)}
                     aria-label="Click"
                   >
-                    {user ? "Mein Konto" : "Anmelden"}
+                    {user ? "My Account" : "Sign In"}
                   </Button>
                 )}
               </div>
@@ -550,15 +549,14 @@ export default function Navbar() {
                       <div className="w-full lg:w-80 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200">
                         <div className="p-4 lg:p-6">
                           <h3 className="text-lg lg:text-xl font-bold mb-3 lg:mb-4 text-gray-800 border-b border-gray-300 pb-2">
-                            Kategorien
+                            Categories
                           </h3>
                           <div className="max-h-[300px] lg:max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                             <ul className="space-y-1">
                               {item.children.map((category) => (
                                 <li
-                                  key={`desktop-category-${
-                                    category.id || category.title
-                                  }`}
+                                  key={`desktop-category-${category.id || category.title
+                                    }`}
                                   onMouseEnter={() =>
                                     handleCategoryHover(category.title)
                                   }
@@ -581,14 +579,14 @@ export default function Navbar() {
                                     <div className="flex-1">
                                       <div className="font-semibold text-sm lg:text-base text-gray-800 group-hover:text-red-600 transition-colors">
                                         {category.title === "Women"
-                                          ? "Damen"
+                                          ? "Women"
                                           : category.title === "Men"
-                                          ? "Herren"
-                                          : category.title}
+                                            ? "Men"
+                                            : category.title}
                                       </div>
                                       <p className="text-xs text-gray-500 mt-1 line-clamp-1">
                                         {category.description ||
-                                          "Alle Produkte durchsuchen"}
+                                          "Browse all products"}
                                       </p>
                                     </div>
                                     {category.subcategories &&
@@ -644,7 +642,7 @@ export default function Navbar() {
                                     aria-label="All Category"
                                     className="text-red-600 border-red-200 hover:bg-red-50 text-xs lg:text-sm"
                                   >
-                                    Alle anzeigen
+                                    Show All
                                   </Button>
                                 </div>
                               </div>
@@ -673,7 +671,7 @@ export default function Navbar() {
                                                 {subcategory.title}
                                               </div>
                                               <div className="text-xs text-gray-500 mt-1">
-                                                Entdecken Sie{" "}
+                                                Discover{" "}
                                                 {subcategory.title.toLowerCase()}
                                               </div>
                                             </div>
@@ -682,16 +680,16 @@ export default function Navbar() {
                                         </button>
                                       )
                                     ) || (
-                                    <div className="col-span-2 text-center py-6">
-                                      <div className="text-gray-400 mb-2">
-                                        <Search className="h-10 w-10 mx-auto" />
+                                      <div className="col-span-2 text-center py-6">
+                                        <div className="text-gray-400 mb-2">
+                                          <Search className="h-10 w-10 mx-auto" />
+                                        </div>
+                                        <p className="text-sm text-gray-500">
+                                          No subcategories available for{" "}
+                                          {hoveredCategory}
+                                        </p>
                                       </div>
-                                      <p className="text-sm text-gray-500">
-                                        Keine Unterkategorien verfügbar für{" "}
-                                        {hoveredCategory}
-                                      </p>
-                                    </div>
-                                  )}
+                                    )}
                                 </div>
                               </div>
                             </>
@@ -705,13 +703,10 @@ export default function Navbar() {
                                 </div>
                               </div>
                               <h4 className="text-base lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">
-                                Entdecken Sie unsere Kategorien
+                                Discover our categories
                               </h4>
                               <p className="text-xs lg:text-sm text-gray-500 max-w-xs lg:max-w-sm">
-                                Fahren Sie mit der Maus über eine Kategorie auf
-                                der linken Seite, um ihre Unterkategorien zu
-                                entdecken und genau das zu finden, was Sie
-                                suchen.
+                                Hover over a category on the left to discover its subcategories.
                               </p>
                             </div>
                           )}
@@ -744,7 +739,7 @@ export default function Navbar() {
           (!user ? (
             <button onClick={() => setIsModalOpen(true)} aria-label="Search">
               <div className="heading-luxury text-sm font-medium leading-none text-white hover:bg-white/20 hover:text-white transition-colors duration-300 block select-none space-y-1 rounded-md p-3 no-underline outline-none hover:bg-gradient-to-r hover:from-red-500/10 hover:to-orange-500/10 focus:bg-accent focus:text-accent-foreground">
-                Anmelden
+                Sign In
               </div>
             </button>
           ) : null)}
@@ -766,7 +761,7 @@ export default function Navbar() {
             <div className="flex items-center rounded-full">
               <Input
                 type="search"
-                placeholder="Nach Produkten suchen..."
+                placeholder="Search for products..."
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
@@ -780,7 +775,7 @@ export default function Navbar() {
                   className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-transparent text-red absolute right-1 cursor-pointer"
                 >
                   <Search className="h-4 w-4" />
-                  <span className="sr-only">Suche</span>
+                  <span className="sr-only">Search</span>
                 </Button>
               </div>
             </div>
@@ -906,9 +901,8 @@ export default function Navbar() {
               <span
                 className={`absolute -top-1 -right-1 bg-red-600 text-white text-[10px] md:text-xs px-1.5 md:px-2 rounded-full
             transform transition-all duration-300
-            ${
-              animate ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
-            }`}
+            ${animate ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
+                  }`}
               >
                 {cartCount > 99 ? "99+" : cartCount}
               </span>

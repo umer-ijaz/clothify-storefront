@@ -11,8 +11,8 @@ import Loading from "@/app/loading";
 const Hero = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [heroData, setHeroData] = useState({
-    title: "",
-    subtitle: "",
+    title: "Providing a high-quality textile range for your senior centers according to your wishes.",
+    subtitle: "Find the best this season 🔥",
   });
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const Hero = () => {
             {heroData.subtitle}
           </p>
           <Link href="#products" className="inline-block">
-            <Button text="Jetzt einkaufen" />
+            <Button text="Shop Now" />
           </Link>
         </div>
         <div className="w-full md:w-1/2 h-1/2 md:h-full">

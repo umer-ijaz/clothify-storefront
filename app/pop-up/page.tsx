@@ -89,17 +89,16 @@ export default function AnnouncementPage() {
 
           {/* Bell Icon */}
           <Bell
-            className={`h-6 w-6 ${
-              loading ? "animate-spin" : "group-hover:animate-bounce"
-            }`}
+            className={`h-6 w-6 ${loading ? "animate-spin" : "group-hover:animate-bounce"
+              }`}
           />
- 
+
           {/* Ripple Effect */}
           <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 group-hover:animate-ping"></div>
 
           {/* Tooltip */}
           <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-            Letzte Ankündigung
+            Latest Announcement
             <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
           </div>
         </button>

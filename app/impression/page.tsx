@@ -53,7 +53,7 @@ export default function ImpressionPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
-        <TextField text={"Impressum"} />
+        <TextField text={"Legal Notice"} />
 
         <div className="space-y-3 text-gray-800 leading-relaxed">
           <h1 className="text-bold text-red-500 sm:text-sm md:text-lg heading">
@@ -61,18 +61,18 @@ export default function ImpressionPage() {
           </h1>
           <div className="space-y-1">
             <p>
-              <span className="font-semibold heading">Markenname:</span>{" "}
+              <span className="font-semibold heading">Brand Name:</span>{" "}
               {companyData.brandName}
             </p>
             <p>
               <span className="font-semibold"></span> {companyData.companyType}
             </p>
             <p>
-              <span className="font-semibold heading">Adresse:</span>{" "}
+              <span className="font-semibold heading">Address:</span>{" "}
               {companyData.address}
             </p>
             <p>
-              <span className="font-semibold heading">Telefon:</span>{" "}
+              <span className="font-semibold heading">Phone:</span>{" "}
               <a
                 href={`tel:${companyData.phone}`}
                 className="text-blue-600 underline"
@@ -90,14 +90,14 @@ export default function ImpressionPage() {
               </a>
             </p>
             <p>
-              <span className="font-semibold heading">Ust.Nr.:</span>{" "}
+              <span className="font-semibold heading">VAT ID:</span>{" "}
               {companyData.vatId}
             </p>
           </div>
 
           <div>
             <span className="font-semibold block mb-1">
-              Haftung für Inhalte:
+              Liability for Content:
             </span>
             <p className="whitespace-pre-line py-2">
               {companyData.liabilityContent}

@@ -94,17 +94,17 @@ export default function ProductInfo({
     }
 
     if (availableColors.length > 0 && !selectedColor) {
-      return { isValid: false, message: "Bitte wählen Sie eine Farbe aus." };
+      return { isValid: false, message: "Please select a color." };
     }
 
     if (availableSizes.length > 0 && !selectedSize) {
-      return { isValid: false, message: "Bitte wählen Sie eine Größe aus." };
+      return { isValid: false, message: "Please select a size." };
     }
 
     if (selectedSize && outOfStockSizes.includes(selectedSize)) {
       return {
         isValid: false,
-        message: "Die ausgewählte Größe ist nicht verfügbar.",
+        message: "The selected size is not available.",
       };
     }
 
@@ -136,7 +136,7 @@ export default function ProductInfo({
       isFlashSale: product.isFlashSale,
       isChecked: true,
     });
-    toast.success("Produkt wurde zum Warenkorb hinzugefügt.");
+    toast.success("Product added to cart.");
   };
 
   const handleBuyNow = () => {
@@ -144,7 +144,7 @@ export default function ProductInfo({
       setModal(true);
       setIsPaymentModalOpen(false);
       toast.error(
-        "Der Benutzer muss angemeldet sein, um Zahlungen durchführen zu können."
+        "User must be logged in to make payments."
       );
       return;
     }
@@ -181,11 +181,11 @@ export default function ProductInfo({
           {/* Price */}
           <div className="flex items-end gap-5">
             <span className="text-3xl font-bold text-green-500">
-              €{product.currentPrice.toFixed(2)}
+              Rs.{(product.currentPrice * 310).toFixed(0)}
             </span>
             {product.originalPrice > product.currentPrice && (
               <span className="text-red-500 line-through text-lg">
-                €{product.originalPrice.toFixed(2)}
+                Rs.{(product.originalPrice * 310).toFixed(0)}
               </span>
             )}
             {product.originalPrice > product.currentPrice && (
@@ -198,22 +198,22 @@ export default function ProductInfo({
           {/* Exclusive Tax Price */}
           <div className="gap-0 space-y-0 w-2/3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Preis ohne MwSt:</span>
+              <span className="text-gray-600">Price excl. VAT:</span>
               <span className="text-lg font-medium text-gray-900">
-                €{product.currentPrice.toFixed(2)}
+                Rs.{(product.currentPrice * 310).toFixed(0)}
               </span>
             </div>
             {/* Inclusive Tax Price */}
             <div className="flex justify-between items-center">
               <span className="text-gray-600">
-                Preis inkl. MwSt ({taxRate}%):
+                Price incl. VAT ({taxRate}%):
               </span>
               <span className="text-xl font-semibold text-green-600">
-                €
+                Rs.
                 {(
-                  product.currentPrice * (taxRate / 100) +
-                  product.currentPrice
-                ).toFixed(2)}
+                  (product.currentPrice * (taxRate / 100) +
+                    product.currentPrice) * 310 // Simplified conversion or just show PKR if backend sends PKR
+                ).toFixed(0)}
               </span>
             </div>
           </div>
@@ -247,13 +247,12 @@ export default function ProductInfo({
               ))}
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
-              <span>({product.reviewsCount} Bewertungen)</span>
+              <span>({product.reviewsCount} Reviews)</span>
               <span
-                className={`font-medium ${
-                  isProductAvailable() ? "text-green-500" : "text-red-500"
-                }`}
+                className={`font-medium ${isProductAvailable() ? "text-green-500" : "text-red-500"
+                  }`}
               >
-                {isProductAvailable() ? "Auf Lager" : "Ausverkauft"}
+                {isProductAvailable() ? "In Stock" : "Out of Stock"}
               </span>
             </div>
           </div>
@@ -288,17 +287,17 @@ export default function ProductInfo({
                 product.category.toLowerCase() == "herren" ||
                 product.category.toLowerCase() == "women" ||
                 product.category.toLowerCase() == "damen") &&
-              product.isBoth == true
-                ? "Herren & Damen"
+                product.isBoth == true
+                ? "Men & Women"
                 : product.category.toLowerCase() === "men" ||
                   product.category.toLowerCase() === "herren"
-                ? "Herren"
-                : product.category === "women" || product.category === "damen"
-                ? "Damen"
-                : formatName(
-                    product.category.charAt(0).toUpperCase() +
+                  ? "Men"
+                  : product.category === "women" || product.category === "damen"
+                    ? "Women"
+                    : formatName(
+                      product.category.charAt(0).toUpperCase() +
                       product.category.slice(1)
-                  )}
+                    )}
             </p>
           </div>
           {product.subcategory && (
@@ -311,18 +310,18 @@ export default function ProductInfo({
                   product.subcategory.toLowerCase() == "herren" ||
                   product.subcategory.toLowerCase() == "women" ||
                   product.subcategory.toLowerCase() == "damen") &&
-                product.isBoth == true
-                  ? "Herren & Damen"
+                  product.isBoth == true
+                  ? "Men & Women"
                   : product.subcategory.toLowerCase() === "men" ||
                     product.subcategory.toLowerCase() === "herren"
-                  ? "Herren"
-                  : product.subcategory.toLowerCase() == "women" ||
-                    product.subcategory.toLowerCase() == "damen"
-                  ? "Damen"
-                  : formatName(
-                      product.subcategory.charAt(0).toUpperCase() +
+                    ? "Men"
+                    : product.subcategory.toLowerCase() == "women" ||
+                      product.subcategory.toLowerCase() == "damen"
+                      ? "Women"
+                      : formatName(
+                        product.subcategory.charAt(0).toUpperCase() +
                         product.subcategory.slice(1)
-                    )}
+                      )}
               </p>
             </div>
           )}
@@ -332,7 +331,7 @@ export default function ProductInfo({
         <div className="space-y-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-700 heading">
-              Marke
+              Brand
             </h3>
             <p className="text-gray-600 body">{product.brand}</p>
           </div>
@@ -351,10 +350,10 @@ export default function ProductInfo({
         {availableColors.length > 0 && (
           <div>
             <p className="text-sm text-red-500 mb-2">
-              Wählen Sie Farben aus, um relevante Fotos anzuzeigen
+              Select colors to view relevant photos
             </p>
             <h3 className="text-xl font-semibold text-gray-800 mb-3 heading">
-              Farben{" "}
+              Colors{" "}
               {!selectedColor && (
                 <span className="text-red-500 text-sm">*</span>
               )}
@@ -364,11 +363,10 @@ export default function ProductInfo({
                 <button
                   key={color.name}
                   onClick={() => setSelectedColor(color.name)}
-                  className={`w-10 h-10 rounded-full transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 ${
-                    selectedColor === color.name
-                      ? "ring-2 ring-offset-2 ring-black border-black"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
+                  className={`w-10 h-10 rounded-full transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 ${selectedColor === color.name
+                    ? "ring-2 ring-offset-2 ring-black border-black"
+                    : "border-gray-300 hover:border-gray-400"
+                    }`}
                   style={{ backgroundColor: color.hex }}
                   aria-label={`Select color ${color.name}`}
                   title={color.name}
@@ -377,7 +375,7 @@ export default function ProductInfo({
             </div>
             {selectedColor && (
               <p className="text-sm text-gray-600 mt-2">
-                Ausgewählte Farbe:{" "}
+                Selected Color:{" "}
                 <span className="font-medium">{selectedColor}</span>
               </p>
             )}
@@ -388,7 +386,7 @@ export default function ProductInfo({
         {availableSizes.length > 0 && (
           <div>
             <h3 className="text-xl font-semibold mb-3 text-gray-800 heading">
-              Größe{" "}
+              Size{" "}
               {!selectedSize && <span className="text-red-500 text-sm">*</span>}
             </h3>
             <div className="flex flex-wrap gap-3">
@@ -400,13 +398,12 @@ export default function ProductInfo({
                     key={size}
                     onClick={() => !isOutOfStock && setSelectedSize(size)}
                     disabled={isOutOfStock}
-                    className={`min-w-[3rem] px-3 h-10 rounded-full border font-medium transition-all duration-300 cursor-pointer ${
-                      isSelected && !isOutOfStock
-                        ? "bg-red-500 text-white border-red-500 shadow-md"
-                        : isOutOfStock
+                    className={`min-w-[3rem] px-3 h-10 rounded-full border font-medium transition-all duration-300 cursor-pointer ${isSelected && !isOutOfStock
+                      ? "bg-red-500 text-white border-red-500 shadow-md"
+                      : isOutOfStock
                         ? "border-gray-300 text-gray-400 bg-gray-100 line-through cursor-not-allowed"
                         : "border-gray-300 text-gray-700 hover:bg-orange-400 hover:text-white hover:border-orange-400"
-                    }`}
+                      }`}
                   >
                     {size}
                   </button>
@@ -415,7 +412,7 @@ export default function ProductInfo({
             </div>
             {selectedSize && (
               <p className="text-sm text-gray-600 mt-2">
-                Ausgewählte Größe:{" "}
+                Selected Size:{" "}
                 <span className="font-medium">{selectedSize}</span>
               </p>
             )}
@@ -424,7 +421,7 @@ export default function ProductInfo({
 
         {/* Quantity */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-3">Menge</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-3">Quantity</h3>
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleQuantityChange(quantity - 1)}
@@ -447,7 +444,7 @@ export default function ProductInfo({
             </button>
           </div>
           <p className="text-sm text-gray-500 mt-1">
-            Verfügbar: {product.stock} Stück
+            Available: {product.stock} pieces
           </p>
         </div>
       </div>
@@ -455,12 +452,12 @@ export default function ProductInfo({
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
         <Button
-          text="In den Warenkorb"
+          text="Add to Cart"
           onClick={handleAddToCart}
           disabled={!isProductAvailable()}
         />
         <Button
-          text="Jetzt kaufen"
+          text="Buy Now"
           onClick={handleBuyNow}
           disabled={!isProductAvailable()}
         />

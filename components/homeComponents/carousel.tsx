@@ -70,7 +70,7 @@ const Carousel: React.FC = () => {
   if (!images || images.length === 0)
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">Keine Karussellbilder gefunden.</div>
+        <div className="text-center">No carousel images found.</div>
       </div>
     );
 
@@ -89,7 +89,7 @@ const Carousel: React.FC = () => {
             <div key={item.id} className="w-full h-full">
               <div className="w-full h-screen items-center justify-center p-2 hidden md:flex">
                 <Image
-                  src={  item.url ?
+                  src={item.url ?
                     resizeImageUrl(item.url, "1000x1000") :
                     "/placeholder.svg"
                   }

@@ -8,12 +8,12 @@ import { getProducts } from "@/lib/products";
 import { Category, fetchCategories } from "@/lib/categories";
 
 const popularSearches = [
-  "Schuhe",
-  "Kleider",
-  "Jacken",
+  "Shoes",
+  "Dresses",
+  "Jackets",
   "Jeans",
   "T-Shirts",
-  "Sneaker",
+  "Sneakers",
 ];
 
 interface FilterProps {
@@ -159,30 +159,29 @@ export default function FilterProducts({
         categories.map((category) => (
           <Button
             key={category}
-            className={`px-4 py-2 text-sm font-medium rounded-full border border-gray-400 cursor-pointer body ${
-              selectedCategory === category.toLowerCase()
+            className={`px-4 py-2 text-sm font-medium rounded-full border border-gray-400 cursor-pointer body ${selectedCategory === category.toLowerCase()
                 ? "bg-red-500 text-white"
                 : "text-gray-700 hover:bg-orange-600 hover:text-white transition-all duration-300"
-            } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             onClick={() => setSelectedCategory(category.toLowerCase())}
             disabled={isLoading}
           >
             {category === "All"
-              ? "Alle"
+              ? "All"
               : category === "Women"
-              ? "Damen"
-              : category === "Men"
-              ? "Herren"
-              : category === "Shoes"
-              ? "Schuhe"
-              : category}
+                ? "Women"
+                : category === "Men"
+                  ? "Men"
+                  : category === "Shoes"
+                    ? "Shoes"
+                    : category}
           </Button>
         ))}
 
       <div className="relative w-full sm:w-64" ref={searchRef}>
         <input
           type="text"
-          placeholder="Nach Produkten suchen..."
+          placeholder="Search for products..."
           className="px-2 pr-8 py-2 text-sm search bg-white pl-8 focus:border-orange-500 focus:ring-red-500/20 rounded-full border border-gray-400"
           value={searchTerm}
           onChange={handleInputChange}
@@ -195,7 +194,7 @@ export default function FilterProducts({
           className="h-9 w-9 rounded-full bg-transparent text-red absolute right-0 top-0 cursor-pointer px-5"
         >
           <Search className="h-4 w-4" />
-          <span className="sr-only">Suche</span>
+          <span className="sr-only">Search</span>
         </Button>
 
         {isOpen && suggestions.length > 0 && (

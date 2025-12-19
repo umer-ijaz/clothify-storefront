@@ -32,8 +32,8 @@ export default function ProductsPage() {
         (product) => ({
           ...product,
           id: String(product.id),
-          brand: product.brand || "Unbekannte Marke",
-          material: product.material || "Unbekanntes Material",
+          brand: product.brand || "Unknown Brand",
+          material: product.material || "Unknown Material",
         })
       );
 
@@ -75,11 +75,11 @@ export default function ProductsPage() {
 
       if (sortFilter) {
         updatedProducts = [...updatedProducts].sort((a, b) => {
-          if (sortFilter === "Preis: Niedrig bis Hoch")
+          if (sortFilter === "Price: Low to High")
             return a.currentPrice - b.currentPrice;
-          if (sortFilter === "Preis: Hoch bis Niedrig")
+          if (sortFilter === "Price: High to Low")
             return b.currentPrice - a.currentPrice;
-          if (sortFilter === "Beste Bewertung") return b.rating - a.rating;
+          if (sortFilter === "Best Rating") return b.rating - a.rating;
           return 0;
         });
       }
@@ -94,21 +94,21 @@ export default function ProductsPage() {
       {isLoading && (!products || products.length === 0) ? null : (
         <div className="mt-5">
           <div className="flex justify-between items-center pr-2 sm:pr-4 md:pr-8 lg:pr-12">
-            <TextBox text={"Unsere Produkte"} />
+            <TextBox text={"Our Products"} />
             <Link
               href={"/allproducts"}
               className="body text-sm text-red-500 md:text-lg flex justify-center items-center gap-2 hover:bg-red-500 active:bg-red-500 active:text-white hover:text-white px-3 py-1 rounded-full transition-all duration-300"
             >
-              Alle anzeigen
+              View All
               <IoIosArrowForward size={20} />
             </Link>
           </div>
           <div className="p-6 px-4 lg:px-8 xl:px-12" id="products">
             <h2 className="text-2xl font-bold mb-4 heading-luxury">
-              Aktuelle Trends
+              Current Trends
             </h2>
             <p className="text-gray-500 mb-6 subheading">
-              Entdecken Sie die angesagtesten Produkte in unserem Shop.
+              Discover the hottest products in our shop.
             </p>
             <div className="flex flex-wrap gap-4 justify-center pb-4 border-b border-gray-400">
               <FilterProducts

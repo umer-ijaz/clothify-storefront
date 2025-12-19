@@ -25,31 +25,30 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Daniel's Believe - Premium Online Shopping | Flash Sales & Fast Delivery Germany",
+    default: "Daniel's Believe - Premium Online Shopping | Flash Sales & Fast Delivery Pakistan",
     template: "%s | Daniel's Believe"
   },
   description:
-    "🛍️ Daniel's Believe - Premium Online Shopping und Services! ✨ Entdecke hochwertige Produkte, Blitzangebote und exklusive Dienstleistungen in Deutschland!",
+    "🛍️ Daniel's Believe - Premium Online Shopping and Services! ✨ Discover high-quality products, flash deals, and exclusive services in Pakistan!",
   keywords: [
     "Daniel's Believe",
-    "Online Shopping Deutschland",
-    "Premium Produkte",
+    "Online Shopping Pakistan",
+    "Premium Products",
     "Services",
-    "Dienstleistungen",
-    "Blitzangebote",
+    "Flash Deals",
     "Online Shop",
-    "E-Commerce Germany",
-    "danielsbelieve.de",
-    "Deutschland Shopping",
-    "Online Einkaufen",
-    "Service-Angebote"
+    "E-Commerce Pakistan",
+    "danielsbelieve.com",
+    "Pakistan Shopping",
+    "Online Shopping",
+    "Service Offers"
   ].join(", "),
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
     shortcut: "/favicon.ico",
   },
-  authors: [{ name: "Daniel's Believe", url: "https://www.danielsbelieve.de" }],
+  authors: [{ name: "Daniel's Believe", url: "https://www.danielsbelieve.com" }],
   creator: "Daniel's Believe Team",
   publisher: "Daniel's Believe",
   formatDetection: {
@@ -58,19 +57,19 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: "Daniel's Believe - Premium Online Shopping & Services �️",
+    title: "Daniel's Believe - Premium Online Shopping & Services 🛍️",
     description:
-      "🛍️ Entdecke Premium Produkte und Services bei Daniel's Believe! ⚡ Blitzangebote, Online Shopping und exklusive Dienstleistungen.",
+      "🛍️ Discover Premium Products and Services at Daniel's Believe! ⚡ Flash deals, Online Shopping, and exclusive services.",
     type: "website",
-    locale: "de_DE",
-    url: "https://www.danielsbelieve.de",
+    locale: "en_US",
+    url: "https://www.danielsbelieve.com",
     siteName: "Daniel's Believe",
     images: [
       {
-        url: "https://www.danielsbelieve.de/logo.webp",
+        url: "https://www.danielsbelieve.com/logo.webp",
         width: 1200,
         height: 630,
-        alt: "Daniel's Believe - Premium Online Shopping Deutschland"
+        alt: "Daniel's Believe - Premium Online Shopping Pakistan"
       }
     ],
   },
@@ -80,8 +79,8 @@ export const metadata: Metadata = {
     creator: "@danielsbelieve",
     title: "Daniel's Believe - Online Shopping & Services 🛍️",
     description:
-      "⚡ Premium Produkte • �️ Online Shopping • 🔧 Services • 🎯 Blitzangebote • Jetzt bei Daniel's Believe entdecken!",
-    images: ["https://www.danielsbelieve.de/logo.webp"],
+      "⚡ Premium Products • 🛍️ Online Shopping • 🔧 Services • 🎯 Flash Deals • Discover now at Daniel's Believe!",
+    images: ["https://www.danielsbelieve.com/logo.webp"],
   },
   robots: {
     index: true,
@@ -102,10 +101,9 @@ export const metadata: Metadata = {
     google: "your-google-verification-code", // Add your actual Google Search Console verification code
   },
   alternates: {
-    canonical: "https://www.danielsbelieve.de",
+    canonical: "https://www.danielsbelieve.com",
     languages: {
-      "de-DE": "https://www.danielsbelieve.de",
-      "en-US": "https://www.danielsbelieve.de/en",
+      "en-US": "https://www.danielsbelieve.com",
     },
   },
   category: "E-Commerce",
@@ -123,9 +121,9 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     "name": "Daniel's Believe",
-    "description": "Premium Online Shopping mit Flash Sales, Express-Versand und sicherer Zahlung in Deutschland",
-    "url": "https://www.danielsbelieve.de",
-    "logo": "https://www.danielsbelieve.de/logo.webp",
+    "description": "Premium Online Shopping with Flash Sales, Express Delivery, and Secure Payment in Pakistan",
+    "url": "https://www.danielsbelieve.com",
+    "logo": "https://www.danielsbelieve.com/logo.webp",
     "sameAs": [
       "https://www.facebook.com/danielsbelieve",
       "https://www.instagram.com/danielsbelieve",
@@ -133,22 +131,22 @@ export default function RootLayout({
     ],
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+49-152-23815822",
+      "telephone": "+92-300-1234567", // Update with actual number if available, otherwise kept placeholder format
       "contactType": "customer service",
-      "email": "info@danielsbelieve.de",
-      "availableLanguage": ["German", "English"]
+      "email": "info@danielsbelieve.com",
+      "availableLanguage": ["English", "Urdu"]
     },
     "address": {
       "@type": "PostalAddress",
-      "addressCountry": "DE"
+      "addressCountry": "PK"
     },
     "offers": {
       "@type": "AggregateOffer",
-      "priceCurrency": "EUR",
+      "priceCurrency": "PKR",
       "availability": "https://schema.org/InStock"
     },
-    "paymentAccepted": ["PayPal", "Stripe", "Credit Card", "Invoice"],
-    "priceRange": "€€",
+    "paymentAccepted": ["PayPal", "Stripe", "Card", "Cash on Delivery"],
+    "priceRange": "Rs",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.8",
@@ -157,7 +155,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="de">
+    <html lang="en">
       <head>
         <script
           type="application/ld+json"
@@ -168,7 +166,7 @@ export default function RootLayout({
       </head>
       <meta
         name="description"
-        content="🛍️ Daniel's Believe - Deutschlands vertrauenswürdiger Online-Shop! ✨ Premium Produkte, Flash-Sale Deals, schnelle Lieferung & sichere Zahlung. PayPal ✓ Stripe ✓ Rechnung ✓ Express-Versand verfügbar!"
+        content="🛍️ Daniel's Believe - Pakistan's trusted Online Shop! ✨ Premium Products, Flash Sale Deals, Fast Delivery & Secure Payment. PayPal ✓ Stripe ✓ Express Delivery available!"
       ></meta>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}

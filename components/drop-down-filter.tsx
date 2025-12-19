@@ -10,9 +10,9 @@ export default function DropDownFilter({
   const [selectedFilter, setSelectedFilter] = useState("");
 
   const filters = [
-    "Preis: Niedrig bis Hoch",
-    "Preis: Hoch bis Niedrig",
-    "Beste Bewertung",
+    "Price: Low to High",
+    "Price: High to Low",
+    "Best Rating",
   ];
 
   return (
@@ -31,7 +31,7 @@ export default function DropDownFilter({
           }}
         >
           <option value="" disabled hidden>
-            Sortieren nach
+            Sort by
           </option>
           {filters.map((filter) => (
             <option

@@ -124,9 +124,9 @@ export default function ProductDetailPage({
   const getCategoryDisplayName = (category: string) => {
     switch (category.toLowerCase()) {
       case "men":
-        return "Herren";
+        return "Men";
       case "women":
-        return "Damen";
+        return "Women";
       default:
         return category.charAt(0).toUpperCase() + category.slice(1);
     }
@@ -315,7 +315,7 @@ export default function ProductDetailPage({
         {/* Features Section */}
         {product.features && product.features.length > 0 && (
           <section className="mt-10">
-            <TextBox text="Merkmale" />
+            <TextBox text="Features" />
             <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-sm md:shadow-md mt-4">
               <ul className="grid gap-2 text-gray-700 text-sm" role="list">
                 {product.features.map((feature: string, index: number) => (
@@ -339,7 +339,7 @@ export default function ProductDetailPage({
 
         {/* Reviews Section */}
         <section className="relative mt-10">
-          <TextBox text="Bewertungen" />
+          <TextBox text="Reviews" />
           <Image
             src="/bubble.svg"
             alt=""

@@ -45,7 +45,7 @@ export default function CartClient() {
   const handlePaymentClick = (e: React.MouseEvent) => {
     if (!hasSelectedItems) {
       e.preventDefault();
-      alert("Bitte wählen Sie mindestens einen Artikel aus, um fortzufahren.");
+      alert("Please select at least one item to proceed.");
       return;
     }
   };
@@ -56,27 +56,27 @@ export default function CartClient() {
         <h1 className="py-8 mx-4 sm:mx-6 md:mx-8 lg:mx-12 flex gap-1 md:gap-2 text-md md:text-xl font-small mb-4 capitalize">
           <HomeLink />
           <span className="mx-2 text-gray-400">/</span>
-          <span className="text-red-500 subheading">Warenkorb</span>
+          <span className="text-red-500 subheading">Cart</span>
         </h1>
 
-        <TextField text={"Warenkorb"} />
+        <TextField text={"Cart"} />
         <div className="mx-2 sm:mx-4 md:mx-8 lg:mx-12 py-12 px-2 sm:px-4 md:px-8 lg:px-12 rounded-xl bg-white shadow-lg">
           <div className="flex justify-between items-center w-full">
             <div>
               <h1 className="text-xl font-semibold mb-1 heading">
-                Einkaufswagen
+                Shopping Cart
               </h1>
               <p className="text-gray-600 text-md mb-6 body">
-                Sie haben {cart.length} Artikel in Ihrem Warenkorb.
+                You have {cart.length} items in your cart.
               </p>
             </div>
-            <Button text="Alle markieren" onClick={updateAll} />
+            <Button text="Select all" onClick={updateAll} />
           </div>
 
           {cart.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-gray-500 mb-4 heading">
-                Ihr Warenkorb ist leer.
+                Your cart is empty.
               </p>
               <Link
                 href="/"
@@ -86,7 +86,7 @@ export default function CartClient() {
     transition-all duration-500 ease-out transform hover:shadow-xl cursor-pointer text-center
     hover:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604] active:bg-right hover:from-[#EB1E24] hover:via-[#F05021] hover:to-[#ff3604] text-white px-6 py-2 text-sm font-medium hover:bg-[#EB1E24] active:bg-[#EB1E24] transition-all rounded-full"
               >
-                Weiter einkaufen
+                Continue shopping
               </Link>
             </div>
           ) : (
@@ -94,14 +94,14 @@ export default function CartClient() {
               <div className="flex-1">
                 {/* Desktop View Header - Hidden on Mobile */}
                 <div className="mb-4 hidden md:grid grid-cols-4 font-semibold text-xl">
-                  <div className="col-span-1 subheading">Produkt</div>
-                  <div className="text-center col-span-1 subheading">Preis</div>
-                  <div className="text-center col-span-1 subheading">Menge</div>
+                  <div className="col-span-1 subheading">Product</div>
+                  <div className="text-center col-span-1 subheading">Price</div>
+                  <div className="text-center col-span-1 subheading">Quantity</div>
                 </div>
 
                 {/* Mobile View Header */}
                 <div className="mb-4 md:hidden font-semibold text-xl">
-                  <div>Artikel</div>
+                  <div>Item</div>
                 </div>
 
                 <div className="space-y-4">
@@ -120,11 +120,10 @@ export default function CartClient() {
                                 e.target.checked
                               )
                             }
-                            className={`mr-2 ${
-                              item.isChecked
+                            className={`mr-2 ${item.isChecked
                                 ? "accent-red-500"
                                 : "accent-gray-200"
-                            }`}
+                              }`}
                           />
 
                           <div className="w-18 h-18 relative">
@@ -133,8 +132,8 @@ export default function CartClient() {
                                 item.image
                                   ? resizeImageUrl(item.image, "200x200")
                                   : item.image ||
-                                    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
-                                    "/placeholder.svg"
+                                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
+                                  "/placeholder.svg"
                               }
                               alt={item.name}
                               width={60}
@@ -157,7 +156,7 @@ export default function CartClient() {
                         </div>
 
                         <div className="text-center text-gray-500">
-                          €{item.price.toFixed(2)}
+                          Rs. {(item.price * 310).toFixed(0)}
                         </div>
 
                         <div className="flex items-center justify-center gap-20">
@@ -251,11 +250,10 @@ export default function CartClient() {
                                   e.target.checked
                                 )
                               }
-                              className={`mr-2 ${
-                                item.isChecked
+                              className={`mr-2 ${item.isChecked
                                   ? "accent-red-500"
                                   : "accent-gray-200"
-                              }`}
+                                }`}
                             />
 
                             <div className="w-[50px] h-[50px] relative flex-shrink-0">
@@ -264,8 +262,8 @@ export default function CartClient() {
                                   item.image
                                     ? resizeImageUrl(item.image, "200x200")
                                     : item.image ||
-                                      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
-                                      "/placeholder.svg"
+                                    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-03-17%20143442-97O1rCbUW4ps5N28iXf3OiBRIGrib7.png" ||
+                                    "/placeholder.svg"
                                 }
                                 alt={item.name}
                                 fill
@@ -284,7 +282,7 @@ export default function CartClient() {
                                 {item.size && ` | Size: ${item.size}`}
                               </p>
                               <p className="text-sm text-gray-500 mt-1">
-                                €{item.price.toFixed(2)}
+                                Rs. {(item.price * 310).toFixed(0)}
                               </p>
                             </div>
                           </div>
@@ -371,39 +369,39 @@ export default function CartClient() {
               <div className="w-full md:w-80">
                 <div className="border rounded-xl p-4">
                   <h2 className="text-center font-semibold mb-4 heading">
-                    Gesamtsumme
+                    Total Summary
                   </h2>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span>Zwischensumme</span>
+                      <span>Subtotal</span>
                       <span className="font-medium">
-                        €{totalPrice.toFixed(2)}
+                        Rs. {(totalPrice * 310).toFixed(0)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Steuer</span>
+                      <span>Tax</span>
                       <span className="font-medium">
-                        €{(totalPrice * (taxRate / 100)).toFixed(2)}
+                        Rs. {(totalPrice * (taxRate / 100) * 310).toFixed(0)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Steuerprozentsatz</span>
+                      <span>Tax Rate</span>
                       <span className="font-medium">{taxRate}%</span>
                     </div>
 
                     <div className="pt-2">
                       <div className="flex justify-between font-medium">
-                        <span>Gesamt</span>
+                        <span>Total</span>
                         <span>
-                          €
-                          {(totalPrice + totalPrice * (taxRate / 100)).toFixed(
-                            2
+                          Rs.
+                          {((totalPrice + totalPrice * (taxRate / 100)) * 310).toFixed(
+                            0
                           )}
                         </span>
                       </div>
                       {!hasSelectedItems && cart.length > 0 && (
                         <p className="text-xs text-gray-500 text-center mt-2">
-                          Wählen Sie Artikel aus, um den Gesamtbetrag zu sehen
+                          Select items to see the total amount
                         </p>
                       )}
                     </div>
@@ -411,18 +409,17 @@ export default function CartClient() {
                     <div className="flex flex-col items-center gap-2">
                       {!hasSelectedItems && cart.length > 0 && (
                         <p className="text-sm text-red-500 text-center">
-                          Bitte wählen Sie mindestens einen Artikel aus.
+                          Please select at least one item.
                         </p>
                       )}
                       <Link
                         href="/payments"
-                        className={`flex justify-center w-full ${
-                          !hasSelectedItems ? "pointer-events-none" : ""
-                        }`}
+                        className={`flex justify-center w-full ${!hasSelectedItems ? "pointer-events-none" : ""
+                          }`}
                         onClick={handlePaymentClick}
                       >
                         <Button
-                          text="Zur Bezahlung fortfahren"
+                          text="Proceed to Payment"
                           disabled={!hasSelectedItems}
                         />
                       </Link>

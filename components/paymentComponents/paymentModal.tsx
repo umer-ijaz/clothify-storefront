@@ -81,17 +81,17 @@ const StripeCheckoutForm = ({
 
     if (error) {
       setErrorMessage(
-        error.message || "Ein unerwarteter Fehler ist aufgetreten."
+        error.message || "An unexpected error occurred."
       );
       setIsProcessing(false);
       return;
     }
 
     if (paymentIntent && paymentIntent.status === "succeeded") {
-      toast.success("Zahlung erfolgreich!");
+      toast.success("Payment successful!");
       onSuccessfulPayment(paymentIntent.id);
     } else if (paymentIntent) {
-      setErrorMessage(`Zahlungsstatus: ${paymentIntent.status}`);
+      setErrorMessage(`Payment status: ${paymentIntent.status}`);
     }
 
     setIsProcessing(false);
@@ -104,7 +104,7 @@ const StripeCheckoutForm = ({
         <Button
           type="submit"
           disabled={isProcessing || !stripe || !elements}
-          text={isProcessing ? "Verarbeitung..." : "Bezahlen Sie mit Stripe"}
+          text={isProcessing ? "Processing..." : "Pay with Stripe"}
         />
       </div>
       {errorMessage && (
@@ -147,7 +147,7 @@ const PayPalCheckoutForm = ({
 
       // Validate amount
       if (!amount || amount <= 0) {
-        throw new Error("Ungültiger Betrag");
+        throw new Error("Invalid amount");
       }
 
       console.log("Creating PayPal order with:", {
@@ -174,20 +174,19 @@ const PayPalCheckoutForm = ({
       if (!response.ok) {
         console.error("PayPal order creation failed:", data);
         throw new Error(
-          data.error || "Fehler beim Erstellen der PayPal-Bestellung"
+          data.error || "Error creating PayPal order"
         );
       }
 
       if (!data.orderID) {
-        throw new Error("Keine PayPal-Bestell-ID erhalten");
+        throw new Error("No PayPal Order ID received");
       }
 
       return data.orderID;
     } catch (error) {
       console.error("PayPal Order Creation Error:", error);
       toast.error(
-        `Fehler beim Erstellen der PayPal-Bestellung: ${
-          error instanceof Error ? error.message : "Unbekannter Fehler"
+        `Error creating PayPal order: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
       setIsProcessing(false);
@@ -217,18 +216,17 @@ const PayPalCheckoutForm = ({
       if (!response.ok) {
         console.error("PayPal capture failed:", captureData);
         throw new Error(
-          captureData.error || "Fehler beim Abschließen der PayPal-Zahlung"
+          captureData.error || "Error capturing PayPal payment"
         );
       }
 
       if (captureData.status === "COMPLETED") {
-        toast.success("PayPal-Zahlung erfolgreich!");
+        toast.success("PayPal payment successful!");
         onSuccessfulPayment(captureData.transactionId);
       } else {
         console.error("PayPal payment not completed:", captureData);
         toast.error(
-          `PayPal-Zahlung konnte nicht abgeschlossen werden. Status: ${
-            captureData.status || "Unbekannt"
+          `PayPal payment could not be completed. Status: ${captureData.status || "Unbekannt"
           }`
         );
         setIsProcessing(false);
@@ -236,8 +234,7 @@ const PayPalCheckoutForm = ({
     } catch (error) {
       console.error("PayPal Capture Error:", error);
       toast.error(
-        `Fehler beim Abschließen der PayPal-Zahlung: ${
-          error instanceof Error ? error.message : "Unbekannter Fehler"
+        `Error capturing PayPal payment: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
       setIsProcessing(false);
@@ -246,12 +243,12 @@ const PayPalCheckoutForm = ({
 
   const onError = (error: any) => {
     console.error("PayPal Error:", error);
-    toast.error("PayPal-Zahlungsfehler");
+    toast.error("PayPal Payment Error");
     setIsProcessing(false);
   };
 
   const onCancel = () => {
-    toast.info("PayPal-Zahlung abgebrochen");
+    toast.info("PayPal payment cancelled");
     setIsProcessing(false);
   };
 
@@ -274,7 +271,7 @@ const PayPalCheckoutForm = ({
         <div className="flex items-center justify-center p-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
           <span className="ml-2 text-sm text-gray-600">
-            PayPal-Zahlung wird verarbeitet...
+            Processing PayPal payment...
           </span>
         </div>
       )}
@@ -354,7 +351,7 @@ export default function PaymentModal({
         setPromoCodeUsage(usage);
       } catch (err) {
         console.error("Fehler beim Laden der PromoCodes:", err);
-        toast.error("PromoCode-Daten konnten nicht geladen werden");
+        toast.error("Could not load promo code data");
       } finally {
         setFetching(false);
       }
@@ -404,7 +401,7 @@ export default function PaymentModal({
     const hasNonFlashSale = products.some((item) => item.isFlashSale === false);
 
     if (allFlashSale) {
-      setMessage("⚠️ Aktionscode ist nicht anwendbar auf Flash-Sale-Produkte.");
+      setMessage("⚠️ Promo code is not applicable on Flash Sale products.");
       return;
     }
 
@@ -419,7 +416,7 @@ export default function PaymentModal({
 
     if (!matchedPromo) {
       setMessage(
-        "❌ Ungültiger Aktionscode. Bitte verwenden Sie einen gültigen Aktionscode."
+        "❌ Invalid promo code. Please use a valid promo code."
       );
       return;
     }
@@ -446,9 +443,8 @@ export default function PaymentModal({
 
     if (usedCount >= allowedCount) {
       setMessage(
-        `⚠️ Sie haben das Nutzungslimit für diesen Aktionscode erreicht. (${
-          allowedCount === Infinity ? "Unbegrenzt" : allowedCount
-        }x erlaubt)`
+        `⚠️ You have reached the usage limit for this promo code. (${allowedCount === Infinity ? "Unlimited" : allowedCount
+        }x allowed)`
       );
       setDiscount(0);
       return;
@@ -465,19 +461,19 @@ export default function PaymentModal({
 
       if (hasNonFlashSale) {
         setMessage(
-          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Er gilt nur für Nicht-Flash-Sale-Produkte und Sie erhalten ${matchedPromo.discount}% Rabatt auf diese Artikel.`
+          `✅ Congratulations! Your promo code is valid. It applies only to non-flash-sale products and you get ${matchedPromo.discount}% discount on these items.`
         );
       } else {
         setMessage(
-          `✅ Herzlichen Glückwunsch! Ihr Promo-Code ist gültig. Sie erhalten ${matchedPromo.discount}% Rabatt.`
+          `✅ Congratulations! Your promo code is valid. You get ${matchedPromo.discount}% discount.`
         );
       }
 
       setValidUntil(
-        `📅 Der Aktionscode ist gültig bis ${expiry.toDateString()}`
+        `📅 The promo code is valid until ${expiry.toDateString()}`
       );
     } else {
-      setMessage("⚠️ Der Aktionscode ist abgelaufen.");
+      setMessage("⚠️ The promo code has expired.");
     }
   };
 
@@ -497,7 +493,7 @@ export default function PaymentModal({
           if (freeDeliveryData && freeDeliveryData.threshold) {
             setFreeDeliveryThreshold(freeDeliveryData.threshold || 0);
             setFreeDeliveryDescription(
-              freeDeliveryData.description || "Kostenlose Lieferung"
+              freeDeliveryData.description || "Free Delivery"
             );
           }
         }
@@ -530,10 +526,10 @@ export default function PaymentModal({
     deliveryMethod === "standard" && isEligibleForFreeDelivery
       ? 0
       : deliveryMethod === "standard"
-      ? deliveryPrice
-      : deliveryMethod === "express"
-      ? expressPrice
-      : 0;
+        ? deliveryPrice
+        : deliveryMethod === "express"
+          ? expressPrice
+          : 0;
 
   const tax = subtotal * (taxRate / 100);
   const totalPrice =
@@ -576,7 +572,7 @@ export default function PaymentModal({
     for (const field of requiredFields) {
       if (!customerInfo[field as keyof typeof customerInfo]) {
         toast.error(
-          `Bitte füllen Sie das Feld ${field
+          `Please fill in the field ${field
             .replace(/([A-Z])/g, " $1")
             .toLowerCase()} aus.`
         );
@@ -585,7 +581,7 @@ export default function PaymentModal({
     }
 
     if (!/^\S+@\S+\.\S+$/.test(customerInfo.email)) {
-      toast.error("Bitte geben Sie eine gültige E-Mail-Adresse ein.");
+      toast.error("Please enter a valid email address.");
       return false;
     }
 
@@ -594,7 +590,7 @@ export default function PaymentModal({
 
   const createPaymentIntent = async () => {
     if (totalPrice <= 0) {
-      toast.error("Warenkorb ist leer oder Gesamtbetrag ist null.");
+      toast.error("Cart is empty or total amount is zero.");
       return;
     }
     try {
@@ -604,8 +600,8 @@ export default function PaymentModal({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: totalPrice,
-          currency: "eur",
+          amount: Math.round(totalPrice * 310),
+          currency: "pkr",
           metadata: {
             customerEmail: customerInfo.email,
             customerName: customerInfo.fullName,
@@ -620,13 +616,13 @@ export default function PaymentModal({
         setClientSecret(data.clientSecret);
         setShowStripeModal(true);
       } else {
-        toast.error(data.error || "Zahlung konnte nicht initialisiert werden.");
+        toast.error(data.error || "Payment could not be initialized.");
       }
     } catch (error) {
       console.error("Failed to create payment intent:", error);
       console.error("Fehler beim Erstellen des Zahlungsauftrags:", error);
       toast.error(
-        "Zahlung konnte nicht initialisiert werden. Bitte versuchen Sie es erneut."
+        "Payment could not be initialized. Please try again."
       );
     }
   };
@@ -634,11 +630,11 @@ export default function PaymentModal({
   const proceedToStripePayment = async () => {
     if (!user) {
       setModal(true);
-      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
+      toast.error("You must be logged in to make payments.");
       return;
     }
     if (products.length === 0) {
-      toast.error("Ihr Warenkorb ist leer.");
+      toast.error("Your cart is empty.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -650,11 +646,11 @@ export default function PaymentModal({
   const proceedToPayPalPayment = async () => {
     if (!user) {
       setModal(true);
-      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
+      toast.error("You must be logged in to make payments.");
       return;
     }
     if (products.length === 0) {
-      toast.error("Ihr Warenkorb ist leer.");
+      toast.error("Your cart is empty.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -689,11 +685,10 @@ export default function PaymentModal({
       customerInfo: {
         name: customerInfo.fullName,
         email: customerInfo.email,
-        address: `${customerInfo.streetAddress}${
-          customerInfo.additionalAddress
-            ? ", " + customerInfo.additionalAddress
-            : ""
-        }`,
+        address: `${customerInfo.streetAddress}${customerInfo.additionalAddress
+          ? ", " + customerInfo.additionalAddress
+          : ""
+          }`,
         city: customerInfo.townCity,
         phone: customerInfo.phone,
         apartment: customerInfo.additionalAddress,
@@ -729,7 +724,7 @@ export default function PaymentModal({
 
   const handleSuccessfulStripePayment = async (paymentIntentId: string) => {
     if (!user) {
-      toast.error("Benutzersession verloren. Bitte melden Sie sich erneut an.");
+      toast.error("User session lost. Please log in again.");
       return;
     }
     try {
@@ -739,20 +734,20 @@ export default function PaymentModal({
         status: "Completed",
       });
       await addOrderToUserProfile(user.uid, order);
-      toast.success("Bestellung mit Stripe erfolgreich aufgegeben!");
+      toast.success("Order placed successfully with Stripe!");
       router.push("/orders");
       onClose();
     } catch (error) {
       console.error("Error placing order after Stripe payment:", error);
       toast.error(
-        "Bestellung nach Zahlung konnte nicht abgeschlossen werden. Bitte kontaktieren Sie den Support."
+        "Order could not be completed after payment. Please contact support."
       );
     }
   };
 
   const handleSuccessfulPayPalPayment = async (transactionId: string) => {
     if (!user) {
-      toast.error("Benutzersession verloren. Bitte melden Sie sich erneut an.");
+      toast.error("User session lost. Please log in again.");
       return;
     }
     try {
@@ -762,13 +757,13 @@ export default function PaymentModal({
         status: "Completed",
       });
       await addOrderToUserProfile(user.uid, order);
-      toast.success("Bestellung mit PayPal erfolgreich aufgegeben!");
+      toast.success("Order placed successfully with PayPal!");
       router.push("/orders");
       onClose();
     } catch (error) {
       console.error("Error placing order after PayPal payment:", error);
       toast.error(
-        "Bestellung nach Zahlung konnte nicht abgeschlossen werden. Bitte kontaktieren Sie den Support."
+        "Order could not be completed after payment. Please contact support."
       );
     }
   };
@@ -776,11 +771,11 @@ export default function PaymentModal({
   const handleCashCheckout = async () => {
     if (!user) {
       setModal(true);
-      toast.error("Sie müssen angemeldet sein, um Zahlungen durchzuführen.");
+      toast.error("You must be logged in to make payments.");
       return;
     }
     if (products.length === 0) {
-      toast.error("Ihr Warenkorb ist leer.");
+      toast.error("Your cart is empty.");
       return;
     }
     if (!validateCustomerInfo()) {
@@ -798,14 +793,14 @@ export default function PaymentModal({
         status: "Pending",
       });
       await addOrderToUserProfile(user.uid, order);
-      toast.success("Bestellung erfolgreich aufgegeben! (Nachnahme)");
+      toast.success("Order placed successfully! (Cash on Delivery)");
       router.push("/orders");
       onClose();
     } catch (error) {
       console.error("Error placing cash order:", error);
       console.error("Fehler bei der Nachnahme-Bestellung:", error);
       toast.error(
-        "Nachnahme-Bestellung konnte nicht aufgegeben werden. Bitte versuchen Sie es erneut."
+        "Cash on Delivery order could not be placed. Please try again."
       );
     } finally {
       setIsProcessing(false);
@@ -826,11 +821,11 @@ export default function PaymentModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />
       <DialogContent className="max-w-[99vw]-lg md:max-w-[95vw] p-0 max-h-[90vh] overflow-y-auto scrollbar-hide bg-white rounded-lg">
-        <DialogTitle className="sr-only">Ihren Kauf abschließen</DialogTitle>
+        <DialogTitle className="sr-only">Complete your purchase</DialogTitle>
         <div className="relative">
           {/* Header */}
           <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b border-red-500">
-            <h2 className="text-xl font-bold">Ihren Kauf abschließen</h2>
+            <h2 className="text-xl font-bold">Complete your purchase</h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -843,12 +838,12 @@ export default function PaymentModal({
           <div className="flex flex-col md:grid md:grid-cols-5 gap-8 p-4 md:p-6">
             {/* Customer Information - 3/5 width */}
             <div className="md:col-span-3 bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <h2 className="text-xl font-semibold mb-6">Kundendaten</h2>
+              <h2 className="text-xl font-semibold mb-6">Customer Information</h2>
               <div className="grid gap-6">
                 {/* Country/Region */}
                 <div className="space-y-2">
                   <Label htmlFor="country" className="text-sm font-medium">
-                    Land/Region <span className="text-red-500">*</span>
+                    Country/Region <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <select
@@ -874,12 +869,12 @@ export default function PaymentModal({
                 {/* Full Name */}
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-sm font-medium">
-                    Vollständiger Name (Vor- und Nachname){" "}
+                    Full Name (First and Last name){" "}
                     <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="fullName"
-                    placeholder="Geben Sie Ihren vollständigen Namen ein"
+                    placeholder="Enter your full name"
                     className={inputStyle}
                     value={customerInfo.fullName}
                     onChange={handleInputChange}
@@ -890,11 +885,11 @@ export default function PaymentModal({
                 {/* Company Name */}
                 <div className="space-y-2">
                   <Label htmlFor="companyName" className="text-sm font-medium">
-                    Firmenname (optional)
+                    Company Name (optional)
                   </Label>
                   <Input
                     id="companyName"
-                    placeholder="Firmenname eingeben"
+                    placeholder="Enter company name"
                     className={inputStyle}
                     value={customerInfo.companyName}
                     onChange={handleInputChange}
@@ -904,11 +899,11 @@ export default function PaymentModal({
                 {/* Phone Number */}
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-sm font-medium">
-                    Telefonnummer <span className="text-red-500">*</span>
+                    Phone Number <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="phone"
-                    placeholder="Telefonnummer eingeben"
+                    placeholder="Enter phone number"
                     className={inputStyle}
                     value={customerInfo.phone}
                     onChange={handleInputChange}
@@ -918,10 +913,10 @@ export default function PaymentModal({
 
                 {/* Address Section */}
                 <div className="space-y-4">
-                  <Label className="text-sm font-medium">Adresse</Label>
+                  <Label className="text-sm font-medium">Address</Label>
                   <Input
                     id="streetAddress"
-                    placeholder="Straße und Hausnummer, Abholort"
+                    placeholder="Street and house number, pickup location"
                     className={inputStyle}
                     value={customerInfo.streetAddress}
                     onChange={handleInputChange}
@@ -929,7 +924,7 @@ export default function PaymentModal({
                   />
                   <Input
                     id="additionalAddress"
-                    placeholder="Postfach, c/o, etc."
+                    placeholder="PO Box, c/o, etc."
                     className={inputStyle}
                     value={customerInfo.additionalAddress}
                     onChange={handleInputChange}
@@ -940,11 +935,11 @@ export default function PaymentModal({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="postcode" className="text-sm font-medium">
-                      Postleitzahl <span className="text-red-500">*</span>
+                      Postcode <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="postcode"
-                      placeholder="Postleitzahl eingeben"
+                      placeholder="Enter postcode"
                       className={inputStyle}
                       value={customerInfo.postcode}
                       onChange={handleInputChange}
@@ -953,11 +948,11 @@ export default function PaymentModal({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="townCity" className="text-sm font-medium">
-                      Ort/Stadt <span className="text-red-500">*</span>
+                      City/Town <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="townCity"
-                      placeholder="Ort/Stadt eingeben"
+                      placeholder="Enter city/town"
                       className={inputStyle}
                       value={customerInfo.townCity}
                       onChange={handleInputChange}
@@ -969,11 +964,11 @@ export default function PaymentModal({
                 {/* Email Address */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    E-Mail-Adresse <span className="text-red-500">*</span>
+                    Email Address <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="email"
-                    placeholder="E-Mail-Adresse eingeben"
+                    placeholder="Enter email address"
                     className={inputStyle}
                     value={customerInfo.email}
                     onChange={handleInputChange}
@@ -991,15 +986,14 @@ export default function PaymentModal({
                     }
                     className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
-                    <span>Lieferanweisungen</span>
+                    <span>Delivery Instructions</span>
                     <ChevronDown
-                      className={`ml-1 w-4 h-4 transition-transform ${
-                        showDeliveryInstructions ? "rotate-180" : ""
-                      }`}
+                      className={`ml-1 w-4 h-4 transition-transform ${showDeliveryInstructions ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                   <p className="text-xs text-gray-500">
-                    Präferenzen, Notizen, Zugangscodes und mehr hinzufügen
+                    Add preferences, notes, access codes and more
                   </p>
 
                   {showDeliveryInstructions && (
@@ -1009,11 +1003,11 @@ export default function PaymentModal({
                           htmlFor="deliveryPreferences"
                           className="text-sm font-medium"
                         >
-                          Lieferpräferenzen
+                          Delivery Preferences
                         </Label>
                         <Textarea
                           id="deliveryPreferences"
-                          placeholder="Fügen Sie hier Ihre Lieferpräferenzen hinzu..."
+                          placeholder="Add your delivery preferences here..."
                           className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                           value={customerInfo.deliveryPreferences}
                           onChange={handleInputChange}
@@ -1025,11 +1019,11 @@ export default function PaymentModal({
                           htmlFor="deliveryNotes"
                           className="text-sm font-medium"
                         >
-                          Notizen
+                          Notes
                         </Label>
                         <Textarea
                           id="deliveryNotes"
-                          placeholder="Fügen Sie hier zusätzliche Notizen hinzu..."
+                          placeholder="Add additional notes here..."
                           className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                           value={customerInfo.deliveryNotes}
                           onChange={handleInputChange}
@@ -1041,11 +1035,11 @@ export default function PaymentModal({
                           htmlFor="accessCodes"
                           className="text-sm font-medium"
                         >
-                          Zugangscodes
+                          Access Codes
                         </Label>
                         <Textarea
                           id="accessCodes"
-                          placeholder="Fügen Sie hier Zugangscodes oder Torcodes hinzu..."
+                          placeholder="Add access codes or gate codes here..."
                           className="mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-0 focus:ring-red-400 focus:border-none min-h-[80px] resize-none"
                           value={customerInfo.accessCodes}
                           onChange={handleInputChange}
@@ -1062,7 +1056,7 @@ export default function PaymentModal({
               {promoCodes && (
                 <div className="p-6 rounded-lg border border-gray-200 bg-white shadow-md gap-2">
                   <h2 className="text-xl font-semibold">
-                    Geben Sie den Promo-Code ein
+                    Enter promo code
                   </h2>
 
                   <div className="flex flex-col gap-3 justify-end items-end mt-2">
@@ -1090,13 +1084,13 @@ export default function PaymentModal({
 
                   {discount !== null && (
                     <div className="text-sm text-blue-800 mt-1">
-                      🎉 Angewendeter Rabatt: <strong>{discount}%</strong>
+                      🎉 Applied discount: <strong>{discount}%</strong>
                     </div>
                   )}
                 </div>
               )}
               <div className="md:col-span-2 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-                <h2 className="text-xl font-semibold mb-4">Bestellübersicht</h2>
+                <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
                 <div className="space-y-4 w-full">
                   {products.map((item) => (
                     <div
@@ -1120,14 +1114,14 @@ export default function PaymentModal({
                         </div>
                         <div className="text-xs text-red-500">
                           {item.isFlashSale === true
-                            ? "Artikel gehört zu FlashSale."
+                            ? "Item belongs to Flash Sale."
                             : null}
                         </div>
                       </div>
                       <div>
                         <span className="text-emerald-500">
                           {" "}
-                          €{item.price.toFixed(2)}
+                          Rs. {(item.price * 310).toFixed(0)}
                         </span>{" "}
                         x{" "}
                         <span className="text-emerald-500">
@@ -1138,41 +1132,40 @@ export default function PaymentModal({
                   ))}
 
                   <div className="flex justify-between items-center border-t pt-2">
-                    <span className="font-medium">Zwischensumme</span>
-                    <span className="font-medium"> €{subtotal.toFixed(2)}</span>
+                    <span className="font-medium">Subtotal</span>
+                    <span className="font-medium"> Rs. {(subtotal * 310).toFixed(0)}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Steuer ({taxRate}%)</span>
-                    <span className="font-medium"> €{tax.toFixed(2)}</span>
+                    <span className="font-medium">Tax ({taxRate}%)</span>
+                    <span className="font-medium"> Rs. {(tax * 310).toFixed(0)}</span>
                   </div>
                   {promoCodes && (
                     <div className="flex justify-between">
                       <span className="font-medium flex flex-col gap-1">
                         <div>PromoDiscount ({discount}%)</div>
                         <div className="bg-red-100 text-red-500 rounded-md w-full text-xs px-1 py-1">
-                          Aktionscodes sind nicht auf Flash-Produkte anwendbar.
+                          Promo codes are not applicable to Flash products.
                         </div>
                       </span>
                       <span className="font-medium">
                         {" "}
-                        €{((discount / 100) * allnoflashtotal).toFixed(2)}
+                        Rs. {((discount / 100) * allnoflashtotal * 310).toFixed(0)}
                       </span>
                     </div>
                   )}
                   <div className="space-y-2 border-t pt-2">
                     <span className="font-medium block mb-2">
-                      Lieferoptionen
+                      Delivery Options
                     </span>
 
                     {/* Free delivery message */}
                     {!isLoadingFreeDelivery && freeDeliveryThreshold > 0 && (
                       <div
-                        className={`p-3 rounded-lg mb-3 ${
-                          isEligibleForFreeDelivery
-                            ? "bg-green-50 border border-green-200"
-                            : "bg-blue-50 border border-blue-200"
-                        }`}
+                        className={`p-3 rounded-lg mb-3 ${isEligibleForFreeDelivery
+                          ? "bg-green-50 border border-green-200"
+                          : "bg-blue-50 border border-blue-200"
+                          }`}
                       >
                         {isEligibleForFreeDelivery ? (
                           <div className="text-green-700">
@@ -1189,26 +1182,26 @@ export default function PaymentModal({
                                 />
                               </svg>
                               <span className="font-medium">
-                                Kostenlose Lieferung qualifiziert!
+                                Qualified for Free Delivery!
                               </span>
                             </div>
                             <p className="text-sm mt-1">
-                              Nur Standard-Lieferung ist kostenlos ab{" "}
-                              {freeDeliveryDescription}€{freeDeliveryThreshold}
+                              Only Standard Delivery is free from{" "}
+                              {freeDeliveryDescription} Rs. {(freeDeliveryThreshold * 310).toFixed(0)}
                             </p>
                           </div>
                         ) : (
                           <div className="text-blue-700">
                             <p className="text-sm">
-                              Noch{" "}
+                              Add{" "}
                               <strong>
-                                €{(freeDeliveryThreshold - subtotal).toFixed(2)}
+                                Rs. {((freeDeliveryThreshold - subtotal) * 310).toFixed(0)}
                               </strong>{" "}
-                              für kostenlose Standard-Lieferung hinzufügen
+                              for free Standard Delivery
                             </p>
                             <p className="text-xs mt-1">
-                              Nur Standard-Lieferung ist kostenlos ab{" "}
-                              {freeDeliveryDescription}€{freeDeliveryThreshold}
+                              Only Standard Delivery is free from{" "}
+                              {freeDeliveryDescription} Rs. {(freeDeliveryThreshold * 310).toFixed(0)}
                             </p>
                           </div>
                         )}
@@ -1227,13 +1220,13 @@ export default function PaymentModal({
                             id="standard"
                             className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                           />
-                          <Label htmlFor="standard">Standard-Lieferung</Label>
+                          <Label htmlFor="standard">Standard Delivery</Label>
                         </div>
                         <span className="text-emerald-500">
                           {deliveryMethod === "standard" &&
-                          isEligibleForFreeDelivery
-                            ? "Kostenlos"
-                            : `€${deliveryPrice}`}
+                            isEligibleForFreeDelivery
+                            ? "Free"
+                            : `Rs. ${deliveryPrice * 310}`}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -1243,10 +1236,10 @@ export default function PaymentModal({
                             id="express"
                             className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                           />
-                          <Label htmlFor="express">Express-Lieferung</Label>
+                          <Label htmlFor="express">Express Delivery</Label>
                         </div>
                         <span className="text-emerald-500">
-                          €{expressPrice}
+                          Rs. {expressPrice * 310}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -1256,14 +1249,14 @@ export default function PaymentModal({
                             id="pickup"
                             className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                           />
-                          <Label htmlFor="pickup">Selbstabholung</Label>
+                          <Label htmlFor="pickup">Personal Pickup</Label>
                         </div>
-                        <span className="text-emerald-500">Kostenlos</span>
+                        <span className="text-emerald-500">Free</span>
                       </div>
                     </RadioGroup>
                   </div>
 
-                  <span className="font-medium mb-4">Zahlungsmethoden</span>
+                  <span className="font-medium mb-4">Payment Methods</span>
                   <div className="space-y-2">
                     <RadioGroup
                       value={paymentMethod}
@@ -1277,7 +1270,7 @@ export default function PaymentModal({
                             id="card"
                             className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                           />
-                          <Label htmlFor="card">Karte (Stripe)</Label>
+                          <Label htmlFor="card">Card (Stripe)</Label>
                         </div>
                         <div className="flex space-x-1">
                           <Image
@@ -1321,20 +1314,20 @@ export default function PaymentModal({
                           id="cash"
                           className="text-red-500 data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
                         />
-                        <Label htmlFor="cash">Nachnahme</Label>
+                        <Label htmlFor="cash">Cash on Delivery</Label>
                       </div> */}
                     </RadioGroup>
                   </div>
 
                   <div className="flex justify-between items-center border-t pt-2">
-                    <span className="font-bold">Gesamtbetrag</span>
-                    <span className="font-bold">€{totalPrice.toFixed(2)}</span>
+                    <span className="font-bold">Total Amount</span>
+                    <span className="font-bold">Rs. {(totalPrice * 310).toFixed(0)}</span>
                   </div>
 
                   {paymentMethod === "card" && !showStripeModal && (
                     <div className="flex flex-row justify-center mt-4">
                       <Button
-                        text="Zur sicheren Zahlung fortfahren"
+                        text="Proceed to secure payment"
                         onClick={proceedToStripePayment}
                       />
                     </div>
@@ -1343,7 +1336,7 @@ export default function PaymentModal({
                   {paymentMethod === "paypal" && !showPayPalModal && (
                     <div className="flex flex-row justify-center mt-4">
                       <Button
-                        text="Mit PayPal bezahlen"
+                        text="Pay with PayPal"
                         onClick={proceedToPayPalPayment}
                       />
                     </div>
@@ -1354,8 +1347,8 @@ export default function PaymentModal({
                       <Button
                         text={
                           isProcessing
-                            ? "Wird verarbeitet..."
-                            : "Kauf abschließen (Nachnahme)"
+                            ? "Processing..."
+                            : "Complete Purchase (COD)"
                         }
                         onClick={handleCashCheckout}
                         disabled={isProcessing}
@@ -1374,7 +1367,7 @@ export default function PaymentModal({
             <div className="bg-white p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">
-                  Kartendetails eingeben
+                  Enter card details
                 </h3>
                 <button
                   onClick={() => {
@@ -1413,7 +1406,7 @@ export default function PaymentModal({
                     height={24}
                     className="object-contain"
                   />
-                  PayPal-Zahlung
+                  PayPal Payment
                 </h3>
                 <button
                   onClick={() => setShowPayPalModal(false)}

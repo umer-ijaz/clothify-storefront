@@ -57,9 +57,9 @@ export default function AnnouncementPopup({
 
         {announcement.createdAt?.toDate && (
           <div className="text-xs text-gray-500 text-center pt-2 border-t">
-            Gepostet am:{" "}
+            Posted on:{" "}
             {new Date(announcement.createdAt.toDate()).toLocaleDateString(
-              "de-DE",
+              "en-GB",
               {
                 day: "2-digit",
                 month: "2-digit",

@@ -75,9 +75,9 @@ export default function About() {
       <div className="py-8 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-row gap-2 text-md md:text-xl font-small mb-0 capitalize">
         <HomeLink />
         <span className="text-gray-400">/</span>
-        <span className="text-red-500 heading">Über</span>
+        <span className="text-red-500 heading">About</span>
       </div>
-      <TextField text={"Über"} />
+      <TextField text={"About"} />
 
       {/* Our Story Section - Dynamic from Firebase */}
       <section className="py-16 md:py-24 px-2 sm:px-4 md:px-8 lg:px-12">
@@ -96,10 +96,10 @@ export default function About() {
                 {paragraph}
               </div>
             )) || (
-              <p className="text-gray-600 mb-6 mr-0 md:mr-5">
-                Welcome to our story section. Content will be loaded shortly.
-              </p>
-            )}
+                <p className="text-gray-600 mb-6 mr-0 md:mr-5">
+                  Welcome to our story section. Content will be loaded shortly.
+                </p>
+              )}
           </div>
           <div className="order-1 md:order-2 w-full">
             <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] w-full rounded-lg overflow-hidden">
@@ -256,7 +256,7 @@ export default function About() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {aboutData?.chooseUsReasons &&
-          aboutData.chooseUsReasons.length > 0 ? (
+            aboutData.chooseUsReasons.length > 0 ? (
             aboutData.chooseUsReasons.map((reason) => (
               <div
                 key={reason.id}
@@ -323,8 +323,8 @@ export default function About() {
       <section className="py-16 bg-gray-100">
         <div className="container mx-auto px-4">
           {aboutData?.teamMembers &&
-          aboutData.teamMembers.length > 0 &&
-          aboutData.teamMembers[0]?.name ? (
+            aboutData.teamMembers.length > 0 &&
+            aboutData.teamMembers[0]?.name ? (
             <>
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 heading">
@@ -397,7 +397,7 @@ export default function About() {
               <MapPin className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Unser Standort
+              Our Location
             </h3>
             <p className="text-gray-600 text-center">
               {aboutData?.contactInfo?.address?.line1 || "123 Commerce Street"}
@@ -413,7 +413,7 @@ export default function About() {
               <Clock className="w-6 h-6 text-orange-500" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Öffnungszeiten
+              Opening Hours
             </h3>
             <p className="text-gray-600 text-center">
               {aboutData?.contactInfo?.hours?.weekdays ||
@@ -431,7 +431,7 @@ export default function About() {
               <Users className="w-6 h-6 text-gray-700" />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Kundendienst
+              Customer Service
             </h3>
             <p className="text-gray-600 text-center">
               Email:{" "}

@@ -92,7 +92,7 @@ export default function CustomerReviews({ reviews }: ReviewsProps) {
 
   return (
     <div className="relative py-16 pt-0">
-      <TextBox text="Kundenbewertungen" />
+      <TextBox text="Customer Reviews" />
       {/* Background Image */}
       <div className="absolute inset-0 -z-50">
         <Image

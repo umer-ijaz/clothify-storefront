@@ -63,28 +63,28 @@ export default function DeliveryOptions() {
   // Transform fetched data into displayable options, filtering disabled ones
   const displayOptions: DisplayOption[] = deliveryData
     ? Object.entries(deliveryData)
-        .filter(([key, value]) => value?.enabled && optionDetailsMap[key]) // Only include enabled and mapped options
-        .map(([key, value]) => {
-          const details = optionDetailsMap[key];
-          let description = "";
-          // Use specific fields if available, otherwise fallback to description
-          if (key === "standardDelivery" && value?.guarantee) {
-            description = value.guarantee;
-          } else if (key === "warranty" && value?.period) {
-            description = value.period;
-          } else if (key === "freeDelivery" && value?.threshold) {
-            description = `${value.description || ""} ${value.threshold}`; // Combine description and threshold
-          } else {
-            description = value?.description || "Details not available";
-          }
+      .filter(([key, value]) => value?.enabled && optionDetailsMap[key]) // Only include enabled and mapped options
+      .map(([key, value]) => {
+        const details = optionDetailsMap[key];
+        let description = "";
+        // Use specific fields if available, otherwise fallback to description
+        if (key === "standardDelivery" && value?.guarantee) {
+          description = value.guarantee;
+        } else if (key === "warranty" && value?.period) {
+          description = value.period;
+        } else if (key === "freeDelivery" && value?.threshold) {
+          description = `${value.description || ""} ${value.threshold}`; // Combine description and threshold
+        } else {
+          description = value?.description || "Details not available";
+        }
 
-          return {
-            id: key,
-            title: details.title,
-            icon: details.icon,
-            description: description,
-          };
-        })
+        return {
+          id: key,
+          title: details.title,
+          icon: details.icon,
+          description: description,
+        };
+      })
     : [];
 
   if (isLoading) {
@@ -114,14 +114,14 @@ export default function DeliveryOptions() {
                   {option.icon}
                   <span className="font-medium">
                     {option.title == "Standard Delivery"
-                      ? "Standard Lieferung"
+                      ? "Standard Delivery"
                       : option.title == "Free Delivery"
-                      ? "Kostenlose Lieferung"
-                      : option.title == "Personal Pickup"
-                      ? "Persönliche Abholung"
-                      : option.title == "Warranty"
-                      ? "Garantie"
-                      : option.title}
+                        ? "Free Delivery"
+                        : option.title == "Personal Pickup"
+                          ? "Personal Pickup"
+                          : option.title == "Warranty"
+                            ? "Warranty"
+                            : option.title}
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 ml-7">
@@ -131,7 +131,7 @@ export default function DeliveryOptions() {
             ))
           ) : (
             <p className="text-sm text-gray-500">
-              Keine Lieferoptionen verfügbar.
+              No delivery options available.
             </p>
           )}
         </div>
@@ -142,7 +142,7 @@ export default function DeliveryOptions() {
 
       {/* Seller Ratings */}
       <div className="p-5">
-        <h4 className="font-medium mb-4 text-gray-800">Verkäuferbewertungen</h4>
+        <h4 className="font-medium mb-4 text-gray-800">Seller Ratings</h4>
         <div className="flex gap-6 justify-center">
           {/* Keep RatingCircle static for now, or fetch if needed */}
           <RatingCircle percentage={89} label="Shipping on time" />

@@ -96,7 +96,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           <div className="absolute top-0 right-0 w-full h-auto">
             {/* Sale Ribbon */}
             <div className="absolute right-[-30px] top-4 bg-green-600 text-white text-xs font-medium md:font-bold py-1 px-8 transform rotate-45 shadow-md">
-              ANGEBOT
+              OFFER
             </div>
           </div>
         )}
@@ -104,12 +104,12 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
         {/* Stock indicator */}
         {props.stock <= 5 && props.stock > 0 && (
           <div className="body absolute bottom-2 left-2 bg-amber-100 text-amber-900 text-xs md:text-sm px-2 py-1 rounded-full">
-            Nur noch {props.stock} verfügbar
+            Only {props.stock} available
           </div>
         )}
         {props.stock === 0 && (
           <div className="body absolute bottom-2 left-2 bg-red-100 text-red-900 text-xs md:text-sm px-2 py-1 rounded-full">
-            Nicht auf Lager
+            Out of Stock
           </div>
         )}
       </div>
@@ -118,21 +118,21 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
         <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground mb-1 subheading">
             {(category != null && category.toLowerCase() == "men") ||
-            category?.toLowerCase() == "herren"
-              ? "Herren"
+              category?.toLowerCase() == "herren"
+              ? "Men"
               : (category != null && category.toLowerCase() == "women") ||
                 category?.toLowerCase() == "damen"
-              ? "Damen"
-              : props.category.charAt(0).toUpperCase() +
+                ? "Women"
+                : props.category.charAt(0).toUpperCase() +
                   props.category.slice(1).toLowerCase() ==
-                "Men"
-              ? "Herren"
-              : props.category.charAt(0).toUpperCase() +
-                  props.category.slice(1).toLowerCase() ==
-                "Women"
-              ? "Damen"
-              : props.category.charAt(0).toUpperCase() +
-                props.category.slice(1).toLowerCase()}
+                  "Men"
+                  ? "Men"
+                  : props.category.charAt(0).toUpperCase() +
+                    props.category.slice(1).toLowerCase() ==
+                    "Women"
+                    ? "Women"
+                    : props.category.charAt(0).toUpperCase() +
+                    props.category.slice(1).toLowerCase()}
           </div>
           <div className="flex flex-col gap-4 z-0">
             <ProductQuickViewButton product={props} iconOnly />
@@ -146,11 +146,10 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`h-4 w-4 ${
-                  i < Math.floor(props.rating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-gray-200 text-gray-200"
-                }`}
+                className={`h-4 w-4 ${i < Math.floor(props.rating)
+                  ? "fill-amber-400 text-amber-400"
+                  : "fill-gray-200 text-gray-200"
+                  }`}
               />
             ))}
           </div>
@@ -162,15 +161,15 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
           {props.originalPrice && props.originalPrice > props.currentPrice ? (
             <>
               <span className="font-semibold text-green-500 heading">
-                €{props.currentPrice.toFixed(2)}
+                Rs.{(props.currentPrice * 310).toFixed(0)}
               </span>
               <span className="text-muted-foreground text-sm line-through text-red-500">
-                €{props.originalPrice.toFixed(2)}
+                Rs.{(props.originalPrice * 310).toFixed(0)}
               </span>
             </>
           ) : (
             <span className="font-semibold text-green-500 heading">
-              €{props.currentPrice.toFixed(2)}
+              Rs.{(props.currentPrice * 310).toFixed(0)}
             </span>
           )}
         </div>
@@ -189,7 +188,7 @@ export default function ItemCard(props: ProductCardEnhancedProps) {
             aria-label={`${props.name}`}
           >
             <ShoppingBag className="h-4 w-4 text-sm md:text-md" />
-            Jetzt kaufen
+            Buy Now
           </Link>
         </div>
       </div>
